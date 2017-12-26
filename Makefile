@@ -88,6 +88,7 @@ LIB_OBJS=\
 	temap \
 	tkinfo vec2mat \
 	wgen \
+	window \
 	zcleanrow zcmprow zgap zpermrow \
 	zzz2 \
 	version

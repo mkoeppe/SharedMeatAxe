@@ -112,10 +112,10 @@ Matrix_t *HomogeneousPart(MatRep_t *m, MatRep_t *s, Matrix_t *npw,
 	{
 	    PTR matptr = MatGetPtr(A,j);
 	    int u;
-	    a = MatDup(V[j]);
-	    b = MatDup(s->Gen[i]);
-	    MatMul(a,m->Gen[i]);		/* the equations that describe  */
-	    MatMul(b,V[j]);			/* that a vector in the null-   */
+	    a = MatAlloc(V[j]->Field, V[j]->Nor, m->Gen[i]->Noc);
+	    b = MatAlloc(s->Gen[i]->Field, s->Gen[i]->Nor, V[j]->Noc);
+	    MatMulStrassen(a, V[j], m->Gen[i]);		/* the equations that describe  */
+	    MatMulStrassen(b,s->Gen[i], V[j]);			/* that a vector in the null-   */
 	    MatMulScalar(b,FfNeg(FF_ONE));	/* space is the first element   */
 	    MatAdd(a, b);			/* of a standard basis of a     */ 
 					/* module isomorphic to S       */

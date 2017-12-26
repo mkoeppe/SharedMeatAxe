@@ -107,6 +107,9 @@ extern int FfChar;		/**< Current characteristic */
 extern FEL FfGen;		/**< Generator */
 extern int FfNoc;		/**< Number of columns for row ops */
 extern size_t FfCurrentRowSize;
+extern int FfCurrentRowSizeIo;
+extern int MPB;         /** No. of marks per byte */
+extern int LPR;         /** Long ints per row */
 
 
 /* Arithmetic */
@@ -125,6 +128,9 @@ int FfSetNoc(int noc);
 void FfAddMulRow(PTR dest, PTR src, FEL f);
 PTR FfAddRow(PTR dest, PTR src);
 PTR FfAddRowPartial(PTR dest, PTR src, int first, int len);
+PTR FfSubRow(PTR dest, PTR src);
+PTR FfSubRowPartial(PTR dest, PTR src, int first, int len);
+PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len);
 PTR FfAlloc(int nor);
 int FfCmpRows(PTR p1, PTR p2);
 void FfCleanRow(PTR row, PTR matrix, int nor, const int *piv);
@@ -519,6 +525,8 @@ int MatIsValid(const Matrix_t *m);
 Matrix_t *MatLoad(const char *fn);
 Matrix_t *MatMul(Matrix_t *dest, const Matrix_t *src);
 Matrix_t *MatMulScalar(Matrix_t *dest, FEL coeff);
+Matrix_t *MatMulStrassen(Matrix_t *dest, const Matrix_t *A, const Matrix_t *B);
+void StrassenSetCutoff(size_t size);
 long MatNullity(const Matrix_t *mat);
 long MatNullity__(Matrix_t *mat);
 Matrix_t *MatNullSpace(const Matrix_t *mat);
@@ -1088,11 +1096,7 @@ int LdFree(LdLattice_t *l);
 int LdAddIncidence(LdLattice_t *lat, int sub, int sup);
 int LdSetPositions(LdLattice_t *l);
 
-
-
-
-/* OLD STUFF */
-int ChangeBasisOLD(const Matrix_t *M, int ngen, const Matrix_t *gen[],
+int ChangeBasis(const Matrix_t *M, int ngen, const Matrix_t *gen[],
 	Matrix_t *newgen[]);
 
 

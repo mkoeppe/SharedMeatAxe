@@ -105,8 +105,8 @@ int main(int argc, const char *argv[])
         {
 	    Matrix_t *newmat;
             oldnul = newnul;
-            newmat = MatDup(old);
-            MatMul(newmat,old);
+            newmat = MatAlloc(old->Field, old->Nor, old->Noc);
+            MatMulStrassen(newmat, old, old);
             MatFree(old);
             MatFree(nulsp);
             old = MatDup(newmat);

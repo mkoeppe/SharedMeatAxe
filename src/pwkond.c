@@ -309,8 +309,8 @@ static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
     char fn[LAT_MAXBASENAME+10];
     Matrix_t *x1, *x2;
 
-    x1 = MatDup(k);
-    MatMul(x1,w);
+    x1 = MatAlloc(k->Field, k->Nor, w->Noc);
+    MatMulStrassen(x1, k, w);
     x2 = QProjection(b,x1);
     sprintf(fn,"%s%s.%s",li->BaseName,Lat_CfName(li,i),name);
     MatSave(x2,fn);
@@ -340,7 +340,7 @@ static void Standardize(int cf)
     MESSAGE(0,("  Transforming to standard basis\n"));
     sb = SpinUp(CfList[cf].PWNullSpace,CfList[cf].Gen,
 	SF_FIRST|SF_CYCLIC|SF_STD,&script,NULL);
-    ChangeBasisOLD(sb,CfList[cf].Gen->NGen,
+    ChangeBasis(sb,CfList[cf].Gen->NGen,
 	(const Matrix_t **)CfList[cf].Gen->Gen,std);
     MatFree(sb);
 
@@ -782,7 +782,7 @@ static int try2(long w, FEL f)
 	    	MESSAGE(3,("failed\n"));
 		return -1;  /* Nullity should be 0 */
 	    }
-	    nul = MatNullity__(MatMul(MatDup(word),word));
+	    nul = MatNullity__(MatMulStrassen(MatAlloc(word->Field, word->Nor, word->Noc), word, word));
 	    if (nul != CfList[i].Info->spl)
 	    {
 		MatFree(word);
@@ -915,7 +915,7 @@ static int try_p(long w)
 	       /* Check if the nullity is stable
 	          ------------------------------ */
 	       wp = MatInsert(word,mp->Factor[k]);
-	       wp2 = MatMul(MatDup(wp),wp);
+	       wp2 = MatMulStrassen(MatAlloc(wp->Field, wp->Nor, wp->Noc), wp, wp);
 	       MatFree(wp);
 	       nul = MatNullity__(wp2);
 	       if (nul != CfList[i].Info->spl) 

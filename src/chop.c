@@ -538,7 +538,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
        ------------------------------------------------------------ */
     sb1 = SpinUp(nsp,rep,SF_FIRST|SF_CYCLIC|SF_STD,NULL,NULL);
     MTX_VERIFY(sb1 != NULL && sb1->Nor == sb1->Noc);
-    ChangeBasisOLD(sb1,LI.NGen,(const Matrix_t **)rep->Gen,g1);
+    ChangeBasis(sb1,LI.NGen,(const Matrix_t **)rep->Gen,g1);
     endo = MrAlloc(0,NULL,0);
 
     sb2 = NULL;	/* Mark as unused */
@@ -576,7 +576,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 	sb2 = SpinUp(v2,rep,SF_FIRST|SF_CYCLIC|SF_STD,NULL,NULL);
 	MTX_VERIFY(sb2 != NULL && sb2->Nor == sb2->Noc);
 	MatFree(v2);
-	ChangeBasisOLD(sb2,rep->NGen,(const Matrix_t **)rep->Gen,g2);
+	ChangeBasis(sb2,rep->NGen,(const Matrix_t **)rep->Gen,g2);
 
 	/* Compare the two representations. If they are different,
 	   we know that the splitting field degree must be smaller
@@ -762,7 +762,7 @@ static void newirred(node_t *n)
     LI.Cf[i].spl = n->spl = n->nsp->Nor;
     b = SpinUp(n->nsp,n->Rep,SF_FIRST|SF_CYCLIC|SF_STD,NULL,NULL);
     MTX_VERIFY(b != NULL && b->Nor == b->Noc);
-    ChangeBasisOLD(b,LI.NGen,(const Matrix_t **)n->Rep->Gen,n->Rep->Gen);
+    ChangeBasis(b,LI.NGen,(const Matrix_t **)n->Rep->Gen,n->Rep->Gen);
     MatFree(b);
 
     /* Write out the generators

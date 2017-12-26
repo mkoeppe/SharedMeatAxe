@@ -391,8 +391,8 @@ static void MakePQ(int n, int mj, int nj)
 	for (k = 0; k < spl; ++k)
 	{
 	    FEL f;
-	    Matrix_t *x = MatDup(endo[i]);  
-	    MatMul(x,endo[k]);
+	    Matrix_t *x = MatAlloc(endo[i]->Field, endo[i]->Nor, endo[k]->Noc);
+	    MatMulStrassen(x,endo[i],endo[k]);
 	    f = MatTrace(x);
 	    FfInsert(pptr,k,f);
 	    MatFree(x);

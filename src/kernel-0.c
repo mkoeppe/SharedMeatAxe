@@ -24,8 +24,8 @@
 MTX_DEFINE_FILE_INFO
 
 typedef unsigned char BYTE;
-static int MPB = 0;		/* No. of marks per byte */
-static int LPR = 0;		/* Long ints per row */
+int MPB = 0;		/* No. of marks per byte */
+int LPR = 0;		/* Long ints per row */
 
 
 
@@ -572,7 +572,7 @@ PTR FfAddRow(PTR dest, PTR src)
     register int i;
 
     if (FfChar == 2)	/* characteristic 2 is simple... */
-    {	
+    {
 #ifdef ASM_MMX
     /* This assumes Intel with 4 bytes per long, but MMX implies Intel anyway.*/
 	__asm__(
@@ -646,7 +646,7 @@ PTR FfAddRow(PTR dest, PTR src)
 
 
 /**
- ** Add a part two rows.
+ ** Add a part of two rows.
  ** This works like FfAddRow(), but the operation is performed only on a given range of
  ** columns. Note that the working range is not specified as column indexes but in units of
  ** long integers!
@@ -707,7 +707,217 @@ PTR FfAddRowPartial(PTR dest, PTR src, int first, int len)
     return dest;
 }
 
+/**
+ ** Subtract two rows.
+ ** This function subtracts src from dest. Field order and row size must have been set before.
+ ** @param dest The row to subtract from.
+ ** @param src The row to subtract.
+ ** @return Always returns dest.
+ **/
 
+PTR FfSubRow(PTR dest, PTR src)
+{
+    register int i;
+
+    if (FfChar == 2)	/* characteristic 2 is simple... */
+    {	
+#ifdef ASM_MMX
+    /* This assumes Intel with 4 bytes per long, but MMX implies Intel anyway.*/
+	__asm__(
+	"    pushl %ebx\n"
+	"    pushl %ecx\n"
+	"    pushl %edx\n"
+
+	"    movl 8(%ebp),%ecx\n"
+        "    movl 12(%ebp),%ebx\n"
+        "    movl LPR,%edx\n"
+        "    sarl $1,%edx\n"
+        "    je .SUBROW2\n"
+        "    .align 16\n"
+	".SUBROW1:\n"
+        "    movq (%ebx),%mm0\n"
+        "    addl $8,%ebx\n"
+        "    pxor (%ecx),%mm0\n"
+        "    movq %mm0,(%ecx)\n"
+        "    addl $8,%ecx\n"
+        "    decl %edx\n"
+        "    jne .SUBROW1\n"
+	".SUBROW2:\n"
+	"    popl %edx\n"
+	"    popl %ecx\n"
+	"    popl %ebx\n"
+	);
+#else
+	register long *l1 = (long *) dest;
+	register long *l2 = (long *) src;
+	for (i = LPR; i != 0; --i)
+	{
+	    register long x = *l2++;
+	    if (x != 0) *l1 ^= x;
+	    l1++;
+	}
+#endif
+    }
+    else		/* any other characteristic */
+    {
+        FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
+#ifdef ASM_MMX
+        register BYTE *p1 = dest;
+        register unsigned long *p2 = (unsigned long *) src;
+        for (i = LPR; i != 0; --i)
+        {
+            register unsigned long a;
+            if ((a = *p2++) != 0) {
+                *p1++ = mtx_tadd[*p1][table_inv[a & 0xffL]];
+                a >>= 8;
+                *p1++ = mtx_tadd[*p1][table_inv[a & 0xffL]];
+                a >>= 8;
+                *p1++ = mtx_tadd[*p1][table_inv[a & 0xffL]];
+                a >>= 8;
+                *p1++ = mtx_tadd[*p1][table_inv[a & 0xffL]];
+            } else
+              p1 += 4;
+        }
+#else
+        register FEL *p1 = dest;
+        register FEL *p2 = src;
+        for (i = FfTrueRowSize(FfNoc); i != 0; --i)
+        {
+            register int x = *p2++;
+            if (x != 0) *p1 = mtx_tadd[*p1][table_inv[x]];
+            p1++;
+        }
+#endif
+    }
+    return dest;
+}
+
+
+/**
+ ** Subtract a part of two rows.
+ ** This works like FfSubRow(), but the operation is performed only on a given range of
+ ** columns. Note that the working range is not specified as column indexes but in units of
+ ** long integers!
+ ** @param dest The row to subtract from.
+ ** @param src The row to subtract.
+ ** @param first Number of long integers to skip.
+ ** @param len Number of long integers to add.
+ ** @return Always returns dest.
+ **/
+
+PTR FfSubRowPartial(PTR dest, PTR src, int first, int len)
+{
+    register long i;
+
+    if (FfChar == 2)	/* characteristic 2 is simple... */
+#ifdef ASM_MMX
+	__asm__("\n	movl 8(%ebp),%ecx\n"
+		"	movl 12(%ebp),%ebx\n"
+		"	movl 16(%ebp),%edx\n"
+		"       sall $2,%edx\n"
+		"       addl %edx,%ecx\n"
+		"       addl %edx,%ebx\n"
+		"       movl 20(%ebp),%edx\n"
+		"	sarl $1,%edx\n"
+		"	je .SUBROWPART_1\n"
+		"	.align 16\n"
+		".SUBROWPART_2:\n"
+		"	movq (%ebx),%mm0\n"
+		"	addl $8,%ebx\n"
+		"	pxor (%ecx),%mm0\n"
+		"	movq %mm0,(%ecx)\n"
+		"	addl $8,%ecx\n"
+		"	decl %edx\n"
+		"	jne .SUBROWPART_2\n"
+		".SUBROWPART_1:\n"
+	       );
+#else
+    {	register long *l1 = (long *) dest + first;
+	register long *l2 = (long *) src + first;
+	for (i = len; i != 0; --i)
+	{
+	    register long x = *l2++;
+	    *l1 ^= x;
+	    l1++;
+	}
+    }
+#endif
+    else		/* any other characteristic */
+    {   FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
+        register BYTE *p1 = dest + first * sizeof(long);
+        register BYTE *p2 = src + first * sizeof(long);
+        for (i = len*sizeof(long); i != 0; --i)
+        {
+            register int x = *p2++;
+            *p1 = mtx_tadd[*p1][table_inv[x]];
+            p1++;
+        }
+    }
+    return dest;
+}
+
+
+/**
+ ** Subtract a part of two rows.
+ ** The difference to FfSubRowPartial is that dest is replaced
+ ** by src-dest, not by dest-src.
+ ** @param dest The row to subtract.
+ ** @param src The row to subtract from.
+ ** @param first Number of long integers to skip.
+ ** @param len Number of long integers to add.
+ ** @return Always returns dest.
+ **/
+
+PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len)
+{
+    register long i;
+
+    if (FfChar == 2)	/* characteristic 2 is simple... */
+#ifdef ASM_MMX
+	__asm__("\n	movl 8(%ebp),%ecx\n"
+		"	movl 12(%ebp),%ebx\n"
+		"	movl 16(%ebp),%edx\n"
+		"       sall $2,%edx\n"
+		"       addl %edx,%ecx\n"
+		"       addl %edx,%ebx\n"
+		"       movl 20(%ebp),%edx\n"
+		"	sarl $1,%edx\n"
+		"	je .SUBROWPART_1\n"
+		"	.align 16\n"
+		".SUBROWPART_2:\n"
+		"	movq (%ebx),%mm0\n"
+		"	addl $8,%ebx\n"
+		"	pxor (%ecx),%mm0\n"
+		"	movq %mm0,(%ecx)\n"
+		"	addl $8,%ecx\n"
+		"	decl %edx\n"
+		"	jne .SUBROWPART_2\n"
+		".SUBROWPART_1:\n"
+	       );
+#else
+    {	register long *l1 = (long *) dest + first;
+	register long *l2 = (long *) src + first;
+	for (i = len; i != 0; --i)
+	{
+	    register long x = *l2++;
+	    *l1 ^= x;
+	    l1++;
+	}
+    }
+#endif
+    else		/* any other characteristic */
+    {   FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
+        register BYTE *p1 = dest + first * sizeof(long);
+        register BYTE *p2 = src + first * sizeof(long);
+        for (i = len*sizeof(long); i != 0; --i)
+        {
+            register int x = *p2++;
+            *p1 = mtx_tadd[table_inv[*p1]][x];
+            p1++;
+        }
+    }
+    return dest;
+}
 
 
 /**

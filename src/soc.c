@@ -294,8 +294,8 @@ static int NextLayer()
 	Matrix_t *mat, *stgen;
 
 	mat = MatCutRows(basis,basis->Nor - Dimension,Dimension);
-	stgen = MatDup(bas);
-	MatMul(stgen, mat);
+	stgen = MatAlloc(bas->Field, bas->Nor, mat->Noc);
+	MatMulStrassen(stgen, bas, mat);
 	MatCopyRegion(basis,basis->Nor - Dimension,0,stgen,0,0,Dimension,-1);
 	MatFree(mat);
 	MatFree(stgen);

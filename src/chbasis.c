@@ -9,6 +9,8 @@
 
 
 #include "meataxe.h"
+#include <stdlib.h>
+#include <string.h>
 
 MTX_DEFINE_FILE_INFO
 
@@ -36,19 +38,11 @@ MTX_DEFINE_FILE_INFO
 int MrChangeBasis(MatRep_t *rep, const Matrix_t *trans)
 
 {
-    Matrix_t *bi;
-    int i;
-
     /* Check arguments
        --------------- */
     if (!MrIsValid(rep))
     {
 	MTX_ERROR1("rep: %E",MTX_ERR_BADARG);
-	return -1;
-    }
-    if (!MatIsValid(trans))
-    {
-	MTX_ERROR1("trans: %E",MTX_ERR_BADARG);
 	return -1;
     }
     if (rep->NGen <= 0)
@@ -60,54 +54,50 @@ int MrChangeBasis(MatRep_t *rep, const Matrix_t *trans)
 	MTX_ERROR1("%E",MTX_ERR_INCOMPAT);
 	return -1;
     }
+    return ChangeBasis(trans, rep->NGen, (const Matrix_t **)(rep->Gen), rep->Gen);
+}
 
 
-    /* Basis transformation
-       -------------------- */
-    if ((bi = MatInverse(trans)) == NULL) 
+/** Conjugate a list @em gen of @em ngen square matrices over the same
+ *  field and of the same dimensions by a mattrix @em trans
+ *  and write the result into @em newgen. If @em gen == @em newgen, then
+ *  the previous content of @em newgen will be overridden. **/
+int ChangeBasis(const Matrix_t *trans, int ngen, const Matrix_t *gen[],
+	Matrix_t *newgen[])
+
+{
+    Matrix_t *bi;
+    int i;
+
+    MTX_VERIFY(ngen >= 0);
+    if (!MatIsValid(trans))
+    {
+	MTX_ERROR1("trans: %E",MTX_ERR_BADARG);
+	return -1;
+    }
+
+    if ((bi = MatInverse(trans)) == NULL)
     {
 	MTX_ERROR("Basis transformation is singular");
 	return -1;
     }
-    for (i = 0; i < rep->NGen; ++i)
-    {
-	Matrix_t *tmp = MatDup(trans);
-	MatMul(tmp,rep->Gen[i]);
-	MatMul(tmp,bi);
-        MatFree(rep->Gen[i]);
-	rep->Gen[i] = tmp;
-    }
-    MatFree(bi);
-    return 0;
-}
 
-
-
-int ChangeBasisOLD(const Matrix_t *M, int ngen, const Matrix_t *gen[],
-	Matrix_t *newgen[])
-
-{
-    Matrix_t *bi, *tmp;
-    int i;
-
-    MTX_VERIFY(ngen >= 0);
-    if (!MatIsValid(M))
-	return -1;
-    if ((bi = MatInverse(M)) == NULL) 
-    {
-	MTX_ERROR("Matrix is singular");
-	return -1;
-    }
+    Matrix_t *tmp = MatAlloc(trans->Field, trans->Nor, trans->Noc);
+    size_t tmpsize = FfCurrentRowSize*trans->Nor;
     for (i = 0; i < ngen; ++i)
     {
-	tmp = MatDup(M);
-	MatMul(tmp,gen[i]);
-	MatMul(tmp,bi);
-	if ((const Matrix_t **)newgen == gen)
-	    MatFree(newgen[i]);
-	newgen[i] = tmp;
+        MTX_VERIFY(gen[i]->Nor==trans->Nor);
+        MTX_VERIFY(gen[i]->Noc==trans->Noc);
+        memset(tmp->Data, FF_ZERO, tmpsize);
+        MatMulStrassen(tmp, trans, gen[i]);
+        if ((const Matrix_t **)newgen == gen)
+            memset(newgen[i]->Data, FF_ZERO, tmpsize);
+        else
+            newgen[i] = MatAlloc(trans->Field, trans->Nor, trans->Noc);
+        MatMulStrassen(newgen[i], tmp, bi);
     }
     MatFree(bi);
+    MatFree(tmp);
     return 0;
 }
 

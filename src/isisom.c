@@ -9,7 +9,7 @@
 
 
 #include "meataxe.h"
-
+#include <string.h>
 
 MTX_DEFINE_FILE_INFO
 
@@ -114,7 +114,7 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
 {
     int j;
     WgData_t *wg;
-    Matrix_t  *word, *m, *seed, *b, *bi;
+    Matrix_t  *word, *m, *seed, *b, *g1, *g2;
     int result;
 
     if (CheckArgs(rep1->NGen,rep1->Gen,info1,rep2->Gen,use_pw) != 0)
@@ -148,27 +148,35 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
 	MatFree(b);
 	return 0;
     }
-    bi = MatInverse(b);
 
     /* Compare generators
        ------------------ */
+    /**
+     * We test whether b*rep2_j*b^-1 == rep1_j
+     * by testing whether b*rep2_j == rep1_j*b
+     * */
+    g1 = MatAlloc(b->Field, b->Nor, b->Noc);
+    g2 = MatAlloc(b->Field, b->Nor, b->Noc);
+    size_t memsize = FfCurrentRowSize*b->Nor;
     for (j = 0, result = 0; result == 0 && j < rep2->NGen; ++j)
     {
-	Matrix_t *g = MatDup(b);
-	MatMul(g,rep2->Gen[j]);
-	MatMul(g,bi);
-	if (MatCompare(g,rep1->Gen[j]) != 0)
-	    result = 1;
-	MatFree(g);
+	MatMulStrassen(g2, b, rep2->Gen[j]);
+	MatMulStrassen(g1, rep1->Gen[j], b);
+	if (MatCompare(g1, g2) != 0)
+	    {   result = 1;
+            break;
+        }
+	memset(g1->Data, FF_ZERO, memsize);
+    memset(g2->Data, FF_ZERO, memsize);
     }
 
     /* Clean up 
        -------- */
     if (trans != NULL && result == 0)
-	*trans = b;
+        *trans = b;
     else
-	MatFree(b);
-    MatFree(bi);
-
+        MatFree(b);
+    MatFree(g1);
+    MatFree(g2);
     return (result == 0);
 }

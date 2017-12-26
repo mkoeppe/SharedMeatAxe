@@ -213,8 +213,8 @@ static int MakeTree()
 	{
 	    /* Calculate next element
 	       ---------------------- */
-	    Matrix_t *newelem = MatDup(Elms[src].Matrix);
-	    MatMul(newelem,Rep->Gen[g]);
+	    Matrix_t *newelem = MatAlloc(Elms[src].Matrix->Field, Elms[src].Matrix->Nor, Rep->Gen[g]->Noc);
+	    MatMulStrassen(newelem, Elms[src].Matrix, Rep->Gen[g]);
 
 	    /* If it is new, add to tree, else discard
 	       --------------------------------------- */
