@@ -13,15 +13,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define MTX_VERSION "2.4"
-
 #if defined GCC
 #define MTX_PRINTF_ATTRIBUTE(f,v) __attribute__((format(printf,f,v)))
 #else
-#define MTX_PRINTF_ATTRIBUTE(f,v) 
+#define MTX_PRINTF_ATTRIBUTE(f,v)
 #endif
-
-extern char *MtxVersion;	/**< The MeatAxe version. */
 
 /** @addtogroup os
   * @{
@@ -244,7 +240,7 @@ void StrAppendF(String *s, const char *fmt, ...);
 MTX_PRINTF_ATTRIBUTE(2,3)
 void StrPrintF(String *s, const char *fmt, ...);
 
-/** 
+/**
  ** @}
  **/
 
@@ -314,9 +310,9 @@ MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char 
 int AppFree(MtxApplication_t *a);
 int AppGetOption(MtxApplication_t *app, const char *spec);
 int AppGetCountedOption(MtxApplication_t *app, const char *spec);
-const char *AppGetTextOption(MtxApplication_t *app, const char *spec, 
+const char *AppGetTextOption(MtxApplication_t *app, const char *spec,
     const char *dflt);
-int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt, 
+int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt,
     int min, int max);
 int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc);
 const char *AppCreateTempDir(MtxApplication_t *app);
@@ -359,7 +355,7 @@ typedef struct { const char *Name; const char *BaseName; } MtxFileInfo_t;
 /**
  ** Run-time error information.
  **/
-typedef struct { const MtxFileInfo_t *FileInfo; int LineNo; const char *Text; } 
+typedef struct { const MtxFileInfo_t *FileInfo; int LineNo; const char *Text; }
     MtxErrorRecord_t;
 
 typedef void MtxErrorHandler_t(const MtxErrorRecord_t *);
@@ -400,7 +396,7 @@ MtxErrorHandler_t *MtxSetErrorHandler(MtxErrorHandler_t *h);
 
 
 /* ------------------------------------------------------------------
-   Messages 
+   Messages
    ------------------------------------------------------------------ */
 
 int MtxFormatMessage(char *buf, int bufsize, const char *msg, va_list al);
@@ -512,7 +508,7 @@ Matrix_t *MatAddMul(Matrix_t *dest, const Matrix_t *src, FEL coeff);
 Matrix_t *MatAlloc(int field, int nor, int noc);
 int MatClean(Matrix_t *mat, const Matrix_t *sub);
 int MatCompare(const Matrix_t *a, const Matrix_t *b);
-int MatCopyRegion(Matrix_t *dest, int destrow, int destcol, 
+int MatCopyRegion(Matrix_t *dest, int destrow, int destcol,
     const Matrix_t *src, int row1, int col1, int nrows, int ncols);
 Matrix_t *MatCut(const Matrix_t *src, int row1, int col1, int nrows, int ncols);
 Matrix_t *MatCutRows(const Matrix_t *src, int row1, int nrows);
@@ -662,7 +658,7 @@ int PolWrite(const Poly_t *p, FILE *f);
    Factored polynomials
    ------------------------------------------------------------------ */
 
-typedef struct 
+typedef struct
 {
     unsigned long Magic;/**< Used internally. */
     int NFactors;	/**< Number of different irreducible factors. */
@@ -843,7 +839,7 @@ MatRep_t *MrTransposed(const MatRep_t *rep);
    The word generator
    ------------------------------------------------------------------ */
 
-typedef struct 
+typedef struct
 {
     const MatRep_t *Rep;	/**< The representation. **/
     Matrix_t *Basis[8];		/**< Products of the generators **/
@@ -891,14 +887,14 @@ typedef struct
 int SpinUpInfoInit(SpinUpInfo_t *info);
 Matrix_t *SpinUp(const Matrix_t *seed, const MatRep_t *rep, int flags,
     IntMatrix_t **script, SpinUpInfo_t *info);
-Matrix_t *SpinUpWithScript(const Matrix_t *seed, const MatRep_t *rep, 
+Matrix_t *SpinUpWithScript(const Matrix_t *seed, const MatRep_t *rep,
     const IntMatrix_t *script);
-int Split(Matrix_t *subspace, const MatRep_t *rep, 
+int Split(Matrix_t *subspace, const MatRep_t *rep,
 	  MatRep_t **sub, MatRep_t **quot);
 
 int ConvertSpinUpScript(IntMatrix_t *script);
 
-Matrix_t *SpinUpWithPermutations(const Matrix_t *seed, int ngen, 
+Matrix_t *SpinUpWithPermutations(const Matrix_t *seed, int ngen,
     const Perm_t **gen, int flags, IntMatrix_t **script, SpinUpInfo_t *info);
 
 
@@ -954,7 +950,7 @@ FPoly_t *MinPol(Matrix_t *mat);
 /**
  ** @addtogroup cfinfo
  ** @{
- **/ 
+ **/
 
 #define MAXGEN 20	/* Max. number of generators */
 #define LAT_MAXCF 200	/* Max. number of composition factors */
@@ -1004,7 +1000,7 @@ MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags);
 
 /**
  ** @}
- **/ 
+ **/
 
 
 /* ------------------------------------------------------------------
@@ -1017,7 +1013,7 @@ MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags);
  ** The %TkData_t structure is used by the tensor condensation algorithm to store
  ** state information. By use of TK_ReadInfo() and TK_WriteInfo() a program can read
  ** the information from a file, and write back the data to a file if it was modified.
- **/ 
+ **/
 
 typedef struct
 {
@@ -1057,7 +1053,7 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
     const MatRep_t *rep2, Matrix_t  **trans, int use_pw);
 int MakeEndomorphisms(const MatRep_t *rep, const Matrix_t *nsp,
     Matrix_t *endo[]);
-Matrix_t *HomogeneousPart(MatRep_t *m, MatRep_t *s, Matrix_t *npw, 
+Matrix_t *HomogeneousPart(MatRep_t *m, MatRep_t *s, Matrix_t *npw,
     const IntMatrix_t *op, int dimends);
 
 

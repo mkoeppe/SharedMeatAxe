@@ -28,13 +28,13 @@
 
 #define MTX_MAX_ARGS 150
 
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
 
 MTX_DEFINE_FILE_INFO
- 
+
 #define IS_DONE(app,i) (app->IsDone[i] == 0xFFFFFFFF)
 #define IS_DONE_1(app,i,k) ((app->IsDone[i] & (1 << (k))) != 0)
 #define MARK_DONE(app,i) (app->IsDone[i] = 0xFFFFFFFF)
@@ -45,10 +45,10 @@ MTX_DEFINE_FILE_INFO
  ** @{
  ** The MeatAxe library provides a minimal framework for applications. All
  ** MeatAxe applications should use this framework to achieve a consistent
- ** behaviour. The functions described above enable an application to process 
+ ** behaviour. The functions described above enable an application to process
  ** command line options and arguments. They also implement a rudimentary
  ** on-line help and automatic processing of some common options like "-V".
- ** Typically, a MeatAxe application's @c main() function should perform 
+ ** Typically, a MeatAxe application's @c main() function should perform
  ** the following steps:
  ** - Create an application object using AppAlloc().
  ** - Process all command line options.
@@ -57,7 +57,7 @@ MTX_DEFINE_FILE_INFO
  **   argument can be handeled with |AppGetIntOption()|. Other option
  **   arguments must be processed by the application.
  ** - Call |AppGetArgs()| to process the remaining command line arguments.
- ** - Do whatever the application is supposed to do. 
+ ** - Do whatever the application is supposed to do.
  **
  ** Here is a short example:
  ** @code
@@ -83,7 +83,7 @@ MTX_DEFINE_FILE_INFO
  ** }
  ** @endcode
  ** This sample application expects two arguments and recognizes two options.
- ** One option ("-l") has an additional integer argument, @a level. The value 
+ ** One option ("-l") has an additional integer argument, @a level. The value
  ** of @a level must be between 0 and 100. If not specified by the user,
  ** a default value of 42 is used.
  **
@@ -131,12 +131,12 @@ char MtxBinDir[] = MTXBIN;
 /**
  ** MeatAxe Library Directory.
  ** This variable contains the name of the MeatAxe library directory.
- ** Arithmetic table files are searched in this directory. The value of 
- ** MtxLibDir can be set on the command line with the "-L" option. Otherwise, 
- ** the value of the environment variable MTXLIB is used. If neither "-L" nor 
- ** MTXLIB are defined, the default directory, which was selected when 
+ ** Arithmetic table files are searched in this directory. The value of
+ ** MtxLibDir can be set on the command line with the "-L" option. Otherwise,
+ ** the value of the environment variable MTXLIB is used. If neither "-L" nor
+ ** MTXLIB are defined, the default directory, which was selected when
  ** building the MeatAxe, is used.
- ** @see  MtxBinDir 
+ ** @see  MtxBinDir
  **/
 
 char MtxLibDir[] = MTXLIB;
@@ -154,9 +154,9 @@ static int CheckForLongOption(MtxApplication_t *app, int i, const char *long_nam
     app->IsDone[i] = 0xFFFFFFFF;
     return 0;
 }
- 
- 
- 
+
+
+
 static int CheckForShortOption(MtxApplication_t *app, int i, char short_name, int needs_arg)
 {
     const char *tab = app->OrigArgV[i] + 1;
@@ -183,7 +183,7 @@ static int CheckForShortOption(MtxApplication_t *app, int i, char short_name, in
 
 
 static int GetArg(MtxApplication_t *app, int i)
- 
+
 {
     if (i >= app->OptEnd - 1 || app->IsDone[i+1] != 0)
     {
@@ -194,19 +194,19 @@ static int GetArg(MtxApplication_t *app, int i)
     app->IsDone[i+1] = 0xFFFFFFFF;
     return 0;
 }
- 
 
 
 
-static int Find(MtxApplication_t *app, char short_name, const char *long_name, 
+
+static int Find(MtxApplication_t *app, char short_name, const char *long_name,
     int needs_arg)
- 
+
 {
     int i;
     for (i = 0; i < app->OptEnd; ++i)
     {
         int rc;
- 
+
         if (IS_DONE(app,i))
             continue;
         if (*app->OrigArgV[i] != '-')
@@ -243,7 +243,7 @@ static int FindSpec(MtxApplication_t *app, const char *spec, int needs_arg)
     const char *c;
     const char *short_name = "", *long_name = "";
     const char *err_text = "Invalid option specification";
- 
+
 
     for (c = spec; *c != 0 && isspace((unsigned char)*c); ++c)
     	;
@@ -276,7 +276,7 @@ static int FindSpec(MtxApplication_t *app, const char *spec, int needs_arg)
             return -1;
         }
     }
-    
+
     return Find(app,*short_name,long_name,needs_arg);
 }
 
@@ -297,20 +297,14 @@ static int FindSpec(MtxApplication_t *app, const char *spec, int needs_arg)
 static void PrintHelp(const MtxApplicationInfo_t *ai)
 
 {
-    char v[100], *c;
-
-    strcpy(v,MtxVersion);
-    for (c = v; *c != 0 && *c != '$'; ++c);
-    *c = 0;
-
     if (ai == NULL)
     {
-	printf("MeatAxe Version %s\nNo help text available.\n",v);
+	printf("%s\nNo help text available.\n",PACKAGE_STRING);
     }
     else
     {
-	printf("NAME\n    %s - %s\n    Revision %s\n\n",
-	      ai->Name,ai->Description,v);
+	printf("NAME\n    %s - %s\n    %s\n\n",
+	      ai->Name,ai->Description,PACKAGE_STRING);
 	printf("%s\n",ai->Help);
     }
 }
@@ -325,7 +319,7 @@ static void PrintHelp(const MtxApplicationInfo_t *ai)
  ** library function is used. |argc| and |argv| should be the same values
  ** that have been passed to |main()|. |ai|, if not NULL, must point to an
  ** initialized application information structure.
- ** 
+ **
  ** %AppAlloc() performs the following actions:
  ** - It evaluates the MTXLIB and MTXBIN environment variables. If set,
  **   these variables overwrite the default directories.
@@ -389,7 +383,7 @@ MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char 
 	PrintHelp(ai);
 	exit(0);
     }
-    
+
     /* Check for common options
        ------------------------ */
     MtxMessageLevel = AppGetCountedOption(a,"-V --verbose");
@@ -445,9 +439,9 @@ int AppFree(MtxApplication_t *a)
  ** the option is present and 0 otherwise.
  **
  ** The argument @a spec contains one or more names of the requested options.
- ** If there is more than one name, names must be separated by spaces. All 
- ** names are considered equivalent, the user may use any of the names. The 
- ** leading "-" must always be included in the name. Typically an option has 
+ ** If there is more than one name, names must be separated by spaces. All
+ ** names are considered equivalent, the user may use any of the names. The
+ ** leading "-" must always be included in the name. Typically an option has
  ** only one or two names, as in the following example:
  ** @code
  ** int PrintAll = AppGetOption(App,"-a --all");
@@ -457,7 +451,7 @@ int AppFree(MtxApplication_t *a)
  ** Each call of AppGetOption() consumes at most one command line option.
  ** If the user specifies the same option multiple times, only the first option
  ** is recognized. Since this is usually not intended, an
- ** appropriate error message will be generated when the application calls 
+ ** appropriate error message will be generated when the application calls
  ** AppGetArguments(). If an option can be repeated on the command line
  ** the application must make sure that all options are processed:
  ** @code
@@ -481,7 +475,7 @@ int AppGetOption(MtxApplication_t *app, const char *spec)
 
 /**
  ** Count repeatable command line option.
- ** This function counts how often a specific option is present on the 
+ ** This function counts how often a specific option is present on the
  ** command line. For example, if the command line is
  ** @code
  ** sample -a -a -aa input output
@@ -513,8 +507,8 @@ int AppGetCountedOption(MtxApplication_t *app, const char *spec)
  ** Check for command line option.
  ** This function checks if an option is present on the command line. The
  ** option is expected to have a text value, and a pointer to the value is
- ** returned. On the command line, the value must be separated from the 
- ** option by one or more spaces. 
+ ** returned. On the command line, the value must be separated from the
+ ** option by one or more spaces.
  ** If the option is present on the command line but has no value, an
  ** appropriate error message is generated. If the option is not present
  ** on the command line, the function returns @a dflt as a default value.
@@ -535,7 +529,7 @@ const char *AppGetTextOption(MtxApplication_t *app, const char *spec, const char
 
 static int IsInteger(const char *c)
 {
-    if (*c == '-') 
+    if (*c == '-')
 	++c;
     if (!isdigit(*c))
 	return 0;
@@ -551,14 +545,14 @@ static int IsInteger(const char *c)
 /**
  ** Check for integer-valued option.
  ** This function checks if an option is present on the command line. The
- ** option is expected to have an integer value, and the value is returned. 
- ** On the command line, the value must be separated from the 
- ** option by one or more spaces. 
+ ** option is expected to have an integer value, and the value is returned.
+ ** On the command line, the value must be separated from the
+ ** option by one or more spaces.
  ** If the option is present on the command line but has no value, an
  ** appropriate error message is generated. If the option is not present
  ** on the command line, the function returns @a dflt as a default value.
  **
- ** If the value on the command line is not within the range defined by @a min 
+ ** If the value on the command line is not within the range defined by @a min
  ** and  @a max, an error message is generated. However, if @a min is
  ** greater than @a max, no range check is performed.
  ** @param app Pointer to the application object.
@@ -570,7 +564,7 @@ static int IsInteger(const char *c)
  **/
 
 
-int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt, 
+int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt,
     int min, int max)
 
 {
@@ -638,12 +632,12 @@ static int CheckDone(MtxApplication_t *app, int i)
 
 /**
  ** Get command line arguments.
- ** This function must be called after all command line options have been 
- ** processed (see, for example, AppGetOption()). The remaining words on 
- ** the command line are treated as non-optional arguments, the global variable 
- ** @c ArgV is set to the first argument and the number of arguments is 
- ** stored in @c |ArgC. An error message is generated, if there are unprocessed 
- ** options on the command line, or if the number of arguments is outside the 
+ ** This function must be called after all command line options have been
+ ** processed (see, for example, AppGetOption()). The remaining words on
+ ** the command line are treated as non-optional arguments, the global variable
+ ** @c ArgV is set to the first argument and the number of arguments is
+ ** stored in @c |ArgC. An error message is generated, if there are unprocessed
+ ** options on the command line, or if the number of arguments is outside the
  ** range specified by @a min_argc and @a max_argc.
  ** @param app Pointer to the application object.
  ** @param min_argc Minimum number of arguments expected.
@@ -670,7 +664,7 @@ int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc)
        ------------------------------------ */
     if (i == app->OptEnd && app->OptEnd < app->OrigArgC)
     	++i;
-    
+
     app->ArgC = app->OrigArgC - i;
     app->ArgV = app->OrigArgV + i;
 
@@ -701,7 +695,7 @@ int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc)
  ** Create a temporary directory.
  ** This function creates a new, empty directory for use by the application.
  ** The location of this directory is system dependent. When the application
- ** objects is destroyed, the temporary directory will be removed 
+ ** objects is destroyed, the temporary directory will be removed
  ** automatically, if there are no files left in it.
  ** After successfull creation of the directory, the function returns the
  ** directory name. The return value is a pointer to an internal buffer,

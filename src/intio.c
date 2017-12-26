@@ -21,16 +21,16 @@ MTX_DEFINE_FILE_INFO
 
 /**
  ** Read long integers.
- ** This function reads @ n long integers from the file @a f into the array 
- ** @a buf. @a buf must point to a memory area of at least n*sizeof(long) 
+ ** This function reads @ n long integers from the file @a f into the array
+ ** @a buf. @a buf must point to a memory area of at least n*sizeof(long)
  ** bytes and the file must be open for reading. The return value indicates how
  ** many integers have actually been read. This number may be less than
  ** @a n because the end of file was encountered while reading. A negative
  ** return value indicates a file i/o error.
- ** 
- ** %SysReadLong32() expects that the numbers in the file are 4-byte integers 
+ **
+ ** %SysReadLong32() expects that the numbers in the file are 4-byte integers
  ** in little-endian format, i.e. the least significant byte first.
- ** Using a machine-independent data format makes MeatAxe data files 
+ ** Using a machine-independent data format makes MeatAxe data files
  ** more portable, but there are also some disadvantages:
  ** - The conversion to and from machine-independent format involves several
  **   arithmetic operations for each number read/written.
@@ -89,9 +89,9 @@ int SysReadLong32(FILE *f, long *buf, int n)
 
 /**
  ** Write long integers.
- ** This function writes @a n long integers from the the array @a buf to the 
- ** file @a f. @a buf must point to a memory area of at least n*sizeof(long) 
- ** bytes and @a f must be open for writing. The numbers are written in a 
+ ** This function writes @a n long integers from the the array @a buf to the
+ ** file @a f. @a buf must point to a memory area of at least n*sizeof(long)
+ ** bytes and @a f must be open for writing. The numbers are written in a
  ** machine-independent format which can be read by SysReadLong().
  ** @param f File to write to.
  ** @param buf Pointer to buffer.
@@ -122,19 +122,19 @@ int SysWriteLong32(FILE *f, const long *buf, int n)
 }
 
 
-#if MTX_CONFIG_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
 static void Swap(long *dest, const long *src, int n)
 {
     for (; n > 0; --n)
     {
 	register long x = *src++;
-#if MTX_CONFIG_LONG32
+#if SIZEOF_LONG==4
 	*dest++ =
 	      (x << 24)
 	    + ((x << 8) & 0x00FF0000L)
 	    + ((x >> 8) & 0x0000FF00L)
 	    + (x >> 24);
-#elif MTX_CONFIG_LONG64
+#elif SIZEOF_LONG==8
 	*dest++ =
 	      (x << 56)
 	    + ((x << 40) & 0x00FF000000000000L)
@@ -145,7 +145,7 @@ static void Swap(long *dest, const long *src, int n)
 	    + ((x >> 40) & 0x000000000000FF00L)
 	    + (x >> 56);
 #else
-#error "sizeof(long) not known - check config.h"
+#error "sizeof(long) was not known during configuration"
 #endif
     }
 }
@@ -156,7 +156,7 @@ static void Swap(long *dest, const long *src, int n)
 int SysReadLongX(FILE *f, long *buf, int n_bytes)
 {
     int n_read = 0;		/* Bytes read so far */
-#if MTX_CONFIG_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
     unsigned long tmp[BLK_SIZE];
     while (n_read < num_elem)
     {
@@ -178,7 +178,7 @@ int SysReadLongX(FILE *f, long *buf, int n_bytes)
 int SysWriteLongX(FILE *f, const long *buf, int n_bytes)
 {
     int n_written = 0;
-#if MTX_CONFIG_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
     unsigned long tmp[BLK_SIZE];
     while (n_written < n_bytes)
     {

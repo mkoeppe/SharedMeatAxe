@@ -41,8 +41,8 @@
 static int Fields[] = {2,3,4,5,16,67,125,256,-1};
 static int NextFieldIndex = 0;
 FEL *FTab = NULL;
-static MtxApplicationInfo_t AppInfo = { 
-"mtxtest", "MeatAxe Library test program", 
+static MtxApplicationInfo_t AppInfo = {
+"mtxtest", "MeatAxe Library test program",
 "SYNTAX\n"
 "    mtxtest " MTX_COMMON_OPTIONS_SYNTAX " [-t <Field>]\n"
 "\n"
@@ -195,7 +195,7 @@ TestFunctions[] =
 
 
 static int prtables(int field)
-{	
+{
     int a, b;
 
     FfSetField(field);
@@ -235,7 +235,7 @@ int main(int argc, const char **argv)
     MtxApplication_t *app;
     int i;
     int field;
-    
+
     if ((app = AppAlloc(&AppInfo,argc,argv)) == NULL)
 	return -1;
     field = AppGetIntOption(app,"-t --print-tables",-1,2,256);
@@ -289,10 +289,10 @@ int main(int argc, const char **argv)
 }
 #endif
 
-    printf("MeatAxe Version %s\n",MtxVersion);
+    printf("%s\n",PACKAGE_VERSION);
     for (i = 0; TestFunctions[i].Name != NULL; ++i)
     {
-	int id = TestFunctions[i].Id; 
+	int id = TestFunctions[i].Id;
 	int k;
 	for (k = i + 1; TestFunctions[k].Name != NULL; ++k)
 	{
