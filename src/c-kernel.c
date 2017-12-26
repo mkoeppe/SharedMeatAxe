@@ -311,13 +311,10 @@ void TestFelToInt(unsigned flags)
 static void TestSubfield1(int fld, int sub)
 
 {
-    FEL tabfld[256], tabsub[256];
+    FEL tabsub[256];
     FEL tabemb[256];
     int i;
 
-    FfSetField(fld);
-    for (i = 0; i < fld; ++i) 
-	tabfld[i] = FfFromInt(i);
     FfSetField(sub);
     for (i = 0; i < sub; ++i) 
 	tabsub[i] = FfFromInt(i);

@@ -68,7 +68,7 @@ int FfReadRows(FILE *f, PTR buf, int n)
        -------------------- */
     for (i = 0; i < n; ++i)
     {
-        if (fread(b,FfTrueRowSize(FfNoc),1,f) != 1) break;
+        if (fread(b,FfCurrentRowSizeIo,1,f) != 1) break;
 	b += FfCurrentRowSize;
     }
     if (ferror(f)) 
@@ -103,7 +103,7 @@ int FfWriteRows(FILE *f, PTR  buf, int n)
        --------------------- */
     for (i = 0; i < n; ++i)
     {
-        if (fwrite(b,FfTrueRowSize(FfNoc),1,f) != 1) break;
+        if (fwrite(b,FfCurrentRowSizeIo,1,f) != 1) break;
 	b += FfCurrentRowSize;
     }
     if (ferror(f)) 
@@ -135,7 +135,7 @@ int FfSeekRow(FILE *f, int pos)
     long addr;
 
     if (FfOrder != -1)
-	addr = (long) FfTrueRowSize(FfNoc) * pos + 12;
+	addr = (long) FfCurrentRowSizeIo * pos + 12;
     else
 	addr = (long) FfNoc * 4 * pos + 12;
     if (SysFseek(f,addr) == -1)

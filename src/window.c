@@ -236,12 +236,14 @@ __asm__("    popl %ebx\n"
             {
                 register BYTE *v = m;
                 register BYTE *r = result;
+                register BYTE x;
                 if (f == FF_ONE)
                 {
                     register size_t k = l_rowsize;
                     for (; k != 0; --k)
                     {
-                        *r = mtx_tadd[*r][*v++];
+                        x=*v++;
+                        if (x) *r = mtx_tadd[*r][x];
                         ++r;
                     }
                 }
@@ -251,9 +253,8 @@ __asm__("    popl %ebx\n"
                     register size_t k = l_rowsize;
                     for (; k != 0; --k)
                     {
-                        if (*v != 0)
-                            *r = mtx_tadd[multab[*v]][*r];
-                        ++v;
+                        x=*v++;
+                        if (x) *r = mtx_tadd[multab[x]][*r];
                         ++r;
                     }
                 }

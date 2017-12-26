@@ -59,7 +59,7 @@ int MfReadRows(MtxFile_t *f, PTR buf, int nrows)
        -------------------- */
     for (i = 0; i < nrows; ++i)
     {
-        if (fread(b,FfTrueRowSize(FfNoc),1,f->File) != 1) break;
+        if (fread(b,FfCurrentRowSizeIo,1,f->File) != 1) break;
 	b += FfCurrentRowSize;
     }
     if (ferror(f->File)) 

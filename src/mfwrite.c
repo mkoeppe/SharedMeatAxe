@@ -58,7 +58,7 @@ int MfWriteRows(MtxFile_t *f, PTR buf, int nrows)
        --------------------- */
     for (i = 0; i < nrows; ++i)
     {
-        if (fwrite(b,FfTrueRowSize(FfNoc),1,f->File) != 1) 
+        if (fwrite(b,FfCurrentRowSizeIo,1,f->File) != 1)
 	    break;
 	b += FfCurrentRowSize;
     }

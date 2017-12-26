@@ -35,17 +35,20 @@ MTX_DEFINE_FILE_INFO
 
 void FfCleanRow(PTR row, PTR matrix, int nor, const int *piv)
 {
-    int i;
+    register int i, pivi, first;
     PTR x;
 
     for (i=0, x=matrix; i < nor; ++i, FfStepPtr(&x))
     {
-        FEL f = FfExtract(row,piv[i]);
+        pivi = piv[i];
+        FEL f = FfExtract(row,pivi);
         if (f != FF_ZERO)
-	    FfAddMulRow(row,x,FfNeg(FfDiv(f,FfExtract(x,piv[i]))));
+        {
+            first = pivi/MPB;
+            FfAddMulRowPartial(row,x,FfNeg(FfDiv(f,FfExtract(x,pivi))),first,FfCurrentRowSizeIo-first);
+        }
     }
 }
-
 
 /**
  ** Clean Row and Record Operations.

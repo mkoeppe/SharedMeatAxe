@@ -632,7 +632,7 @@ PTR FfAddRow(PTR dest, PTR src)
 #else
 	register BYTE *p1 = dest;
 	register BYTE *p2 = src;
-	for (i = FfTrueRowSize(FfNoc); i != 0; --i)
+	for (i = FfCurrentRowSizeIo; i != 0; --i)
 	{
 	    register int x = *p2++;
 	    if (x != 0) *p1 = mtx_tadd[*p1][x];
@@ -781,7 +781,7 @@ PTR FfSubRow(PTR dest, PTR src)
 #else
         register FEL *p1 = dest;
         register FEL *p2 = src;
-        for (i = FfTrueRowSize(FfNoc); i != 0; --i)
+        for (i = FfCurrentRowSizeIo; i != 0; --i)
         {
             register int x = *p2++;
             if (x != 0) *p1 = mtx_tadd[*p1][table_inv[x]];
@@ -919,6 +919,54 @@ PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len)
     return dest;
 }
 
+/**
+ ** Add a multiple of a part of a row.
+ ** This function adds a multiple of @em src to @em dest.
+ ** This works like FfAddRow(), but the operation is performed only on a given range of
+ ** columns.
+ ** @param dest The row to add to.
+ ** @param src The row to add.
+ ** @param first Number of bytes to skip.
+ ** @param len Number of bytes to add.
+**/
+/* Warning!! Let L be the long integer to which the first byte of the a row
+ * belongs. It is assumed that all previous bytes in L are zero!
+ * Moreover, it is assumed that either the part of the rows ends at the
+ * end of the row, or that it ends with a full long.
+ */
+void FfAddMulRowPartial(PTR dest, PTR src, FEL f, int first, int len)
+{
+    register int i;
+    register BYTE *p1, *p2, *multab;
+
+    CHECKFEL(f);
+    if (f == FF_ZERO)
+    return;
+    int lfirst;
+    if (f == FF_ONE)
+    {
+        lfirst = first/sizeof(long);
+        if (first+len>=FfCurrentRowSizeIo)
+        {
+            FfAddRowPartial(dest,src,lfirst,FfCurrentRowSize/sizeof(long)-lfirst);
+            return;
+        }
+        FfAddRowPartial(dest,src,lfirst,(first+len)/sizeof(long)-lfirst);
+        return;
+    }
+    multab = mtx_tmult[f];
+    p1 = dest + first;
+    p2 = src + first;
+    int rem = FfCurrentRowSizeIo - first;
+    if (rem > len) rem = len;
+    for (i = rem; i != 0; --i)
+    {
+        register BYTE x = *p2++;
+        if (x!=0)
+            *p1 = mtx_tadd[*p1][multab[x]];
+        ++p1;
+    }
+}
 
 /**
  ** Multiply a row by a coefficient.
@@ -945,7 +993,7 @@ void FfMulRow(PTR row, FEL mark)
     {
 	multab = mtx_tmult[mark];
 	m = row;
-	for (i = FfTrueRowSize(FfNoc); i != 0; --i)
+	for (i = FfCurrentRowSizeIo; i != 0; --i)
 	{
 	    register int x = *m;
 	    if (x != 0) *m = multab[x];
@@ -977,10 +1025,12 @@ void FfAddMulRow(PTR dest, PTR src, FEL f)
     multab = mtx_tmult[f];
     p1 = dest;
     p2 = src;
-    for (i = FfTrueRowSize(FfNoc); i != 0; --i)
+    for (i = FfCurrentRowSizeIo; i != 0; --i)
     {
-	*p1 = mtx_tadd[*p1][multab[*p2++]];
-	++p1;
+        register BYTE x = *p2++;
+        if (x!=0)
+            *p1 = mtx_tadd[*p1][multab[x]];
+        ++p1;
     }
 }
 
@@ -1131,7 +1181,9 @@ __asm__("    popl %ebx\n"
                 {
                     for (; k != 0; --k)
                     {
-                        *r = mtx_tadd[*r][*v++];
+                        register BYTE x = *v++;
+                        if (x!=0)
+                            *r = mtx_tadd[*r][x];
                         ++r;
                     }
                 }
@@ -1140,9 +1192,9 @@ __asm__("    popl %ebx\n"
                     register BYTE *multab = mtx_tmult[f];
                     for (; k != 0; --k)
                     {
-		 	if (*v != 0)
-			    *r = mtx_tadd[multab[*v]][*r];
-			++v;
+                        if (*v != 0)
+                            *r = mtx_tadd[multab[*v]][*r];
+                        ++v;
                         ++r;
                     }
                 }

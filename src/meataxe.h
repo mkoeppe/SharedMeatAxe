@@ -126,6 +126,7 @@ int FfSetNoc(int noc);
 
 
 void FfAddMulRow(PTR dest, PTR src, FEL f);
+void FfAddMulRowPartial(PTR dest, PTR src, FEL f, int first, int len);
 PTR FfAddRow(PTR dest, PTR src);
 PTR FfAddRowPartial(PTR dest, PTR src, int first, int len);
 PTR FfSubRow(PTR dest, PTR src);

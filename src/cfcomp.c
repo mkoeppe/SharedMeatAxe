@@ -131,7 +131,7 @@ static void Compare(const char *name)
 {
     ReadGens(name);
     FindEquiv(name);
-    FreeGens(name);
+    FreeGens();
 }
 
 

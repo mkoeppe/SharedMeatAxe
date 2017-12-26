@@ -36,7 +36,7 @@
 
 int FfCmpRows(PTR p1, PTR p2)
 {	
-    return memcmp(p1,p2,FfTrueRowSize(FfNoc));
+    return memcmp(p1,p2,FfCurrentRowSizeIo);
 }
 
 /**
