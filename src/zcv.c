@@ -584,7 +584,7 @@ static int Init(int argc, const char **argv)
     inpname = App->ArgV[0];
     if (strcmp(inpname,"-"))
     {
-	src = SysFopen(inpname,FM_READ|FM_TEXT|FM_LIB);
+	src = SysFopen(inpname,FM_READ|FM_TEXT);
 	if (src == NULL)
 	{
 	    MTX_ERROR1("Cannot open %s",inpname);

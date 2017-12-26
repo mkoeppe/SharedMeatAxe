@@ -227,25 +227,31 @@ FILE *SysFopen(const char *name, int mode)
 	MTX_ERROR1("Invalid file mode %d",mode);
 	return NULL;
     }
-    f = fopen(name,fmodes[m]);
-    if (f != NULL) 
-	return f;
 
     /* Search library directory
        ------------------------ */
     if ((mode & FM_LIB) != 0) 
     {
-	strcpy(buf,MtxLibDir);
-	strcat(buf,"/");
-	strcat(buf,name);
-	f = fopen(buf,fmodes[m]);
+        if (*MtxLibDir != 0)
+            {
+            strcpy(buf,MtxLibDir);
+            strcat(buf,"/");
+            strcat(buf,name);
+            f = fopen(buf,fmodes[m]);
+            }
+        else
+            f = fopen(name,fmodes[m]);
     }
-
+    else
+    {
+        f = fopen(name,fmodes[m]);
+    }
+    if (f != NULL)
+	return f;
     /* Error handling
        -------------- */
     if (f == NULL && (mode & FM_NOERROR) == 0)
-	MTX_ERROR1("%s: %S",name);
-
+    MTX_ERROR1("%s: %S",name);
     return f;
 }
 

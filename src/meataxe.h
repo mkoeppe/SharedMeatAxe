@@ -246,8 +246,8 @@ void StrPrintF(String *s, const char *fmt, ...);
    Application framework
    ------------------------------------------------------------------ */
 
-extern char MtxBinDir[];	/* MeatAxe library directory */
-extern char MtxLibDir[];	/* MeatAxe program directory */
+extern char MtxBinDir[1024];	/* MeatAxe library directory */
+extern char MtxLibDir[1024];	/* MeatAxe program directory */
 
 #define APP_MAX_ARGS 50
 

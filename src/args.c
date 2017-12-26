@@ -125,7 +125,7 @@ MTX_DEFINE_FILE_INFO
  ** directory, which was selected when building the MeatAxe, is used.
  **/
 
-char MtxBinDir[250] = MTXBIN;
+char MtxBinDir[] = MTXBIN;
 
 
 /**
@@ -139,7 +139,7 @@ char MtxBinDir[250] = MTXBIN;
  ** @see  MtxBinDir 
  **/
 
-char MtxLibDir[250] = MTXLIB;
+char MtxLibDir[] = MTXLIB;
 
 
 

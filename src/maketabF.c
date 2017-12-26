@@ -319,7 +319,7 @@ static void writeheader()
     int i, j;
 
     sprintf(filename,"p%3.3ld.zzz",Q);
-    fd = SysFopen(filename,FM_CREATE);
+    fd = SysFopen(filename,FM_CREATE|FM_LIB);
     if (fd == NULL)
     {
 	perror(filename);
