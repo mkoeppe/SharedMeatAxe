@@ -1,0 +1,46 @@
+\form#0:$a=(a_i)$
+\form#1:$b=(b_i)$
+\form#2:$p=\sum_ia_ib_i$
+\form#3:$(M\otimes N)e_H$
+\form#4:$(M\otimes N)$
+\form#5:$G^TQG$
+\form#6:$G$
+\form#7:\[ 0=U_0<U_1<\ldots<U_n=V \]
+\form#8:$U_i/U_{i-1}$
+\form#9:$U_i$
+\form#10:$u\in V\setminus U_{i-1}$
+\form#11:$u,uA,uA^2,\ldots$
+\form#12:$U_{i-1}$
+\form#13:$p_i(x)$
+\form#14:$up_i(A)\in U_{i-1}$
+\form#15:$A$
+\form#16:$p_i$
+\form#17:$(U_i)$
+\form#18:$uA,uA^2,\ldots$
+\form#19:$u$
+\form#20:$up_i(A)=0$
+\form#21:$O_1,\ldots,O_r$
+\form#22:$i=1,\ldots,r$
+\form#23:$l_i:=|O_i|$
+\form#24:\[ e = \frac{1}{|K|} \sum_{h\in K} h \in FG \]
+\form#25:$V=F^n$
+\form#26:$(v_1,\ldots,v_n)$
+\form#27:$v_i\pi=v_{i\pi}$
+\form#28:\[ w_i = \sum_{k\in O_i} v_k \qquad(1\leq i\leq r) \]
+\form#29:\[ w_i (e\pi e) = \sum_{k\in O_i} \frac{1}{l_{[k\pi]}} w_{[k\pi]} \]
+\form#30:\[ \frac{1}{l_{[i\pi]}} \to \lambda_{[i\pi]}:= \left\{\begin{array}{ll} \frac{1}{l_{[i\pi]}/p^m} & \mbox{if~}p^m|l_{[i\pi]}\\ 0 & \mbox{otherwise} \end{array}\right. \]
+\form#31:\[ \begin{array}{c|cc} & c(c-1)/2 & c \\ \hline r*(r-1)/2 & ad+bc & ac \\ r & 2ab & a^2 \end{array} \]
+\form#32:$\hat{v}$
+\form#33:\[ \hat{v}_{ik} = v_{(i-1)n + k}\qquad (1\leq i\leq m,\ 1\leq k\leq n) \]
+\form#34:\[ \widehat{v(A\otimes B)} = A^{tr}\cdot\hat{v}\cdot B \]
+\form#35:$B=(b_1,\ldots,b_m)$
+\form#36:$C=(c_1,\ldots,c_n)$
+\form#37:$B\otimes C$
+\form#38:$(b_1\otimes c_1, b_1\otimes c_2, \dots b_m\otimes c_n)$
+\form#39:$v\in M\otimes N$
+\form#40:$m(v,B\otimes C)$
+\form#41:$mn$
+\form#42:$m\times n$
+\form#43:$M(B,v,C)$
+\form#44:\[ M(B,va,C) = m(B,a|_M,B)^{\rm tr}M(B,v,C)m(C,a|_N,C) \quad\mbox{for all } a\in A,\ v\in M\otimes N \]
+\form#45:$a$

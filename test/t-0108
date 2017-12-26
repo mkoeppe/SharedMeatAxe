@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#:Test ZAD/ZMU
+# ------------
+# 
+
+# Initialize
+# ----------
+. ./t.config
+
+# Run the test
+# ------------
+
+for f in $TEST_FIELDS ; do
+    zmu ${DATA}/Mat$f ${DATA}/Mat$f a
+    zad ${DATA}/Mat$f a b$f
+done
+checksum b2 84.3260854010 || exit 1
+checksum b5 204.3853706129 || exit 1
+checksum b9 300.3411179034 || exit 1
+checksum b25 588.3404845323 || exit 1
+checksum b67 588.3297508606 || exit 1
+checksum b125 588.3652652946 || exit 1
+checksum b256 588.585784393 || exit 1
+
+cp ${DATA}/Mat5 x
+zad x x x x x null
+checksum null 204.3866723418 || exit 1
+zad x -x x -x x a
+cmp x a || error "x-x+x-x+x is different from x"
+zad -- -x x -x x -x a b
+checksum b 204.3866723418 || exit 1
+
+zmu ${DATA}/Perm1 ${DATA}/Perm2 c
+checksum c 92.1136913884 || exit 1
+
+
+# Clean up
+# --------
+rm -f a b c null x *.zzz
+for f in $TEST_FIELDS ; do rm -f b$f; done
+

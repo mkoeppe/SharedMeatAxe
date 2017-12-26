@@ -1,0 +1,28 @@
+#!/bin/sh
+
+#:Test ZOR.
+# ---------
+# 
+# Calculate various orders of permutations and matrices.
+# 
+
+# Initialize
+# ----------
+. ./t.config
+
+# Run the test
+# ------------
+test "`zor ${DATA}/Perm1`" = "ELEMENT 1 HAS ORDER 2" || error "Bad order: Perm1"
+test "`zor ${DATA}/Perm2`" = "ELEMENT 1 HAS ORDER 5" || error "Bad order: Perm2"
+test "`zor ${DATA}/C0.1`" = "ORDER IS 2" || error "Bad order: C0.1"
+test "`zor ${DATA}/C0.2`" = "ORDER IS 23" || error "Bad order: C0.2"
+test "`zor ${DATA}/ac.1`" = "ORDER IS 2" || error "Bad order: ac.1"
+test "`zor ${DATA}/ac.2`" = "ORDER IS 6" || error "Bad order: ac.2"
+
+for f in $TEST_FIELDS ; do 
+    test "`zor ${DATA}/Mat$f`" = "ORDER IS 23" || error "Bad order: Mat$f"
+done
+
+# Clean up
+# --------
+rm -f *.zzz

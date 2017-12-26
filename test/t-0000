@@ -1,0 +1,34 @@
+#!/bin/sh
+
+#:Verify test data
+
+. ./t.config
+
+checksum ${DATA}/ac.1 5690.4253201461 || error "ac.1 corrupt"
+checksum ${DATA}/ac.2 5690.2545066497 || error "ac.2 corrupt"
+checksum ${DATA}/C0.1 132.4057681350 || error "C0.1 corrupt"
+checksum ${DATA}/C0.2 132.3762370388 || error "C0.2 corrupt"
+checksum ${DATA}/Mat2 84.1701675618 || error "Mat2 corrupt"
+checksum ${DATA}/Mat5 204.283667245 || error "Mat5 corrupt"
+checksum ${DATA}/Mat9 300.2657099669 || error "Mat9 corrupt"
+checksum ${DATA}/Mat25 588.2136374774 || error "Mat25 corrupt"
+checksum ${DATA}/Mat67 588.3302511077 || error "Mat67 corrupt"
+checksum ${DATA}/Mat125 588.310971162 || error "Mat125 corrupt"
+checksum ${DATA}/Mat256 588.1118762231 || error "Mat256 corrupt"
+checksum ${DATA}/m11.1 1580.2220857822 || error "m11.1 corrupt"
+checksum ${DATA}/m11.2 1580.3824506882 || error "m11.2 corrupt"
+checksum ${DATA}/Perm1 92.1221984397 || error "Perm1 corrupt"
+checksum ${DATA}/Perm2 92.3145798084 || error "Perm2 corrupt"
+checksum ${DATA}/Ru-K378.1 71454.1463529856 || exit 1
+checksum ${DATA}/Ru-K378.2 71454.2304404253 || exit 1
+checksum ${DATA}/Ru-K378.3 71454.2418917294 || exit 1
+checksum ${DATA}/Ru-K378.4 71454.15514682 || exit 1
+checksum ${DATA}/Ru-M378.1 71454.4095276061 || exit 1
+checksum ${DATA}/Ru-M378.2 71454.936277571 || exit 1
+checksum ${DATA}/Th-m.1 12412.1417259262 || exit 1
+checksum ${DATA}/Th-m.2 12412.1946983088 || exit 1
+checksum ${DATA}/Th-m.3 12412.393346305 || exit 1
+checksum ${DATA}/Th-r.1 12412.1862686441 || exit 1
+checksum ${DATA}/Th-r.2 12412.1931312370 || exit 1
+checksum ${DATA}/a5reg.1 492.3277693653 || exit 1
+checksum ${DATA}/a5reg.2 492.1585427434 || exit 1

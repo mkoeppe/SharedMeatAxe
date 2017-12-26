@@ -1,0 +1,31 @@
+#!/bin/sh
+
+#:Decomposition
+# -------------
+
+# Initialize
+# ----------
+. ./t.config
+
+# Run the test
+# ------------
+
+cp ${DATA}/m11.? .
+chop -Q -g 2 m11 || error "CHOP failed"
+pwkond -Qt m11 || error "PWKOND failed"
+mkhom -Qts m11 m11 end ||  error "MKHOM failed"
+if [ ! -r end.4 -o -r end.5 ]; then error "Wrong number of endomorphisms"; fi
+for g in 1 2; do
+   for e in 1 2 3 4; do
+       zmu m11.std.$g end.$e a
+       zmu end.$e m11.std.$g b
+       cmp a b || error "Endomorphism does not commute with generators"
+   done
+done
+
+
+
+# Clean up
+# --------
+rm -f m11* end* a b p002.zzz
+

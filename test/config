@@ -1,0 +1,15 @@
+PATH=../bin:/usr/local/bin:/usr/bin:/bin
+export PATH
+MTXBIN=`pwd`/../bin
+export MTXBIN
+
+DATA=../test/data
+
+TEST_FIELDS="2 5 9 25 67 125 256"
+
+error()
+{
+    echo "ERROR $1"
+    exit 1
+}
+
