@@ -77,7 +77,7 @@ int FfSumAndIntersection(PTR wrk1, int *nor1, int *nor2, PTR wrk2, int *piv)
     {
 	FEL f;
 	int p;
-	FfCleanRowAndRepeat(x1,wrk1,k,piv,x2,wrk2);
+	if (FfCleanRowAndRepeat(x1,wrk1,k,piv,x2,wrk2)) return -1;
 	if ((p = FfFindPivot(x1,&f)) < 0)
 	    continue;	/* Null row - ignore */
 	if (k < i)

@@ -63,7 +63,7 @@ Matrix_t *MatMul(Matrix_t *dest, const Matrix_t *src)
 
     /* Matrix multiplication
        --------------------- */
-    FfSetField(src->Field);
+    FfSetField(src->Field); /* no error checking, since the matrix *exists* */
     FfSetNoc(src->Noc);
     result = tmp = FfAlloc(dest->Nor);
     if (result == NULL)

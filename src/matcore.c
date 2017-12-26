@@ -131,7 +131,7 @@ Matrix_t *MatAlloc(int field, int nor, int noc)
 	SysFree(m);
 	return NULL;
     }
-    FfSetNoc(noc);
+    if (FfSetNoc(noc)) return NULL;
     m->Magic = MAT_MAGIC;
     m->Field = field;
     m->Nor = nor;

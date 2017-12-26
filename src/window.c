@@ -69,7 +69,11 @@ MatrixWindow_t *WindowAlloc(int fl, int nor, size_t rowsize)
         MTX_ERROR1("%E",MTX_ERR_NOMEM);
         return NULL;
     }
-    FfSetField(fl);
+    if (FfSetField(fl))
+    {
+        free(out);
+        return NULL;
+    }
     out->Matrix = MatAlloc(fl, nor, rowsize*sizeof(long)*MPB);
     if (out->Matrix == NULL)
     {
@@ -266,7 +270,8 @@ __asm__("    popl %ebx\n"
 
 /** dest := left+right
    left and right must be distinct, but one of them may coincide with dest -- under the assumption
-   that, in that case, the ambient matrices coincide as well. **/
+   that, in that case, the ambient matrices coincide as well.
+   Return dest, or NULL on error (the only error may occur in a compatibility check). **/
 MatrixWindow_t *WindowSum(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
   PTR x, result, tmp;
@@ -335,6 +340,7 @@ MatrixWindow_t *WindowSum(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWind
 /** dest := left-right
    left and right must be distinct, but one of them may coincide with dest -- under the assumption
    that, in that case, the ambient matrices coincide as well.
+   Return dest, or NULL on error (the only error may occur in a compatibility check).
 **/
 MatrixWindow_t *WindowDif(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
@@ -407,7 +413,7 @@ MatrixWindow_t *WindowDif(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWind
    can write the result into it. Moreover, the chunk of memory pointed at by dest MUST be disjoint
    from the chunks for left and right!
 
-   Dimensions are not tested!
+   Dimensions are not tested, always dest will be returned (no error value).
 **/
 MatrixWindow_t *WindowAddMul(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
@@ -617,7 +623,7 @@ int StrassenStep(MatrixWindow_t *dest_win, MatrixWindow_t *A_win, MatrixWindow_t
   S2->RowSize = A_sub_rowsize;
   S2->Matrix = X->Matrix;
   S2->ULCorner = X->ULCorner;
-  WindowDif(S2, A00, A10);
+  WindowDif(S2, A00, A10); /* No error checking, as we know that the windows are compatible */
   /*
   printf("1.  S2 = A00-A10 in X\n");
   WindowShow(X);
@@ -653,7 +659,7 @@ int StrassenStep(MatrixWindow_t *dest_win, MatrixWindow_t *A_win, MatrixWindow_t
   S0->RowSize = A_sub_rowsize;
   S0->Matrix = X->Matrix;
   S0->ULCorner = X->ULCorner;
-  WindowSum(S0, A10, A11);
+  WindowSum(S0, A10, A11); /* no error checking here and below, as we know the dimensions of the windows */
   /*
   printf("4.  S0 = A10+A11 in X\n");
   WindowShow(X);

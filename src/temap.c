@@ -74,17 +74,21 @@ Matrix_t *TensorMap(Matrix_t *vec, const Matrix_t *a, const Matrix_t *b)
     for (i = 0; i < vec->Nor; ++i)
     {
 	Matrix_t *tmp = MatTransposed(a);
+    if (!tmp) return NULL;
 	Matrix_t *v = VectorToMatrix(vec,i,b->Nor);
 	if (v == NULL)
 	{
 	    MTX_ERROR("Conversion failed");
-	    break;
+	    return NULL;
 	}
-	MatMul(tmp,v);
+	if (!MatMul(tmp,v)) return NULL;
 	MatFree(v);
-	MatMul(tmp,b);
+	if (!MatMul(tmp,b)) return NULL;
 	if (MatrixToVector(tmp,result,i))
-	    MTX_ERROR("Conversion failed");
+    {
+        MTX_ERROR("Conversion failed");
+        return NULL;
+    }
 	MatFree(tmp);
     }
     return result;

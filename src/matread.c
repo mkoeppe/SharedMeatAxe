@@ -46,8 +46,9 @@ Matrix_t *MatRead(FILE *f)
 	return NULL;
     if (FfReadRows(f,m->Data,m->Nor) != m->Nor)
     {
-	MatFree(m);
-	return NULL;
+        MTX_ERROR("Number of given rows does not coincide with given row number");
+        MatFree(m);
+        return NULL;
     }
     return m;
 }

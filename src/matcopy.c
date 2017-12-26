@@ -105,7 +105,7 @@ int MatCopyRegion(Matrix_t *dest, int destrow, int destcol,
 	{
 #ifdef PARANOID
 	    FEL f;
-	    FfSetNoc(src->Noc);
+	    FfSetNoc(src->Noc);  /* No error checking */
 	    f = FfExtract(s,k);
 	    FfSetNoc(dest->Noc);
 	    FfInsert(d,destcol+k-col1,f);

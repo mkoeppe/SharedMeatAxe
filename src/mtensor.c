@@ -85,6 +85,11 @@ Matrix_t *MatTensor(const Matrix_t *m1, const Matrix_t *m2)
 	   ---------------------------------------- */
 	x1 = m1->Data;
 	x3 = MatGetPtr(temat,i2);
+    if (!x3)
+    {
+        MatFree(temat);
+        return NULL;
+    }
 	FfSetNoc(temat->Noc);
 
 	/* Loop through all rows of <m1>

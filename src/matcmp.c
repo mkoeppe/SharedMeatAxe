@@ -38,7 +38,7 @@ MTX_DEFINE_FILE_INFO
  ** not necessarily mean that an error has occured.
  ** @param a First matrix.
  ** @param b Second matrix.
- ** @return 0 if the matrices are equal, nonzero otherwise (see description).
+ ** @return 0 if the matrices are equal, nonzero otherwise (see description), -2 on error.
  **/
 
 int MatCompare(const Matrix_t *a, const Matrix_t *b)
@@ -50,7 +50,7 @@ int MatCompare(const Matrix_t *a, const Matrix_t *b)
     if (!MatIsValid(a) || !MatIsValid(b))
     {
 	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return -1;
+	return -2;
     }
 
     /* Compare fields and dimensions
@@ -65,7 +65,7 @@ int MatCompare(const Matrix_t *a, const Matrix_t *b)
     /* Compare the entries row by row. We do not use memcmp on the
        whole matrix because we must ignore padding bytes.
        ----------------------------------------------------------- */
-    FfSetField(a->Field);
+    FfSetField(a->Field);  /* No error checking */
     FfSetNoc(a->Noc);
     for (i = 0; i < a->Nor; ++i)
     {

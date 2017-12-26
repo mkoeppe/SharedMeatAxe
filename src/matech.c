@@ -124,7 +124,7 @@ int MatEchelonize(Matrix_t *mat)
 
     /* Build the pivot table
        --------------------- */
-    FfSetField(mat->Field);
+    FfSetField(mat->Field);  /* No error checking */
     FfSetNoc(mat->Noc);
     rank = zmkechelon(mat->Data,mat->Nor,mat->Noc,mat->PivotTable,is_pivot);
 
@@ -163,13 +163,14 @@ long MatNullity(const Matrix_t *mat)
  ** This function calculates the dimension of the null-space of a matrix
  ** and deletes the matrix.
  ** @param mat Pointer to the matrix.
- ** @return Nullity of @em mat, or -$ on error.
+ ** @return Nullity of @em mat, or $-1$ on error.
  **/
 
 long MatNullity__(Matrix_t *mat)
 {
     long nul;
-    MatEchelonize(mat);
+    if (!mat) return -1;
+    if (MatEchelonize(mat)==-1) return -1;
     nul = mat->Noc - mat->Nor;
     MatFree(mat);
     return nul;

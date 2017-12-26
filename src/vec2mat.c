@@ -63,8 +63,11 @@ Matrix_t *VectorToMatrix(Matrix_t *vecs, int n, int noc)
 	return NULL;
     for (i = 0; i < result->Nor; ++i)
     {
-	if (MatCopyRegion(result,i,0, vecs,n,i*noc,1,noc) != 0)
-	    MTX_ERROR("Copy failed");
+        if (MatCopyRegion(result,i,0, vecs,n,i*noc,1,noc) != 0)
+        {
+            MTX_ERROR("Copy failed");
+            return NULL;
+        }
     }
     return result;
 }

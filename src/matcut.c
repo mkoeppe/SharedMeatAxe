@@ -79,11 +79,12 @@ Matrix_t *MatCut(const Matrix_t *src, int row1, int col1, int nrows, int ncols)
     /* Initialize pointers to the source and destination matrix 
        -------------------------------------------------------- */
     s = MatGetPtr(src,row1);
+    if (!s) return NULL;
     d = result->Data;
 
     /* Copy the requested data
        ----------------------- */
-    FfSetNoc(ncols);
+    if (FfSetNoc(ncols)) return NULL;
     for (n = nrows; n > 0; --n)
     {
 	if (col1 == 0)
@@ -95,9 +96,9 @@ Matrix_t *MatCut(const Matrix_t *src, int row1, int col1, int nrows, int ncols)
 	    {
 #ifdef PARANOID
 		FEL f;
-		FfSetNoc(src->Noc);
+		FfSetNoc(src->Noc);  /* No error checking */
 		f = FfExtract(s,col1+k);
-		FfSetNoc(ncols);
+		FfSetNoc(ncols);  /* error was checked above */
 		FfInsert(d,k,f);
 #else
 		FfInsert(d,k,FfExtract(s,col1+k));

@@ -53,7 +53,7 @@ int MatClean(Matrix_t *mat, const Matrix_t *sub)
 
     /* Clean
        ----- */
-    FfSetNoc(mat->Noc);
+    FfSetNoc(mat->Noc);  /* No error checking */
     for (i = 0; i < mat->Nor; ++i)
     {
 	PTR m = MatGetPtr(mat,i);

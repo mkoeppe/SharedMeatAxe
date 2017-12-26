@@ -68,11 +68,14 @@ int FfReadRows(FILE *f, PTR buf, int n)
        -------------------- */
     for (i = 0; i < n; ++i)
     {
-        if (fread(b,FfCurrentRowSizeIo,1,f) != 1) break;
+	if (fread(b,FfCurrentRowSizeIo,1,f) != 1) break;
 	b += FfCurrentRowSize;
     }
-    if (ferror(f)) 
+    if (ferror(f))
+    {
 	MTX_ERROR("Read failed: %S");
+	return -1;
+    }
     return i;
 }
 
@@ -106,8 +109,11 @@ int FfWriteRows(FILE *f, PTR  buf, int n)
         if (fwrite(b,FfCurrentRowSizeIo,1,f) != 1) break;
 	b += FfCurrentRowSize;
     }
-    if (ferror(f)) 
-	MTX_ERROR("Write failed: %S");
+    if (ferror(f))
+    {
+        MTX_ERROR("Write failed: %S");
+        return -1;
+    }
     return i;
 }
 

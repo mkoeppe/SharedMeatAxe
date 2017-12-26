@@ -68,8 +68,14 @@ Matrix_t *SAction(const Matrix_t *subspace, const Matrix_t *gen)
     sdim = subspace->Nor;
     FfSetField(subspace->Field);
     action = MatAlloc(FfOrder,sdim,sdim);
-    FfSetNoc(dim);
+    if (!action) return NULL;
+    FfSetNoc(dim);  /* No error checking, since dim is the ->Noc of an existing matrix */
     tmp = FfAlloc(1);
+    if (!tmp)
+    {
+        MatFree(action);
+        return NULL;
+    }
 
     /* Calaculate the action.
        ---------------------- */
@@ -77,6 +83,12 @@ Matrix_t *SAction(const Matrix_t *subspace, const Matrix_t *gen)
     {
 	PTR xi = MatGetPtr(subspace,i);
 	PTR yi = MatGetPtr(action,i);
+    if (!xi || !yi)
+    {
+        MatFree(action);
+        SysFree(tmp);
+        return NULL;
+    }
 	FEL f;
 
 	/* Calculate the image of the <i>-th row of <subspace>.
@@ -85,10 +97,20 @@ Matrix_t *SAction(const Matrix_t *subspace, const Matrix_t *gen)
 
 	/* Clean the image with the subspace and store coefficients.
 	   --------------------------------------------------------- */
-	FfCleanRow2(tmp,subspace->Data,sdim,subspace->PivotTable,yi);
-	if (FfFindPivot(tmp,&f) >= 0)
-	    MTX_ERROR("Split(): Subspace not invariant");
+	if (FfCleanRow2(tmp,subspace->Data,sdim,subspace->PivotTable,yi))
+    {
+        MatFree(action);
+        SysFree(tmp);
+        return NULL;
     }
+	if (FfFindPivot(tmp,&f) >= 0)
+	{
+        MatFree(action);
+        SysFree(tmp);
+        MTX_ERROR("Split(): Subspace not invariant");
+        return NULL;
+    }
+	}
 
     /* Clean up and return the result.
        ------------------------------- */

@@ -32,7 +32,7 @@ MTX_DEFINE_FILE_INFO
  ** the order is greater than 1000000, or if the order on any cyclic
  ** subspace is greater than 1000.
  ** @param mat Pointer to the matrix.
- ** @return The order of @em mat, or 1 on error.
+ ** @return The order of @em mat, or -1 on error.
  **/
 
 int MatOrder(const Matrix_t *mat)
@@ -59,15 +59,29 @@ int MatOrder(const Matrix_t *mat)
     FfSetNoc(mat->Noc);
     nor = mat->Nor;
     m1 = FfAlloc(nor);
+    if (!m1) return -1;
     memcpy(m1,mat->Data,FfCurrentRowSize * nor);
     bend = basis = FfAlloc(nor+1);
+    if (!bend)
+    {
+        SysFree(m1);
+        return -1;
+    }
 
     piv = NALLOC(int,nor+1);
     done = NALLOC(char,nor);
+    if (!piv || !done)
+    { SysFree(m1);
+      return -1;
+    }
     memset(done,0,(size_t)nor);
     v1 = FfAlloc(1);
     v2 = FfAlloc(1);
     v3 = FfAlloc(1);
+    if (!v1 || !v2 || !v3)
+    { SysFree(m1);
+      return -1;
+    }
     tord = ord = 1;
     dim = 0;
     j1 = 1;

@@ -82,16 +82,23 @@ Matrix_t *QProjection(const Matrix_t *subspace, const Matrix_t *vectors)
     sdim = subspace->Nor;
     qdim = subspace->Noc - sdim;
     result = MatAlloc(subspace->Field,vectors->Nor,qdim);
+    if (!result) return NULL;
 
     /* Calculate the projection
        ------------------------ */
     FfSetNoc(subspace->Noc);
     tmp = FfAlloc(1);
+    if (!tmp) return NULL;
     non_piv = subspace->PivotTable + subspace->Nor;
     for (i = 0; i < vectors->Nor; ++i)
     {
 	int k;
 	PTR q = MatGetPtr(result,i);
+    if (!q)
+    {
+        SysFree(tmp);
+        return NULL;
+    }
 	FfCopyRow(tmp,MatGetPtr(vectors,i));
 	FfCleanRow(tmp,subspace->Data,sdim,subspace->PivotTable);
 	for (k = 0; k < qdim; ++k)
@@ -158,14 +165,20 @@ Matrix_t *QAction(const Matrix_t *subspace, const Matrix_t *gen)
 
     /* Calculate the action on the quotient
        ------------------------------------ */
-    FfSetNoc(dim);
+    FfSetNoc(dim);  /* No error checking, since dim is the ->Noc of an existing matrix */
     tmp = FfAlloc(1);
+    if (!tmp) return NULL;
     piv = subspace->PivotTable;
     non_piv = piv + subspace->Nor;
     for (k = 0; k < qdim; ++k)
     {
 	int l;
 	PTR qx = MatGetPtr(action,k);
+    if (!qx)
+    {
+        SysFree(tmp);
+        return NULL;
+    }
 	FfCopyRow(tmp,MatGetPtr(gen,non_piv[k]));
 	FfCleanRow(tmp,subspace->Data,sdim,piv);
 	for (l = 0; l < qdim; ++l)

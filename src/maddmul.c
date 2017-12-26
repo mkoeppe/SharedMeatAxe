@@ -59,7 +59,7 @@ Matrix_t *MatAddMul(Matrix_t *dest, const Matrix_t *src, FEL coeff)
 	   ------------ */
 	PTR dp = dest->Data, sp = src->Data;
 	int n;
-	FfSetField(src->Field);
+	FfSetField(src->Field);  /* No error checking */
 	FfSetNoc(src->Noc);
 	for (n = src->Nor; n > 0; --n)
 	{

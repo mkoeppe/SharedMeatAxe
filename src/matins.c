@@ -54,7 +54,7 @@ Matrix_t *MatInsert_(Matrix_t *mat, const Poly_t *pol)
 	return NULL;
     }
 
-    FfSetField(mat->Field);
+    FfSetField(mat->Field);  /* No error checking */
     FfSetNoc(nor);
 
     /* Special case: p(x) = 0
@@ -81,7 +81,10 @@ Matrix_t *MatInsert_(Matrix_t *mat, const Poly_t *pol)
     /* Evaluate p(A)
        ------------- */
     if (pol->Degree > 1) 
-	x = MatDup(mat);
+	{
+		x = MatDup(mat);
+		if (!x) return NULL;
+	}
     if ((f = pol->Data[pol->Degree]) != FF_ONE)
     {
 	for (l = nor, v = mat->Data; l > 0; --l, FfStepPtr(&v))
@@ -147,6 +150,7 @@ Matrix_t *MatInsert(const Matrix_t *mat, const Poly_t *pol)
     if (pol->Degree == 0)
     {
 	x = MatAlloc(mat->Field,nor,nor);
+    if (!x) return NULL;
 	for (l = 0, v = x->Data; l < nor; ++l, FfStepPtr(&v))
 	    FfInsert(v,l,pol->Data[0]);
 	return x;
@@ -155,6 +159,7 @@ Matrix_t *MatInsert(const Matrix_t *mat, const Poly_t *pol)
     /* Evaluate p(A)
        ------------- */
     x = MatDup(mat);
+    if (!x) return NULL;
     if ((f = pol->Data[pol->Degree]) != FF_ONE)
     {
 	for (l = nor, v = x->Data; l > 0; --l, FfStepPtr(&v))

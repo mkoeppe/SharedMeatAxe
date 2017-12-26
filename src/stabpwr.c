@@ -68,15 +68,18 @@ int StablePower_(Matrix_t *mat, int *pwr, Matrix_t **ker)
        --------------------------- */
     p = 1;
     k1 = MatNullSpace(mat);
-    MatMul(mat,mat);
+    if (!k1) return -1;
+    if (!MatMul(mat,mat)) return -1;
     k2 = MatNullSpace(mat);
+    if (!k2) return -1;
     while (k2->Nor > k1->Nor)
     {
 	p *= 2;
 	MatFree(k1);
 	k1 = k2;
-	MatMul(mat,mat);
+	if (!MatMul(mat,mat)) return -1;
 	k2 = MatNullSpace(mat);
+    if (!k2) return -1;
     }
     MatFree(k2);
 

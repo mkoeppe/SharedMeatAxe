@@ -175,7 +175,7 @@ static void polymod(POLY a, POLY b)
    testprim() - Test for primitivity.
    ----------------------------------------------------------------- */
 
-static void testprim()
+static int testprim()
 {
     int i, a[256];
 
@@ -187,7 +187,9 @@ static void testprim()
 	{
 	    fprintf(stderr,"*** a[%d]=%d.",i,a[i]);
 	    MTX_ERROR("Polynome is not primitive.");
+        return 1;
 	}
+    return 0;
 }
 
 
@@ -195,7 +197,7 @@ static void testprim()
    initarith() - Initialize index and zech logarithm tables.
    ----------------------------------------------------------------- */
 
-static void initarith()
+static int initarith()
 {	int i,elem;
 	POLY a;
 
@@ -214,7 +216,7 @@ static void initarith()
 		polmultx(a);
 		polymod(a,irred);
         }
-	testprim();
+	if (testprim()) return 1;
 
 	/* Calculate zech logarithms
 	   ------------------------- */
@@ -222,6 +224,7 @@ static void initarith()
 	{	elem = (int)((i%P)==P-1 ? i+1-P : i+1); /* add 1 */
 		zech[indx[i]]=indx[elem]; /* Zech-table=result */
         }
+    return 0;
 }
 
 
@@ -314,7 +317,7 @@ static BYTE pack(BYTE a[8])
 	and initialize tables.
    ----------------------------------------------------------------- */
 
-static void writeheader()
+static int writeheader()
 {
     int i, j;
 
@@ -324,6 +327,7 @@ static void writeheader()
     {
 	perror(filename);
 	MTX_ERROR("Cannot open table file");
+    return 1;
     }
     for (CPM=1,maxmem=Q; (long)maxmem * Q <= 256L; ++CPM, maxmem *= Q);
     for (i = 0; irrednrs[i] != (int) Q && irrednrs[i] != 0; ++i);
@@ -333,7 +337,7 @@ static void writeheader()
         for (j = 0; j <= MAXGRAD; j++)
             irred[j] = irreducibles[i][MAXGRAD-j];
 	G = P;		/* Generator is X */
-	initarith();	/* Init index- and Zech-tables */
+	if (initarith()) return 1;	/* Init index- and Zech-tables */
     }
     else
     {	
@@ -357,6 +361,7 @@ static void writeheader()
     }
     MESSAGE(1,("Generator   : %ld\n",info[1]));
     MESSAGE(1,("Packing     : %ld/byte\n",info[3]));
+    return 0;
 }
 
 
@@ -364,14 +369,14 @@ static void writeheader()
    checkq() - Set Q and N. Verify that Q is a prime power.
    ----------------------------------------------------------------- */
 
-static void checkq(long l)
+static int checkq(long l)
 {
     long q, d;
 
     if (l < 2 || l > 256)
     {
-	fprintf(stderr,"Field order out of range (2-256)\n");
-	exit(EXIT_ERR);
+	MTX_ERROR1("Field order out of range (2-256): %E", MTX_ERR_RANGE);
+	return 1;
     }
 
     Q = l;
@@ -381,9 +386,10 @@ static void checkq(long l)
        	q /= d;
     if (q != 1)
     {
-	fprintf(stderr,"Illegal Field order\n");
-	exit(EXIT_ERR);
+	MTX_ERROR("Illegal Field order\n");
+	return 1;
     }
+    return 0;
 }
 
 
@@ -407,7 +413,7 @@ static void inittables()
    mkembed() - Calculate embeddings of all subfields.
    ----------------------------------------------------------------- */
 
-static void mkembed()
+static int mkembed()
 {
     int n;	/* Degree of subfield over Z_p */
     long q; /* subfield order */
@@ -456,6 +462,7 @@ static void mkembed()
 	{
 	    fprintf(stderr,"*** q=%ld, Q=%ld.",q,Q);
 	    MTX_ERROR("Internal error.");
+        return 1;
 	}
 
 	/* Calculate a generator for the subfield
@@ -502,13 +509,13 @@ static void mkembed()
 	    fflush(stdout);
 	}
     }
+    return 0;
 }
 
 
 static int Init(int field)
 {
-    checkq(field);
-    return 0;
+    return checkq(field);
 }
 
 /* -----------------------------------------------------------------
@@ -526,7 +533,7 @@ int FfMakeTables(int field)
        ---------- */
     if (Init(field) != 0)
 	return 1;
-    writeheader();			/* Open file and write header */
+    if (writeheader()) return 1;			/* Open file and write header */
     inittables();
 
     /* Make insert table
@@ -618,7 +625,7 @@ int FfMakeTables(int field)
 	}
     }
 
-    mkembed();
+    if (mkembed()) return 1;
 
     MESSAGE(1,("Writing tables to %s\n",filename));
     if (
@@ -639,6 +646,7 @@ int FfMakeTables(int field)
     {
 	perror(filename);
 	MTX_ERROR("Error writing table file");
+    return 1;
     }
     fclose(fd);
     return(0);

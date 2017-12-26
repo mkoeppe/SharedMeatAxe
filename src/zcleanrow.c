@@ -63,10 +63,10 @@ void FfCleanRow(PTR row, PTR matrix, int nor, const int *piv)
  ** @param nor Number of rows.
  ** @param piv Pivot table for @em matrix.
  ** @param row2 Pointer to row where the operations are recorded.
- ** @return Always 0.
+ ** @return 0, or 1 on error.
  **/
 
-void FfCleanRow2(PTR row, PTR mat, int nor, const int *piv, PTR row2)
+int FfCleanRow2(PTR row, PTR mat, int nor, const int *piv, PTR row2)
 {
     int i;
     PTR x;
@@ -74,7 +74,7 @@ void FfCleanRow2(PTR row, PTR mat, int nor, const int *piv, PTR row2)
     if (row2 == NULL || piv == NULL)
     {
 	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return;
+	return 1;
     }
     for (i = 0, x = mat; i < nor; ++i, FfStepPtr(&x))
     {
@@ -86,6 +86,7 @@ void FfCleanRow2(PTR row, PTR mat, int nor, const int *piv, PTR row2)
 	    FfInsert(row2,i,f);
 	}
     }
+    return 0;
 }
 
 
@@ -100,10 +101,10 @@ void FfCleanRow2(PTR row, PTR mat, int nor, const int *piv, PTR row2)
  ** @param piv Pivot table for @em mat.
  ** @param row2 Pointer to the second row to be cleaned.
  ** @param mat2 Matrix to the second matrix.
- ** @return Always 0.
+ ** @return 0, or 1 on error.
  **/
 
-void FfCleanRowAndRepeat(PTR row, PTR mat, int nor, const int *piv, PTR row2, PTR mat2)
+int FfCleanRowAndRepeat(PTR row, PTR mat, int nor, const int *piv, PTR row2, PTR mat2)
 {
     int i;
     PTR x, x2;
@@ -112,7 +113,7 @@ void FfCleanRowAndRepeat(PTR row, PTR mat, int nor, const int *piv, PTR row2, PT
     if (row2 == NULL || piv == NULL || row2 == NULL || mat2 == NULL)
     {
 	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return;
+	return 1;
     }
 #endif
     for (i = 0, x = mat, x2 = mat2; i < nor; ++i, FfStepPtr(&x), FfStepPtr(&x2))
@@ -125,6 +126,7 @@ void FfCleanRowAndRepeat(PTR row, PTR mat, int nor, const int *piv, PTR row2, PT
 	    FfAddMulRow(row2,x2,f);
 	}
     }
+    return 0;
 }
 
 

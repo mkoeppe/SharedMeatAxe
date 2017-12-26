@@ -215,7 +215,7 @@ int Lat_ReadInfo(Lat_Info *li, const char *basename)
 	    }
 	    for (i = 0; i < li->NCf; ++i)
 	    {
-		ReadWord(f,&(li->Cf[i].idword),&(li->Cf[i].idpol),fn);
+		if (!ReadWord(f,&(li->Cf[i].idword),&(li->Cf[i].idpol),fn)) return -1;
 		if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
 		{
 		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
@@ -232,7 +232,7 @@ int Lat_ReadInfo(Lat_Info *li, const char *basename)
 	    }
 	    for (i = 0; i < li->NCf; ++i)
 	    {
-		ReadWord(f,&(li->Cf[i].peakword),&(li->Cf[i].peakpol),fn);
+		if (!ReadWord(f,&(li->Cf[i].peakword),&(li->Cf[i].peakpol),fn)) return -1;
 		if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
 		{
 		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);

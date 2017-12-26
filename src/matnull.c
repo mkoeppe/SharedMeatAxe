@@ -27,6 +27,8 @@ MTX_DEFINE_FILE_INFO
     - |piv| contains a pivot table for the null space.
     If |flags| is nonzero, the null-space is not reduced to echelon form,
     and the contents of |piv| are undefined.
+
+    Return -1 on error, the dimension of the null-space on success.
  ** @see 
  **/
 
@@ -40,7 +42,7 @@ static long znullsp(PTR matrix, long nor, int *piv, PTR nsp, int flags)
 
     /* Make the identity matrix in <nsp>.
        ---------------------------------- */
-    FfSetNoc(nor);
+    if (FfSetNoc(nor)) return -1;
     x = nsp;
     for (i = 0; i < nor; ++i)
     {
@@ -61,13 +63,12 @@ static long znullsp(PTR matrix, long nor, int *piv, PTR nsp, int flags)
 
 	for (k = 0; k < i; ++k)
 	{
-	    FfSetNoc(noc);
+	    FfSetNoc(noc);  /* No error checking, since noc used to be the previously assigned number of columns */
 	    if ((p = piv[k]) >= 0 && (f = FfExtract(x,p)) != FF_ZERO)
 	    {
 		f = FfNeg(FfDiv(f,FfExtract(xx,p)));
-		FfSetNoc(noc);
 		FfAddMulRow(x,xx,f);
-		FfSetNoc(nor);
+		FfSetNoc(nor);  /* we have asserted above that it doesn't fail */
 		FfAddMulRow(y,yy,f);
 	    }
 	    FfSetNoc(noc);
@@ -151,11 +152,21 @@ Matrix_t *MatNullSpace_(Matrix_t *mat, int flags)
     if (nsp == NULL) 
 	return NULL;
     nsp->PivotTable = NREALLOC(nsp->PivotTable,int,mat->Nor);
+    if (!nsp->PivotTable)
+    {
+        MatFree(nsp);
+        return NULL;
+    }
 
     /* Calculate the null-space
        ------------------------ */
-    FfSetNoc(mat->Noc);
+    FfSetNoc(mat->Noc);  /* No error checking */
     dim = znullsp(mat->Data,mat->Nor,nsp->PivotTable,nsp->Data,flags);
+    if (dim==-1)
+    {
+        MatFree(nsp);
+        return NULL;
+    }
     if (flags)
     {
 	SysFree(nsp->PivotTable);

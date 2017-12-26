@@ -44,7 +44,10 @@ int MatWrite(const Matrix_t *mat, FILE *f)
     FfSetField(mat->Field);
     FfSetNoc(mat->Noc);
     if (FfWriteRows(f,mat->Data,mat->Nor) != mat->Nor)
-	return -1;
+	{
+        MTX_ERROR("Cannot write rows");
+        return -1;
+    }
     return 0;
 }
 
@@ -75,7 +78,10 @@ int MatSave(const Matrix_t *mat, const char *fn)
     i = MatWrite(mat,f);
     fclose(f);
     if (i != 0)
-	MTX_ERROR1("Cannot write matrix to %s",fn);
+	{
+        MTX_ERROR1("Cannot write matrix to %s",fn);
+        return -1;
+    }
     return i;
 }
 

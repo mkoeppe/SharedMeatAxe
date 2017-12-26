@@ -61,7 +61,8 @@ int MrChangeBasis(MatRep_t *rep, const Matrix_t *trans)
 /** Conjugate a list @em gen of @em ngen square matrices over the same
  *  field and of the same dimensions by a mattrix @em trans
  *  and write the result into @em newgen. If @em gen == @em newgen, then
- *  the previous content of @em newgen will be overridden. **/
+ *  the previous content of @em newgen will be overridden.
+ *  Return -1 on error and 0 on success. **/
 int ChangeBasis(const Matrix_t *trans, int ngen, const Matrix_t *gen[],
 	Matrix_t *newgen[])
 
@@ -83,18 +84,36 @@ int ChangeBasis(const Matrix_t *trans, int ngen, const Matrix_t *gen[],
     }
 
     Matrix_t *tmp = MatAlloc(trans->Field, trans->Nor, trans->Noc);
+    if (!tmp) return -1;
     size_t tmpsize = FfCurrentRowSize*trans->Nor;
     for (i = 0; i < ngen; ++i)
     {
         MTX_VERIFY(gen[i]->Nor==trans->Nor);
         MTX_VERIFY(gen[i]->Noc==trans->Noc);
         memset(tmp->Data, FF_ZERO, tmpsize);
-        MatMulStrassen(tmp, trans, gen[i]);
+        if (!MatMulStrassen(tmp, trans, gen[i]))
+        {
+			MatFree(tmp);
+			return -1;
+		}
         if ((const Matrix_t **)newgen == gen)
             memset(newgen[i]->Data, FF_ZERO, tmpsize);
         else
+        {
             newgen[i] = MatAlloc(trans->Field, trans->Nor, trans->Noc);
-        MatMulStrassen(newgen[i], tmp, bi);
+            if (!newgen[i])
+            {
+                MatFree(tmp);
+                MatFree(bi);
+                return -1;
+            }
+        }
+        if (!MatMulStrassen(newgen[i], tmp, bi))
+        {
+            MatFree(tmp);
+            MatFree(bi);
+            return -1;
+        }
     }
     MatFree(bi);
     MatFree(tmp);

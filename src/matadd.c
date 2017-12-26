@@ -48,7 +48,7 @@ Matrix_t *MatAdd(Matrix_t *dest, const Matrix_t *src)
        ------------------- */
     dp = dest->Data;
     sp = src->Data;
-    FfSetField(src->Field);
+    FfSetField(src->Field);   /* No error checking */
     FfSetNoc(src->Noc);
     for (n = src->Nor; n > 0; --n)
     {
