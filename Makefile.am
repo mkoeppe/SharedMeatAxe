@@ -1,3 +1,4 @@
 ACLOCAL_AMFLAGS = -I m4
 ZZZ = 0
 SUBDIRS = src
+@DX_RULES@

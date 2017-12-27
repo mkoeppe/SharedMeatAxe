@@ -10,6 +10,18 @@ AC_CONFIG_SRCDIR([src/meataxe.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
+DX_INIT_DOXYGEN([shared_meataxe], [$(top_srcdir)/etc/Doxyfile], [doc])
+DX_DOXYGEN_FEATURE(ON)
+#~ DX_DOT_FEATURE(OFF)
+#~ DX_HTML_FEATURE(ON)
+#~ DX_CHM_FEATURE(ON|OFF)
+#~ DX_CHI_FEATURE(ON|OFF)
+#~ DX_MAN_FEATURE(ON|OFF)
+#~ DX_RTF_FEATURE(ON|OFF)
+#~ DX_XML_FEATURE(ON|OFF)
+#~ DX_PDF_FEATURE(ON)
+#~ DX_PS_FEATURE(ON)
+
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -39,4 +51,5 @@ $PACKAGE_NAME version $PACKAGE_VERSION
 Prefix.........: $prefix
 C Compiler.....: $CC $CFLAGS $CPPFLAGS
 Linker.........: $LD $LDFLAGS $LIBS
+Doxygen........: ${DX_ENV:-NONE}
 "

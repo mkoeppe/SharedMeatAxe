@@ -4,14 +4,18 @@
 
 @page changelog Release Notes
 
-@section Release 2.4.X
+@secion SharedMeatAxe Release 1.0
+@par 27.12.2017
+- Create a shared MeatAxe library using autotools
+
+@section MeatAxe Release 2.4.X
 @par 31-Jul-2011
 - Improved GAP support in PWKOND. Output now includes peak words and associated polynomials.
   Note that the output format has changed and is not compatible with previous releases.
 - Added functions for handling of dynamic strings.
 - Documentation enhancements.
 
-@section Release 2.4.13
+@section MeatAxe Release 2.4.13
 @par 11-May-2009 
 - Makefile reorganization and SVN integration. As a consequence of the latter, the third
   component of the version number is now the subversion revision.
@@ -20,12 +24,12 @@
 - pseudochop: integrated changes by Klaus Lux to get it working under 2.4.8.
   Now using simpler integer mat functions.
 
-@section Release 2.4.8
+@section MeatAxe Release 2.4.8
 @par 21-Apr-2009 
 - Minor corrections.
 - ZSC: accept spin-up scripts starting with a seed vector differnent from 1.
 
-@section Release 2.4.7
+@section MeatAxe Release 2.4.7
 @par 09-Sep-2007
 - More bugfixes for 64-bit platforms.
 @par 03-Sep-2007
