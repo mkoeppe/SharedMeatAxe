@@ -1,0 +1,7 @@
+Simon King (6):
+      Upstream sources: MeatAxe 2.4.24
+      Use the MtxLibDir directory to store library files, and other IO fixes
+      Implement and use Strassen-Winograd multiplication
+      Some performance improvements
+      Propagating errors rather than crashing
+      Use autotools, build shared library -> SharedMeatAxe 1.0

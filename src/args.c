@@ -8,6 +8,7 @@
    ========================================================================== */
 
 #include "meataxe.h"
+#include "config.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
