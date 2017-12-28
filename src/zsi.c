@@ -26,7 +26,7 @@ static PTR Wrk1, Wrk2;
 static const char *aname, *bname, *sumname, *intname;
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zsi", "Sum And Intersection",
 "SYNTAX\n"
 "    zsi [-QV] <Space1> <Space2> <Sum> <Int>"
@@ -51,9 +51,9 @@ static MtxApplication_t *App = NULL;
 
 static int WriteFiles()
 
-{	
+{
     MtxFile_t *of;
-    
+
     MESSAGE(0,("Sum %d, Intersection %d\n",NorA,NorB));
     MESSAGE(1,("Writing sum to %s\n",sumname));
     if ((of = MfCreate(sumname,FfOrder,NorA,FfNoc)) == NULL)
@@ -100,7 +100,7 @@ static int ReadFiles()
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
 	return -1;
     }
-    
+
     /* Allocate work space.
        -------------------- */
     FfSetField(af->Field);
@@ -186,7 +186,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zsi zsi - Sum and Intersection
 
-@section syntax Command Line
+@section zsi-syntax Command Line
 <pre>
 zsi [@em Options] @em Space1 @em Space2 @em Sum @em Int
 </pre>
@@ -202,26 +202,26 @@ zsi [@em Options] @em Space1 @em Space2 @em Sum @em Int
 @par @em Int
   Intersection.
 
-@section inp Input Files
+@section zsi-inp Input Files
 @par @em Space1
   First space.
 @par @em Space2
   Second space.
 
-@section out Output Files
+@section zsi-out Output Files
 @par @em Sum
   Sum.
 @par @em Int
   Intersection.
 
-@section desc Description
+@section zsi-desc Description
 
 This program reads in two spaces from @em Space1 and @em Space2
 and writes out their sum and intersection, in semi-echelon form, to
-@em Sum and @em Int, respectively. 
+@em Sum and @em Int, respectively.
 The input files must be matrices over the same field and with the
 same number of columns. They need not be in echelon form.
 
-There must be enough memory to hold two copies of each of the two 
-spaces at the same time. 
+There must be enough memory to hold two copies of each of the two
+spaces at the same time.
 **/

@@ -19,8 +19,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"zkd", "Condense a permutation", 
+static MtxApplicationInfo_t AppInfo = {
+"zkd", "Condense a permutation",
 "SYNTAX\n"
 "    zkd [-QV] <Field> <Orbits> <Perm> <Kond>\n"
 "\n"
@@ -171,7 +171,7 @@ static void init2()
 
     FfMulRow(hsz,FF_ZERO);
     for (i = 0; i < NOrbits; ++i)
-    {	
+    {
 	int l = (int) OrbitSizes->Data[i];
 	if (l % ppow == 0)
 	    f = FfInv(FfFromInt((l / ppow) % FfChar));
@@ -265,7 +265,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zkd zkd - Condense a Permutation
 
-@section syntax Command Line
+@section zkd-syntax Command Line
 <pre>
 zkd @em Options @em Field @em Orbits @em Perm @em Kond
 </pre>
@@ -282,26 +282,26 @@ Permutation to be condensed.
 @par @em Kond
 Condensed permutation.
 
-@section inp Input Files
+@section zkd-inp Input Files
 @par @em Orbits
 Orbits and orbit sizes.
 @par @em Perm
 Permutation to be condensed.
 
 
-@section out Output Files
+@section zkd-out Output Files
 @par @em Kond
 Condensed permutation.
 
 
-@section desc Description
+@section zkd-desc Description
 This program reads an orbit file (@em Orbits) and a permutation
 from @em Perm.
 It outputs the condensed form, i.e., a matrix over GF(q) to @em Result.
 The field must be specified on the command line because the other input
-data is is all to do with permutations 
+data is is all to do with permutations
 and the program would otherwise not know which field was intended.
-The orbit file must contain two integer matrices containing the orbit 
+The orbit file must contain two integer matrices containing the orbit
 numbers for each point and the orbit sizes, repectively. It is usually
 produced by the @ref prog_zmo "zmo" program.
 
@@ -317,7 +317,7 @@ In this case, @em Result is an integer matrix with the same dimensions as in the
 GF(q) case.
 
 
-@section impl Implementation Details
+@section zkd-impl Implementation Details
 Let r be the number of orbits,
 @f$O_1,\ldots,O_r@f$ the orbits and, for @f$i=1,\ldots,r@f$, @f$l_i:=|O_i|@f$
 the size of the i-th orbit.

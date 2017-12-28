@@ -17,7 +17,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zfr", "Frobenius Automorphism",
 "SYNTAX\n"
 "    zfr [-QV] <Matrix> <Result>\n"
@@ -65,12 +65,12 @@ static int OpenFiles()
        ------------------- */
     if ((ifile = MfOpen(iname)) == NULL)
 	return -1;
-    if (ifile->Field < 2) 
+    if (ifile->Field < 2)
     {
 	MTX_ERROR2("%s: %E",iname,MTX_ERR_NOTMATRIX);
 	return -1;
     }
-    FfSetField(ifile->Field); 
+    FfSetField(ifile->Field);
     FfSetNoc(ifile->Noc);
     MESSAGE(0,("Characteristic is %d\n",FfChar));
 
@@ -163,7 +163,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zfr zfr - Frobenius Automorphism
 
-@section syntax Command Line
+@section zfr-syntax Command Line
 <pre>
 zfr @em Options @em Mat @em Result
 </pre>
@@ -175,16 +175,16 @@ zfr @em Options @em Mat @em Result
 @par @em Result
   Result matrix
 
-@section inp Input Files
+@section zfr-inp Input Files
 @par @em Mat
   Input matrix
 
-@section out Output Files
+@section zfr-out Output Files
 @par @em Result
   Result matrix
 
-@section desc Description
-This program reads a matrix, applies the Frobenius automorphism 
-x↦x<sup>p</sup>, where p is the characteristic of the field, 
-to each entry and writes out the result. 
+@section zfr-desc Description
+This program reads a matrix, applies the Frobenius automorphism
+x↦x<sup>p</sup>, where p is the characteristic of the field,
+to each entry and writes out the result.
 */

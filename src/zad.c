@@ -16,8 +16,8 @@
    Variables
    ------------------------------------------------------------------ */
 
-static MtxApplicationInfo_t AppInfo = { 
-"zad", "Add or Subtract Matrices", 
+static MtxApplicationInfo_t AppInfo = {
+"zad", "Add or Subtract Matrices",
 "SYNTAX\n"
 "    zad " MTX_COMMON_OPTIONS_SYNTAX " [-]<Mat> [-]<Mat> ... <Result>\n"
 "\n"
@@ -51,7 +51,7 @@ static int CheckHeader(const char *fn, int fl, int nor, int noc)
 {
     static const char *fn0 = NULL;
 
-    if (fl < 2) 
+    if (fl < 2)
     {
 	MTX_ERROR2("%s: %E",fn,MTX_ERR_NOTMATRIX);
 	return -1;
@@ -146,7 +146,7 @@ static void CleanUp()
     }
     if (Output != NULL)
 	fclose(Output);
- 
+
     /* Free workspace.
        --------------- */
     if (Buf1 != NULL) SysFree(Buf1);
@@ -214,7 +214,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zad zad - Add Matrices
 
-@section syntax Command Line
+@section zad-syntax Command Line
 <pre>
 zad [@em Options] [-]@em Mat [-]@em Mat ... @em Result
 </pre>
@@ -226,20 +226,20 @@ zad [@em Options] [-]@em Mat [-]@em Mat ... @em Result
 @par @em Result
   Result matrix
 
-@section inp Input Files
+@section zad-inp Input Files
 @par @em Mat
   Input matrix
 
-@section out Output Files
+@section zad-out Output Files
 @par @em Result
   Result matrix
 
-@section desc Description
+@section zad-desc Description
 
 This program reads two or more input matrices, calculates their sum or difference and
 writes the result to a file.  The input matrices must be compatible, i.e., they must be
 over the same field and have the same dimensions. @b zad is designed to work with very
-large matrices without running out of memory. Only two rows are allocated as working 
+large matrices without running out of memory. Only two rows are allocated as working
 memory.
 
 By default, all input matrices are added. For example,

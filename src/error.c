@@ -12,12 +12,77 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
+/** @defgroup err Error handling and messages
+ ** @details
+ ** Errors can occur inside the MeatAxe library for many reasons:
+ ** * insufficient system resources (memory, disk space),
+ ** * device or operating system failure,
+ ** * invalid parameters passed to a MeatAxe library function,
+ ** * invalid usage of MeatAxe library functions, for example missing
+ **   initialization, etc.
+ **
+ ** Note that invalid parameters are not always detected by the MeatAxe library.
+ ** For example, most kernel functions such as FfAdd() do not check their
+ ** arguments for the sake of performance. Thus, calling these function with
+ ** invalid arguments may produce random results or even crash the program.
+ ** However, most higher-level functions do some plausibility checks on their
+ ** arguments before processing them.
+ **
+ ** When an error is detected, some variant of MtxError() is called, which
+ ** extracts information on where and why the error occurred, and calls an
+ ** error handler with that information. The default error handler just
+ ** terminates the program with an appropriate error message. But code linked
+ ** against libmtx.so can of course define a custom error handler.
+ **
+ ** In SharedMeatAxe 1.0, as opposed to MeatAxe 2.4.24, most higher level
+ ** functions return a specific value in the case of an error, and they
+ ** propagate these error values. It thus makes sense for a MeatAxe
+ ** application to define a custom error handler that stores the
+ ** information provided by MtxError(), and then check whether a called
+ ** library function returns an error value; if it does, the application
+ ** can deal with the error based on the data stored by the error handler.
+ **
+ ** @section err-usage How to use the error handling framework
+ ** Each source file which uses the MeatAxe error mechanism, i.e.,
+ ** MtxError() or any of the MTX_ERROR() macros, must also define one
+ ** MtxFileInfo_t structure at file scope. This is most conveniently done
+ ** by putting the MTX_DEFINE_FILE_INFO macro into the file.
+ **
+ ** Here is a short example:
+ ** @code
+ ** #include "meataxe.h"
+ **
+ ** MTX_DEFINE_FILE_INFO
+ **
+ ** int divide(int a, int b)
+ ** {
+ **     if (b == 0)
+ **     {
+ **       MTX_ERROR("Division by 0");
+ **       return 0;
+ **     }
+ **     return a / b;
+ ** }
+ ** @endcode
+ ** Note that you must not assume that MTX_ERROR terminates the program.
+ ** Thus, if another function calls divide(a,b), which returns 0, then it
+ ** is possible that an error has occurred. Hence, the callee needs to
+ ** check whether there is an error or not, and eventually return its own
+ ** error value.
+ **
+ ** @see MtxError MtxErrorRecord_t MTX_DEFINE_FILE_INFO
+ ** @{
+ **/
 
 static void (*ErrorHandler)(const MtxErrorRecord_t *err) = NULL;
 static FILE *LogFile = NULL;
 
-
+/**
+ ** The default error handler.
+ ** It just prints the error message to the logfile, which
+ ** typically is stderr, and exits with value 255.
+ ** @param e an error record.
+ **/
 
 static void DefaultHandler(const MtxErrorRecord_t *e)
 {
@@ -34,20 +99,13 @@ static void DefaultHandler(const MtxErrorRecord_t *e)
 
 
 /**
-!section general.err
- ** Define an application error handler.
-!synopsis 
-    typedef struct { ... } MtxErrorRecord;
-    typedef void MtxErrorHandler_t(const MtxErrorRecord *err);
-    MtxErrorHandler_t *MtxSetErrorHandler(MtxErrorHandler_t *h);
+ ** Define an error handler.
+ ** This function defines an error handler that is called every
+ ** time an error occurs inside libmtx.so.
  ** @param h
-    Address of the new error handler or |NULL| to restore the default handler.
- ** @return
-    Returns the previous error handler.
-!description
-    This function defines an application error handler which is called every
-    time an error occurs inside the {\MeatAxe} library.
- ** @see @errmsg MtxErrorRecord_t MtxErrorHandler_t
+ ** Pointer to the new error handler or NULL to restore the default handler.
+ ** @return Returns the previous error handler.
+ ** @see MtxErrorRecord_t MtxErrorHandler_t
  **/
 
 MtxErrorHandler_t *MtxSetErrorHandler(MtxErrorHandler_t *h)
@@ -62,24 +120,16 @@ MtxErrorHandler_t *MtxSetErrorHandler(MtxErrorHandler_t *h)
 
 /**
  ** Signal an error.
- ** @param fi
-    Pointer to a file information structure.
- ** @param line
-    Line number where the error occured.
- ** @param text
-    Error description.
- ** @param ...
-    Optional arguments to be inserted into the error description.
- ** @return
-    The return value is always 0.
-!description
-    This function is mainly used internally by the {\MeatAxe} library to
-    report errors. If an application error handler has been installed, it 
-    is executed. Otherwise an error message is written to the error log 
-    file (stderr by default) and the program is terminated.
-
-    The error message, |msg|, is formatted with |MtxFormatMessage()|.
- ** @see @errmsg
+ ** This function is used to report errors. The current error handler
+ ** is executed- The default handler just writes an error message
+ ** to the error log file (stderr by default) and terminates the program.
+ **
+ ** The error message, @a text, is formatted with MtxFormatMessage().
+ ** @param fi Pointer to a file information structure.
+ ** @param line Line number where the error occurred.
+ ** @param text Error description.
+ ** @param ... Optional arguments to be inserted into the error description.
+ ** @return The return value is always 0.
  **/
 
 int MtxError(MtxFileInfo_t *fi, int line, const char *text, ...)
@@ -119,120 +169,12 @@ int MtxError(MtxFileInfo_t *fi, int line, const char *text, ...)
     return 0;
 }
 
-
-
-
-
-
-
 /**
-!structure MtxFileInfo_t "File information structure"
-!synopsis 
-typedef struct 
-{ 
-    const char *Name; 
-    const char *BaseName; 
-} MtxFileInfo_t;
-
-!description
-This data structure contains information about a source file. It is information
-used when an error is reported via |MtxError()|. Each source file which uses the
-{\MeatAxe} error mechanism, i.e.,|MtxError()| or any of the |MTX_ERROR| macros,
-must also define one |MtxFileInfo_t| structure at file scope. There is a macro,
-|MTX_DEFINE_FILE_INFO| which can be used to define this structure.
- ** @see MtxError MtxErrorRecord_t MTX_DEFINE_FILE_INFO
- **/
-
-
-/**
-!structure MtxErrorRecord_t "Error data structure"
-!synopsis 
-typedef struct 
-{ 
-    const MtxFileInfo_t *fi; 
-    int LineNo; 
-    const char *Text; 
-} MtxErrorRecord_t;
-
-!description
-    This data structure contains detailed information on an error that occured
-    inside the {\MeatAxe} library.
- ** @see MtxSetErrorHandler
- **/
-
-/**
-!structure MtxErrorHandler_t "Error handler function type"
-!synopsis 
-    typedef void MtxErrorHandler_t(const MtxErrorRecord_t *err);
-!description
-    This is the type of an application error handler.
- ** @see MtxSetErrorHandler MtxErrorRecord_t
- **/
-
-/**
- ** Define file information.
-!synopsis 
-    MTX_DEFINE_FILE_INFO
-!description
-    This macro must be included in each source file that uses the
-    {\MeatAxe} error reporting mechanism. It defines a data structure
-    of type |MtxFileInfo_t| that is used by the error reporting macros
-    |MTX_ERRORx|.
+ ** @fn MTX_DEFINE_FILE_INFO
+ ** This macro must be included in each source file that uses the
+ ** MeatAxe error reporting mechanism. It defines a data structure
+ ** of type MtxFileInfo_t that is used by the error reporting macros
  ** @see MtxError
  **/
 
-/**
-!definesection general.err
-Errors can occur inside the {\MeatAxe} library for many reasons:
-\begin{itemize}
-\item insufficient system resources (memory, disk space),
-\item device or operating system failure,
-\item invalid parameters passed to a {\MeatAxe} library function,
-\item invalid usage of {\MeatAxe} library functions, for example missing
-    initialization, etc.
-\end{itemize}
-Note that invalid parameters are not always detected by the {\MeatAxe} library.
-For example, most kernel functions such as |FfAdd()| do not check their 
-arguments for the sake of performance. Thus, calling these function with 
-invalid arguments may produce random results or even crash the program. 
-On the other hand, most higher-level functions like |MatAdd()| do some
-plausibility checks on their arguments before processing them.
-
-When an error is detected, the default action is to terminate the program
-immediately with an appropriate error message. While this minimizes the chance 
-of not noticing an error, it may be undesirable in some situations. For example,
-the application may be able to recover from the error. In order to prevent 
-the {\MeatAxe} library from terminating the program, the application can
-define an application error handler. This is a function which is called on
-each error.
-
-To use the {\MeatAxe} error reporting mechanism, the following steps are
-necessary:
-\begin{enumerate}
-\item Insert the macro |MTX_DEFINE_FILE_INFO| somewhere at the top of each 
-    source file. This macro defines a |MtxFileInfo_t| structure which is used
-    in reporting errors.
-\item To report an error, use any of the |MTX_ERRORx| macros. There are several
-    variants for different numbers of arguments. Note that the error message
-    passed to |MTX_ERRORx()| is in printf style, but only a resticted set of 
-    format specifiers is available. See |MtxFormatMessage()| for details.
-\end{enumerate}
-Here is a short example:
-\begin{verbatim}
-#include "meataxe.h"
-
-MTX_DEFINE_FILE_INFO
-
-int divide(int a, int b)
-{
-    if (b == 0)
-    {
-	MTX_ERROR("Division by 0");
-	return 0;
-    }
-    return a / b;
-}
-\end{verbatim}
-Note that you must not assume that |MTX_ERROR| terminates the program. In fact
-|MTX_ERROR| may return if a user-defined error handler has been installed.
- **/
+/** @} **/

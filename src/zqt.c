@@ -20,8 +20,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"zqt", "Clean And Quotient", 
+static MtxApplicationInfo_t AppInfo = {
+"zqt", "Clean And Quotient",
 "SYNTAX\n"
 "    zqt [-i] [<Subsp> <Matrix> <Quotient>]\n"
 "\n"
@@ -100,7 +100,7 @@ static int ReadFiles()
 	MTX_ERROR3("%s and %S: %E",sname,mname,MTX_ERR_INCOMPAT);
 	return 1;
     }
-    if (opt_i && InputFile->Nor != InputFile->Noc) 
+    if (opt_i && InputFile->Nor != InputFile->Noc)
     {
 	MTX_ERROR2("%s: %E",mname,MTX_ERR_NOTSQUARE);
 	return 1;
@@ -234,7 +234,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zqt zqt - Clean and Quotient
 
-@section syntax Command Line
+@section zqt-syntax Command Line
 <pre>
 zqt [@em Options] [-i] @em Subsp @em Matrix @em Quot
 </pre>
@@ -250,18 +250,18 @@ zqt [@em Options] [-i] @em Subsp @em Matrix @em Quot
 @par @em Quot.
   The quotient.
 
-@section ifile Input Files
+@section zqt-inp Input Files
 @par @em Subsp
   The subspace, a M×N matrix in echelon form.
 @par @em Mat
   The matrix (L×N).
 
-@section ofile Output Files
+@section zqt-out Output Files
 @par @em Quot.
   The quotient, a L×(N-M) matrix.
   With "-i", the action on the quotient, a (N-M)×(N-M) matrix.
 
-@section desc Description
+@section zqt-desc Description
 This program reads in a subspace and applies the canonical map to its quotient
 on a matrix. The result is written out to @em Quot.
 @em Subsp should be a matrix in semi-echelon form, and the two
@@ -277,7 +277,7 @@ extracted and written out to @em Quot. Hence
 - @em Matrix has L rows, N columns and is otherwise arbitrary, and
 - @em Quot has L rows and N-M columns.
 In other words, the program calculates the projection of @em Matrix
-onto the B-A dimensional quotient space defined by @em Subsp.  
+onto the B-A dimensional quotient space defined by @em Subsp.
 If the "-i" option is used, @b zqt calculates the action of the
 Matrix on the quotient. This is done by projecting the matrix as
 explained above, and taking only the @em insignificant rows.
@@ -307,7 +307,7 @@ zqt X T1 KZ2
 </pre>
 
 
-@section impl Implementation Details
+@section zqt-impl Implementation Details
 It is not completely checked that @em Subsp is in echelon form.
 
 The Subspace and one row of both @em Matrix and @em Subsp must fit into memory.

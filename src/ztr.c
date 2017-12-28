@@ -24,7 +24,7 @@ static int nor, noc, j;
 static FILE *f;
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "ztr", "Transpose",
 "SYNTAX\n"
 "    ztr [-QV] <Mat> <Result>"
@@ -53,7 +53,7 @@ static int ReadMatrix()
        ----------- */
     if ((f = FfReadHeader(iname,&fl,&nor,&noc)) == NULL)
 	return 1;
-    if (fl < 2) 
+    if (fl < 2)
     {
 	MTX_ERROR2("%s: %E",iname,MTX_ERR_NOTMATRIX);
 	return 1;
@@ -142,7 +142,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_ztr ztr - Transpose
 
-@section syntax Command Line
+@section ztr-syntax Command Line
 <pre>
 ztr [@em Options] @em Mat @em Result
 </pre>
@@ -156,18 +156,18 @@ Standard options, see @ref prog_stdopts.
 @par @em Result
     Transposed matrix.
 
-@section inp Input Files
+@section ztr-inp Input Files
 
 @par @em Mat
     Input matrix.
 
-@section out Output Files
+@section ztr-out Output Files
 
 @par @em Result
     Transposed matrix.
 
 
-@section desc Description
+@section ztr-desc Description
 This program transposes a matrix.
 
 */

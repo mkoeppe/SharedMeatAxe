@@ -41,9 +41,9 @@ MTX_COMMON_OPTIONS_DESCRIPTION
 "    <M>.dec ................. O  Basis of <M> reflecting the decomposition.\n"
 "    <M>.dec.{1,2...} ........ O  Generators in decomp. basis (with -t).\n"
 "    <M>.<Comp>.{1,2...} ..... O  Generators on the components (with -a).\n"
-};                                                                              
-                                                                                
-static MtxApplication_t *App = NULL;                                            
+};
+
+static MtxApplication_t *App = NULL;
 static const char *ModName = NULL;
 static const char *EndoName = NULL;
 static Lat_Info ModInfo;		/* Data from .cfinfo file */
@@ -123,7 +123,7 @@ static int ReadFiles()
 static int Init(int argc, const char **argv)
 
 {
-    if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)                           
+    if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
         return -1;
     if (ParseArgs() != 0)
         return -1;
@@ -198,7 +198,7 @@ static int WriteOutput(Matrix_t *bas)
 		    Matrix_t *tmp = MatCut(rep->Gen[i],block_start,block_start,
 			compdim[k],compdim[k]);
 		    block_start += compdim[k];
-		    sprintf(name, "%s.comp%d%c%d.%d", ModName,compdim[k], 
+		    sprintf(name, "%s.comp%d%c%d.%d", ModName,compdim[k],
 			compnm[k],l+1,i+1);
 		    MatSave(tmp, name);
 		    MatFree(tmp);
@@ -222,12 +222,12 @@ int main(int argc, const char **argv)
     char name[200];
     FPoly_t *pol = NULL;
 
-                                                                                
-    if (Init(argc,argv) != 0)                                                   
-    {                                                                           
-        MTX_ERROR("Initialization failed");                                     
-        return 1;                                                               
-    }                                                                           
+
+    if (Init(argc,argv) != 0)
+    {
+        MTX_ERROR("Initialization failed");
+        return 1;
+    }
 
 /* -------------------------------------------------------
    makes the corresponding element of the endomorphismring
@@ -269,8 +269,8 @@ int main(int argc, const char **argv)
 		    FpFree(pol);
 		pol = CharPol(partbas);
 	    }
-	    while (LrrInfo.Cf[i].dim != 1 && pol->NFactors == 1 
-		&& pol->Factor[0]->Degree == 1 && pol->Factor[0]->Data[0] == 0 
+	    while (LrrInfo.Cf[i].dim != 1 && pol->NFactors == 1
+		&& pol->Factor[0]->Degree == 1 && pol->Factor[0]->Data[0] == 0
 		&& pol->Factor[0]->Data[1] == 1); /* i.e.,charpol == x^enddim */
 	    FfSetNoc(enddim);
 	    headptr = FfGetPtr(headptr,num);
@@ -321,9 +321,9 @@ int main(int argc, const char **argv)
 
 
 /**
-@page prog_decomp decomp - Decompose a Module                                                  
+@page prog_decomp decomp - Decompose a Module
 
-@section syntax Command Line
+@section decomp-syntax Command Line
 <pre>
 decomp @em Options [-ta] @em Module @em Endo @em RadBasis
 </pre>
@@ -341,7 +341,7 @@ decomp @em Options [-ta] @em Module @em Endo @em RadBasis
 @par @em RadBasis
     Basis for radical series of the endomorphism ring.
 
-@section inp Input Files
+@section decomp-inp Input Files
 @par @em Module.1, @em Module.2, ...
   Generators for the module.
 @par @em Module.cfinfo
@@ -359,7 +359,7 @@ decomp @em Options [-ta] @em Module @em Endo @em RadBasis
 @par @em Endo.lrr.soc
   Basis if the socle of @em Endo.lrr (make by @ref prog_soc "soc").
 
-@section out Output Files
+@section decomp-out Output Files
 @par @em Module.dec
   Basis of the module reflecting the decomposition.
 @par @em Module.dec.1, @em Module.dec.2, ...
@@ -368,7 +368,7 @@ decomp @em Options [-ta] @em Module @em Endo @em RadBasis
 @par @em Module.@em Comp.1, @em Module.@em Comp.2, ...
   Generators on the components (with -a).
 
-@section desc Description
+@section decomp-desc Description
 This program decomposes a module into its direct summands, using the
 head of the endomorphism ring. It assumes that the endomorphism ring
 and its left regular representation has already be calculated using
@@ -377,22 +377,22 @@ and its left regular representation has already be calculated using
 the left regular representation.
 
 @b decomp produces three types of output files:
-- A basis of the module reflecting the decomposition is written to 
+- A basis of the module reflecting the decomposition is written to
   @em Module.dec. With respect to this basis, the generators have
   a block-diagonal structure with the blocks corresponding to the
   direct summands.
-- If you use the "-t" option, @b decomp calculates the action of 
+- If you use the "-t" option, @b decomp calculates the action of
   the generators with respect to the decomposition
   basis, and writes it to @em Module.dec.1, @em Module.dec.2,...
-- If you use the "-a" option, the program also calculates the action 
-  of the generators on each direct summand, i.e., the blocks of the 
+- If you use the "-a" option, the program also calculates the action
+  of the generators on each direct summand, i.e., the blocks of the
   matrices above. They are written to @em Module.@em Comp.1, @em Module.@em Comp.2,
-  and so on, where @em Comp is the name 
-  of the direct summand, containing the isomorphism type (dimension 
-  plus one letter) and a number counting isomorphic summands that 
+  and so on, where @em Comp is the name
+  of the direct summand, containing the isomorphism type (dimension
+  plus one letter) and a number counting isomorphic summands that
   occur more than once in the decomposition.
-                                                                                
-@section impl Implementation Details
-  The algorithm used by this program was developed by Magdolna Szöke [@ref Sz98].
+
+@section decomp-impl Implementation Details
+  The algorithm used by this program was developed by Magdolna Szöke @ref Sz98 "[Sz98]".
 
 **/

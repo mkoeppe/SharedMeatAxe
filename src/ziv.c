@@ -22,7 +22,7 @@ MTX_DEFINE_FILE_INFO
 
 static const char *iname, *oname;
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "ziv", "Invert Matrix or Permutation",
 "SYNTAX"
 "    ziv [-QV] <File> <Result>\n"
@@ -108,7 +108,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_ziv ziv - Invert
 
-@section syntax Command Line
+@section ziv-syntax Command Line
 <pre>
 ziv @em Options @em Input @em Result
 </pre>
@@ -120,14 +120,14 @@ ziv @em Options @em Input @em Result
 @par @em Result
   Result file.
 
-@section inp Input Files
+@section ziv-inp Input Files
 @par @em Input
   A square natrix or permutation.
 
-@section out Output Files
+@section ziv-out Output Files
 @par @em Result
   Inverted matrix or permutation.
 
-@section desc Description
+@section ziv-desc Description
 This program inverts a matrix or permutation.
 **/

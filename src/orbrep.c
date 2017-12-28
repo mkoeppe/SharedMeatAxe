@@ -30,7 +30,7 @@ static long *ptnr;
 static long *pre;
 static int *gen;
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "orbrep", "Find word mapping seed to stop point",
 "SYNTAX\n"
 "    orbrep [<Options>] [-g <#Perms>] <Perm> <Seed> <Stop> <Script>\n"
@@ -169,7 +169,7 @@ static int MakeOrbit()
 }
 
 /* ###################################################################### */
-static int WriteOutput() 
+static int WriteOutput()
 
 {
     FILE *f;
@@ -239,7 +239,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_orbrep orbrep - Find a permutation which maps A to B
 
-@section syntax Command Line
+@section orbrep-syntax Command Line
 <pre>
 orbrep [@em Options] [-g @em NPerms] @em Perm @em Seed @em Stop @em Script
 </pre>
@@ -257,15 +257,15 @@ orbrep [@em Options] [-g @em NPerms] @em Perm @em Seed @em Stop @em Script
 @par @em Script
 Result (see description).
 
-@section inp Input Files
+@section orbrep-inp Input Files
 @par @em Perm.1, @em Perm.2, ...
   Permutations.
 
-@section out Output Files
+@section orbrep-out Output Files
 @par @em Script
   Result.
 
-@section desc Description
+@section orbrep-desc Description
 Given a set of generating permutations, this program find a product of the
 generators which maps a given point, @em Start, to a second given
 point, @em Stop.

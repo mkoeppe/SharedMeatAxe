@@ -38,8 +38,8 @@ static const char *inpname = "[stdin]";
 static const char *outname = "";
 static int MemberCount = 0;		/* Number of members */
 
-static MtxApplicationInfo_t AppInfo = { 
-"zcv","Convert Text to Binary Format", 
+static MtxApplicationInfo_t AppInfo = {
+"zcv","Convert Text to Binary Format",
 "SYNTAX\n"
 "    zcv <Inp> <Out>\n"
 "\n"
@@ -75,7 +75,7 @@ static int readline()
     {	lbuf[0] = 0;
 	if (feof(src)) return 1;
 	fgets(lbuf,sizeof(lbuf),src);
-	if (ferror(src)) 
+	if (ferror(src))
 	{
 	    MTX_ERROR("Unexpected end of input file");
 	    return -1;
@@ -104,7 +104,7 @@ static long readlong()
 	while (*lptr != 0 && !isdigit(*lptr) && *lptr != '-') ++lptr;
 	if (*lptr == 0)
 	{
-	    if (readline()) 
+	    if (readline())
 	    {
 		MTX_ERROR("Unexpected end of input file");
 		return -1;
@@ -118,7 +118,7 @@ static long readlong()
 	return -1;
     }
     for (l = 0; isdigit(*lptr); )
-    {	
+    {
 	l *= 10;
 	switch (*lptr)
 	{   case '0': break;
@@ -161,18 +161,18 @@ static void WriteHeader(long a, long b, long c)
 
 static void convmatrix()
 
-{	
+{
     int i, j;
     PTR m1;
     long val = 0;
     int inp;
 
-    if (fl > 9) 
+    if (fl > 9)
     {
 	MTX_ERROR1("Mode 1 not allowed for GF(%d)",fl);
 	return;
     }
-    FfSetField(fl); 
+    FfSetField(fl);
     FfSetNoc(noc);
     m1 = FfAlloc(1);
     WriteHeader(fl,nor,noc);
@@ -182,9 +182,9 @@ static void convmatrix()
 	inp = 81;
 	for (j = 0; j < noc; ++j)
 	{	if (inp >= 80)	/* read next line */
-		{	
+		{
 		    memset(lbuf,0,sizeof(lbuf));
-		    if (readline()) 
+		    if (readline())
 			return;
 		    inp = 0;
 		}
@@ -199,10 +199,10 @@ static void convmatrix()
 			case '6': val = 6; break;
 			case '7': val = 7; break;
 			case '8': val = 8; break;
-			default: 
+			default:
 			    MTX_ERROR1("%s: Bad file format (Digit expected)",inpname);
 		}
-		if (val > fl) 
+		if (val > fl)
 		    MTX_ERROR1("%s: Bad file format",inpname);
 		FfInsert(m1,j,FfFromInt(val));
 	}
@@ -217,13 +217,13 @@ static void convmatrix()
 
 static void conv3456()
 
-{	
+{
     int i, j;
     PTR m1;
     long val;
 
     MESSAGE(0,("%dx%d matrix over GF(%d)\n",nor,noc,fl));
-    FfSetField(fl); 
+    FfSetField(fl);
     FfSetNoc(noc);
     m1 = FfAlloc((long)1);
     WriteHeader(fl,nor,noc);
@@ -255,7 +255,7 @@ static void ConvertMatrix()
     long val;
 
     MESSAGE(0,("%dx%d matrix over GF(%d)\n",nor,noc,fl));
-    FfSetField(fl); 
+    FfSetField(fl);
     FfSetNoc(noc);
     m1 = FfAlloc((long)1);
     WriteHeader(fl,nor,noc);
@@ -309,7 +309,7 @@ static void ConvertPermutation()
 
     MESSAGE(0,("Permutation on %d points\n",nor));
     buf = NALLOC(long,nor);
-    if (buf == NULL) 
+    if (buf == NULL)
 	MTX_ERROR("Cannot allocate permutation: %S");
     WriteHeader(-1,nor,1);
 
@@ -363,12 +363,12 @@ void convperm()		/* mode 2 */
     PTR m1;
 
     MESSAGE(0,("%dx%d permutation matrix over GF(%d)\n",nor,noc,fl));
-    FfSetField(fl); 
-    FfSetNoc(noc); 
+    FfSetField(fl);
+    FfSetNoc(noc);
     m1 = FfAlloc((long)1);
     WriteHeader(fl,nor,noc);
     for (i = 1; i <= nor; ++i)
-    {	
+    {
 	val = readlong();
 	FfMulRow(m1,FF_ZERO);
 	FfInsert(m1,val - 1,FF_ONE);
@@ -391,14 +391,14 @@ void conv1213()		/* modes 12, 13 */
 
     MESSAGE(0,("Permutation on %d points\n",nor));
     buf = NALLOC(long,nor);
-    if (buf == NULL) 
+    if (buf == NULL)
     {
 	MTX_ERROR("Cannot allocate permutation: %S");
 	return;
     }
     WriteHeader(-fl,nor,noc);
     for (nper = noc; nper != 0; --nper)
-    {	
+    {
 	for (i = 0; i < nor; ++i)
 	{
 	    switch (mod)
@@ -450,7 +450,7 @@ static void Convert(void)
     {
 	char *d = lbuf;
 	for (c += 15; *c != 0 && *c != '"'; ++c);
-	if (*c != '"') 
+	if (*c != '"')
 	    MTX_ERROR1("%s: Bad file format",inpname);
 	for (++c; *c != '"' && *c != 0; ++c)
 	    *d++ = *c;
@@ -522,7 +522,7 @@ static void Convert(void)
     	    else if (!strncmp(c,"field=",6)) fl = atol(c+6);
     	    else MTX_ERROR1("%s: Bad polynomial header format",inpname);
     	}
-    	if (nor < 0 || fl < 2) 
+    	if (nor < 0 || fl < 2)
 	    MTX_ERROR3("%s: Bad header: fl=%d, deg=%d",inpname,fl,nor);
     	readline();
     	ConvertPolynomial();
@@ -573,7 +573,7 @@ static void Convert(void)
 
 static int Init(int argc, const char **argv)
 
-{	
+{
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
 	return -1;
     if (AppGetArguments(App,2,2) < 0)
@@ -624,7 +624,7 @@ static void Cleanup()
 
 int main(int argc, const char **argv)
 
-{	
+{
     if (Init(argc,argv) != 0)
 	return 0;
 
@@ -647,7 +647,7 @@ int main(int argc, const char **argv)
 @page prog_zcv zcv - Convert Text to Binary Format
 @see @ref prog_zpr
 
-@section syntax Command Line
+@section zcv-syntax Command Line
 <pre>
 zcv @em Options @em TextFile @em DataFile
 </pre>
@@ -661,27 +661,27 @@ Input file (text)
 @par @em DataFile
 Output file (binary)
 
-@section inp Input Files
+@section zcv-inp Input Files
 
 @par @em TextFile
 Input file (text)
 
-@section out Output Files
+@section zcv-out Output Files
 
 @par @em DataFile
 Output file (binary)
 
-@section desc Description
+@section zcv-desc Description
 This program converts a text file into binary format.
-If the input file name is "-", input is read from stdin. 
+If the input file name is "-", input is read from stdin.
 
 @par Text File Format
-The text file is interpreted line by line. Empty lines are ignored 
-completetly. If the line contains one or more "#", which may occur at 
+The text file is interpreted line by line. Empty lines are ignored
+completetly. If the line contains one or more "#", which may occur at
 any position, the first "#" and all remaining characters on this line
 are ingored.
 
-Each object, for example a matrix or a permutation, consists of a one 
+Each object, for example a matrix or a permutation, consists of a one
 line header followed by the data. Here are some examples of possible
 header formats:
 <pre>
@@ -693,14 +693,14 @@ The header may be given in a different format, for example
 <pre>
 MeatAxeFileInfo := "matrix field=5 rows=100 cols=100";
 </pre>
-Other header formats are supported for compatibility with older versions 
+Other header formats are supported for compatibility with older versions
 of the MeatAxe.
 
-After an old type 1 header, the format of the data follwing the header is 
-fixed. There must be at most 80 characters per line, lines must be filled 
-as much as possible, and each row of the matrix starts with a new input 
-line. There are no blanks allowed to separate numbers. In all other modes, 
-the data part consists of a sequence of integers in free format, separated 
+After an old type 1 header, the format of the data follwing the header is
+fixed. There must be at most 80 characters per line, lines must be filled
+as much as possible, and each row of the matrix starts with a new input
+line. There are no blanks allowed to separate numbers. In all other modes,
+the data part consists of a sequence of integers in free format, separated
 by any combination of blanks, tabs, or newlines.
 
 

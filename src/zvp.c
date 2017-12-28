@@ -25,7 +25,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zvp", "Vector Permute",
 "SYNTAX\n"
 "    zvp [<Options>] [-g <NGen>] <Mat> <Seed> <Perm> [<Orbit>]\n"
@@ -94,22 +94,22 @@ static const char *OrbName = "orbit";	/* Orbit file name (optional) */
 
 static void InitHash()
 
-{	
+{
     int dim = Gen[0]->Noc;
     int tod, i;
 
     neh = (dim > 25) ? 25 : dim;
     tod = 100;
     hasp = tabsize;
-    if (hasp < 110) 
+    if (hasp < 110)
 	tod = 7;
     if (hasp > 11)
-    {	
+    {
 	i = 1;
 	while (++i <= tod)
-	{	
+	{
 	    if (hasp % i == 0)
-	    {	
+	    {
 		--hasp;
 		i = 1;
 	    }
@@ -118,7 +118,7 @@ static void InitHash()
     if (hasp < 100)
 	hasm = 3;
     else
-    {	
+    {
 	if (FfChar % 83 == 0)
 	    hasm = 89;
 	else
@@ -172,7 +172,7 @@ static int ReadFiles()
 	    MTX_ERROR2("%s: %E",fn,MTX_ERR_NOTSQUARE);
 	    return -1;
 	}
-	if (i > 0 && (Gen[i]->Field != Gen[0]->Field 
+	if (i > 0 && (Gen[i]->Field != Gen[0]->Field
 	    || Gen[i]->Nor != Gen[0]->Nor))
 	{
 	    MTX_ERROR4("%s and %s.%d: %E",fn,MatName,i+1,MTX_ERR_INCOMPAT);
@@ -209,7 +209,7 @@ static int AllocateTables()
     for (i = 0; i < NGen; ++i)
     {
 	perm[i] = NALLOC(long,maxvec+1);
-	if (perm[i] == NULL) 
+	if (perm[i] == NULL)
 	{
 	    MTX_ERROR("Error allocationg permutation");
 	    return -1;
@@ -223,7 +223,7 @@ static int AllocateTables()
 
 static int Init(int argc, const char **argv)
 
-{   
+{
     App = AppAlloc(&AppInfo,argc,argv);
     if (App == NULL)
 	return -1;
@@ -247,7 +247,7 @@ static int Init(int argc, const char **argv)
 
 static void Normalize(PTR row)
 
-{	
+{
     FEL f;
 
     FfFindPivot(row,&f);
@@ -289,7 +289,7 @@ static int MakeNextSeedVector()
 
 static int hash(PTR row)
 
-{	
+{
     register int pos = 0, i;
 
     for (i = 0; i < neh; ++i)
@@ -343,7 +343,7 @@ static int MakeOrbit()
 	MESSAGE(3,("Vec[%d] * Gen[%d] = ",nfinished,igen));
 	x = FfGetPtr(vtable,vecpos[nfinished]);
 	FfMapRow(x,Gen[igen]->Data,FfNoc,tmp);
-	if (proj) 
+	if (proj)
 	    Normalize(tmp);
 
 	/* Look up the vector in the hash table.
@@ -353,7 +353,7 @@ static int MakeOrbit()
 	while (!isfree[pos] && FfCmpRows(tmp,x))
 	{
 	    if (++pos == tabsize)
-	    {	
+	    {
 		pos = 0;
 		x = vtable;
 	    }
@@ -379,7 +379,7 @@ static int MakeOrbit()
 	    im = vecno[pos];
 	    MESSAGE(3,("%d\n",im));
 	}
-	if (nvec % 10000 == 0)	
+	if (nvec % 10000 == 0)
 	    MESSAGE(2,("%d vectors, %d finished\n",nvec,nfinished));
 	perm[igen][nfinished] = im;
 
@@ -416,13 +416,13 @@ static int WriteOutput()
     int i;
     char fn[200];
 
-    if (noout) 
+    if (noout)
 	return 0;
 
     /* Write vectors
        ------------- */
     if (vecout)
-    {	
+    {
 	MtxFile_t *f;
 	int i;
 
@@ -433,7 +433,7 @@ static int WriteOutput()
 	    rc = -1;
 	}
         for (i = 0; i < nvec; ++i)
-	    {	
+	    {
 		PTR x = FfGetPtr(vtable,vecpos[i]);
 		MfWriteRows(f,x,1);
 	    }
@@ -444,7 +444,7 @@ static int WriteOutput()
        ------------------ */
     MESSAGE(1,("Writing permutations\n"));
     for (i = 0; i < NGen; ++i)
-    {   
+    {
 	MtxFile_t *f;
 	sprintf(fn,"%s.%d",PermName,i+1);
 	/* if ((f = MfCreate(OrbName,-1,nvec,1)) != NULL) */
@@ -474,7 +474,7 @@ static int WriteOutput()
 
 int main(int argc, const char **argv)
 
-{   
+{
     int rc = 1;
 
     if (Init(argc,argv) != 0)
@@ -512,7 +512,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zvp zvp - Vector permute
 
-@section syntax Command Line
+@section zvp-syntax Command Line
 <pre>
 zvp [@em Options] [-g @em NGen] [-l @em Limit] [-s @em Start] [-np] @em Man @em Seed @em Perm [@em Orbit]
 </pre>
@@ -528,7 +528,7 @@ Standard options, see @ref prog_stdopts.
 
 @par -p
     "Projective" mode, permute 1-spaces instead of vectors.
-    
+
 @par -v
     Write the orbit to @em Orbit.
 
@@ -554,7 +554,7 @@ Standard options, see @ref prog_stdopts.
 @par @em Orbit
     Orbit file name. Default is "orbit".
 
-@section inp Input Files
+@section zvp-inp Input Files
 
 @par @em Mat.1, @em Mat.2, ...
     Generators (square matrices).
@@ -570,15 +570,15 @@ Standard options, see @ref prog_stdopts.
 @par @em Orbit
     The orbit (matrix).
 
-@section desc Description
-This program reads a set of matrices and one or more vectors from 
-@em Seed, and finds the orbit of the vector under the matrices. The 
+@section zvp-desc Description
+This program reads a set of matrices and one or more vectors from
+@em Seed, and finds the orbit of the vector under the matrices. The
 action of the matrices on the orbit is written out in permutation form.
 
 By default, two matrices are read from @em Mat.1 and @em Mat.2.
 You can specify a different number of matrices using the "-g" option,
-but the naming scheme is always the same. All matrices must be square, 
-over the same field, and of equal dimension. The seed space, @em Seed, 
+but the naming scheme is always the same. All matrices must be square,
+over the same field, and of equal dimension. The seed space, @em Seed,
 must be a matrix over the same field and the number of columns must match the matrices.
 
 The program tries seed vectors until no more seed vectors are
@@ -586,17 +586,17 @@ available or the orbit is small enough (as specified by "-l").
 With "-p" all vectors in the orbit file are normalized, i.e., their first
 non-zero entry is equal to one.
 
-@subsection impl Implementation Details
+@subsection zvp-impl Implementation Details
 After initializing everything and reading the input files the program
 enters the main loop. The next seed vector is read in, or generated,
 and the orbit is set up initially to contain only this vector.
-Then, the complete orbit is calculated by applying the 
+Then, the complete orbit is calculated by applying the
 matrices to vectors in the orbit until no new vectors appear,
-or until the limit is reached. 
+or until the limit is reached.
 In the latter case, the program proceeds with the next seed vector.
-If an orbit has been found, the action of the two matrices on the 
+If an orbit has been found, the action of the two matrices on the
 orbit is written out in permutation format an appropriate message
-is printed. If the `-v' option was used, also the orbit is written 
+is printed. If the `-v' option was used, also the orbit is written
 out.
 
 The matrices, seed vectors, and all vectors in the orbit must fit

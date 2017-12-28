@@ -45,7 +45,7 @@ static const char *Name = NULL;			/* Name of the representation */
 static MatRep_t *Rep = NULL;			/* The representation */
 static int NoOutput = 0;			/* -n: No output file */
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "mktree", "Enumerate group elements",
 "\n"
 "SYNTAX\n"
@@ -301,7 +301,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_mktree mktree - Enumerate Group Elements
 
-@section syntax Command Line
+@section mktree-syntax Command Line
 <pre>
 mktree @em Options [-n] [-g @em NGen] @em Name
 </pre>
@@ -315,15 +315,15 @@ mktree @em Options [-n] [-g @em NGen] @em Name
 @par @em Name
   Name of the representation.
 
-@section inp Input Files
+@section mktree-inp Input Files
 @par @em Name.1, @em Name.2, ...
   Generators.
 
-@section out Output Files
+@section mktree-out Output Files
 @par @em Name.elt
   Element tree.
 
-@section desc Description
+@section mktree-desc Description
 This program enumerates all elements of a finitely generated matrix
 group. By default, the program assumes that the group has two
 generators, which are read from @em Name.1 and @em Name.2.
@@ -333,7 +333,7 @@ Unless the "-n" option is used, the program writes the element tree
 to @em Name.elt. The element tree describes how the group elements
 can be calculated as products of generators. It is actually
 a matrix with two columns and one row for each group element.
-The i-th row of this matrix describes how the i-th element is 
+The i-th row of this matrix describes how the i-th element is
 calculated:
 
 - The row (-1,-1) represents the unit element. This row appears
@@ -365,7 +365,7 @@ Line   Contents     Meaning
 10      7    1      aaaab
 </pre>
 
-@section impl Implementatino Details
+@section mktree-impl Implementatino Details
 The program holds all group elements in memory. This limits the application
 of the program to fairly small groups and representations of small degree.
 **/

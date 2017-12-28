@@ -25,7 +25,7 @@ static int opt_G = 0;	/* GAP output */
 static const char *iname, *oname;
 static Matrix_t *Mat = NULL;
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zef", "Echelon Form",
 "SYNTAX\n"
 "    zef [-GQV] <Inp> <Out>\n"
@@ -134,7 +134,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zef zef - Echelon Form
 
-@section syntax Command Line
+@section zef-syntax Command Line
 <pre>
 zef @em Options [-G] @em Inp @em Out
 </pre>
@@ -148,15 +148,15 @@ zef @em Options [-G] @em Inp @em Out
 @par @em Out
   Output matrix.
 
-@section inp Input Files
+@section zef-inp Input Files
 @par @em Inp
   Input matrix.
 
-@section out Output Files
+@section zef-out Output Files
 @par @em Out
   Output matrix.
 
-@section desc Description
+@section zef-desc Description
 This program reads in a matrix, performs a Gaussian elimination to put
 the matrix into semi-echelon form, and writes out the result.
 
@@ -184,7 +184,7 @@ as the rows of the input matrix. A message
 <pre>
 RANK nnn</pre>
 is printed at the end of the run to notify the operator of the size of
-the output matrix. This program may be used to find the rank of 
+the output matrix. This program may be used to find the rank of
 matrix, being faster than the null-space program. There is no need for
 the input matrix to be square, and the output may also not be square.
 

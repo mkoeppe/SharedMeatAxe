@@ -29,7 +29,7 @@ static int opt_m = 0;			/* Minimal polynomial */
 static FPoly_t *cpol;			/* Char. polynomial (with -f) */
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zcp", "Characteristic and Minimal Polynomial",
 "SYNTAX\n"
 "    zcp [-GQVfm] <File>\n"
@@ -58,7 +58,7 @@ static MtxApplication_t *App = NULL;
 
 static int Init(int argc, const char **argv)
 
-{	
+{
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
 	return -1;
 
@@ -138,7 +138,7 @@ static void write_end()
 
 static void write_one(const Poly_t *pol)
 
-{ 
+{
     if (opt_G)
     {
 	int i;
@@ -183,7 +183,7 @@ static void Cleanup()
 
 int main(int argc, const char **argv)
 
-{	
+{
     Poly_t *p;
     int rc = 0;
 
@@ -192,7 +192,7 @@ int main(int argc, const char **argv)
 	MTX_ERROR("Initialization failed");
 	return -1;
     }
-    if (opt_f) 
+    if (opt_f)
 	cpol = FpAlloc();
     write_init();
     if (opt_m)
@@ -222,7 +222,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zcp zcp - Characteristic Polynomial
 
-@section syntax Command Line
+@section zcp-syntax Command Line
 <pre>
 zcp @em Options [-Gfm] @em Matrix
 </pre>
@@ -242,16 +242,16 @@ Calculate the minimal polynomial
 @par @em Mat
 Input matrix
 
-@section inp Input Files
+@section zcp-inp Input Files
 @par @em Mat
 Input matrix
 
-@section desc Description
+@section zcp-desc Description
 
 This program reads in a square matrix and calculates its characteristic or
 minimal polynomial. With no options, the characteristic polynomial is
 computed in a partially factored form (see below). With "-m" the polynomial
-is split into irreducible factors. 
+is split into irreducible factors.
 Without "-G", the output is in text format. Each line contains one
 factor of the characteristic or minimal polynomial.
 The "-G" option may be used to generate output which
@@ -259,8 +259,8 @@ is readable by the GAP computer program. The output, then, is a
 sequence of sequences of finite field elements, representing the
 coefficients of the factors in ascending order.
 
-@section impl Implementation Details
-The characteristic polynomial of a matrix A is computed by constructing a sequence 
+@section zcp-impl Implementation Details
+The characteristic polynomial of a matrix A is computed by constructing a sequence
 @f[
         0=U_0<U_1<\ldots<U_n=V
 @f]

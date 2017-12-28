@@ -68,7 +68,7 @@ static int nexclude=0;
 static int PeakWordsMissing;		/* Number of missing peak words */
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "pwkond", "Peakword Condensation",
 "\n"
 "SYNTAX\n"
@@ -109,7 +109,7 @@ static MtxApplication_t *App = NULL;
 
 
 
-/* -------------------------------------------------------------------------- 
+/* --------------------------------------------------------------------------
    AddConstituent() - Add a constituent
 
    This function checks if a given constituent is already in <CfList>. If
@@ -127,7 +127,7 @@ static int AddConstituent(MatRep_t *cf, CfInfo *info, int modno, int cfno)
 	rc = IsIsomorphic(CfList[i].Gen,CfList[i].Info,cf,NULL,0);
 	if (rc < 0)
 	    return -1;
-	if (rc) 
+	if (rc)
 	    break;
     }
 
@@ -156,10 +156,10 @@ static int AddConstituent(MatRep_t *cf, CfInfo *info, int modno, int cfno)
 }
 
 
-/* -------------------------------------------------------------------------- 
+/* --------------------------------------------------------------------------
    AddConstituents() - Add all constituents of a module
 
-   This function calls <AddConstituent()> for each constituent of the 
+   This function calls <AddConstituent()> for each constituent of the
    <mod>-th module in <ModList>. I.e., it adds all constituents of that
    module to the global constituent list and sets up the constituent map.
    -------------------------------------------------------------------------- */
@@ -302,7 +302,7 @@ static int LoadModules()
    gkond() - Generalized condensation of one matrix
    ------------------------------------------------------------------ */
 
-static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k, 
+static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
     Matrix_t *w, const char *name)
 
 {
@@ -397,8 +397,8 @@ static void kond(int mod, int cf)
     char fn[LAT_MAXBASENAME+10];
     Matrix_t *peakword, *kern, *m, *k, *pw;
     int j, pwr;
-		
-    /* Make the peak word, find its stable power, 
+
+    /* Make the peak word, find its stable power,
        and calculate both kernel and image.
        ------------------------------------------ */
     peakword = WgMakeWord(ModList[mod].Wg,li->Cf[cf].peakword);
@@ -477,8 +477,8 @@ static void Condense(int cf)
     int k;
     for (k = 0; k < CfList[cf].Mult; ++k)
     {
-	int mod = CfList[cf].CfMap[k][0];	
-	int i = CfList[cf].CfMap[k][1];	
+	int mod = CfList[cf].CfMap[k][0];
+	int i = CfList[cf].CfMap[k][1];
 
 	MESSAGE(0,("  Condensing %s%s: ",ModList[mod].Info.BaseName,
 	    Lat_CfName(&ModList[mod].Info,i)));
@@ -488,7 +488,7 @@ static void Condense(int cf)
 
 
 static String GapPrintPoly(const Poly_t *pol)
-{ 
+{
     String s = StrAlloc(10);
     int i;
     StrAppend(&s, "[");
@@ -584,8 +584,8 @@ static void WriteOutput(int final)
 
 
 /* --------------------------------------------------------------------------
-   CopyPeakWordToAllModules() - Copy the peak word and polynomial just found 
-   to all modules having an appropriate constituent. Also, print a nice 
+   CopyPeakWordToAllModules() - Copy the peak word and polynomial just found
+   to all modules having an appropriate constituent. Also, print a nice
    message showing the peak word and to which constituents it applies.
    -------------------------------------------------------------------------- */
 
@@ -602,7 +602,7 @@ static void CopyPeakWordToAllModules(int i)
     {
 	int mod = CfList[i].CfMap[k][0];
 	int l = CfList[i].CfMap[k][1];
-	MESSAGE(0,("%c%s%s",k == 0 ? ' ': ',', 
+	MESSAGE(0,("%c%s%s",k == 0 ? ' ': ',',
 	    ModList[mod].Info.BaseName,Lat_CfName(&ModList[mod].Info,l)));
 	/* Copy peak word and peak polynomial to the other modules */
 	if (k > 0)
@@ -649,7 +649,7 @@ static void PeakWordFound(int i)
 
 static int isexcluded(long w)
 
-{	
+{
     int i;
 
     for (i = 0; i < nexclude; ++i)
@@ -661,28 +661,28 @@ static int isexcluded(long w)
 
 static void parselist(const char *c, long list[][2], int *count)
 
-{	
+{
     long a, b;
 
     while (*c != 0)
-    {	
+    {
 	a = b = 0;
 	while (*c >= '0' && *c <= '9')
 	    a = a * 10 + (*c++ - '0');
 	if (*c == '-')
-	{	
+	{
 	    ++c;
 	    while (*c >= '0' && *c <= '9')
 		b = b * 10 + (*c++ - '0');
 	}
 	else
 	    b = a;
-	if (a == 0 || b == 0 || a > b) 
+	if (a == 0 || b == 0 || a > b)
 	    MTX_ERROR("BAD ARGUMENTS");
 	list[*count][0] = a;
 	list[*count][1] = b;
 	++*count;
-	if (*c == ',') 
+	if (*c == ',')
 	    ++c;
     }
 }
@@ -706,7 +706,7 @@ static int ParseCommandLine()
 	parselist(c,include,&ninclude);
     if (AppGetArguments(App,1,MAX_MODULES) < 0)
 	return -1;
-    if (opt_G) 
+    if (opt_G)
 	MtxMessageLevel = -100;
     return 0;
 }
@@ -763,7 +763,7 @@ static int try2(long w, FEL f)
     for (i = 0; i < NumCf; ++i)  /* For each composition factor... */
     {
 	Matrix_t *word;
-	
+
 	word = WgMakeWord(CfList[i].Wg,w);
 	addid(word,f);
 	nul = MatNullity__(MatDup(word));
@@ -863,7 +863,7 @@ static int tryp2(long w, int cf, Poly_t *pol)
 	wordp = MatInsert(word,pol);
 	MatFree(word);
 	nul = MatNullity__(wordp);
-	if (nul != 0) 
+	if (nul != 0)
 	    return -1;
     }
     return 0;
@@ -888,7 +888,7 @@ static int try_p(long w)
 	FPoly_t *mp;
 	int k;
 
-	if (CfList[i].Info->peakword > 0)  
+	if (CfList[i].Info->peakword > 0)
 	    continue;			/* We already have a peak word */
 	word = WgMakeWord(CfList[i].Wg,w);
 	mp = MinPol(word);
@@ -909,7 +909,7 @@ static int try_p(long w)
 		   printf("%d, ",i);
 		   PolPrint("factor",mp->Factor[k]);
 	       }
-	       if (tryp2(w,i,mp->Factor[k]) == -1) 
+	       if (tryp2(w,i,mp->Factor[k]) == -1)
 		   continue;
 
 	       /* Check if the nullity is stable
@@ -918,7 +918,7 @@ static int try_p(long w)
 	       wp2 = MatMulStrassen(MatAlloc(wp->Field, wp->Nor, wp->Noc), wp, wp);
 	       MatFree(wp);
 	       nul = MatNullity__(wp2);
-	       if (nul != CfList[i].Info->spl) 
+	       if (nul != CfList[i].Info->spl)
 		   continue;
 	       break;
 	    }
@@ -1002,7 +1002,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_pwkond pwkond - Peak Word Condensation
 
-@section syntax Command Line
+@section pwkond-syntax Command Line
 <pre>
 pwkond @em Options [-Gnptbk] [-i @em List] [-e @em List] @em Name [@em Name ...]
 </pre>
@@ -1029,7 +1029,7 @@ Words to be excluded, for example "-e 3,20-99".
 @par @em Name
 Name of the representation.
 
-@section inp Input Files
+@section pwkond-inp Input Files
 @par @em Name.cfinfo
 Constituent info file.
 @par @em Name.1, @em Name.2, ...
@@ -1040,7 +1040,7 @@ Generators on the irreducible constituents. NameCF is the representation name
 followed by the dimension and a letter to distinguish inequivalent constituents
 of the same dimension (see @ref prog_chop "chop").
 
-@section out Output Files
+@section pwkond-out Output Files
 @par @em Name.cfinfo
 Constituent info file.
 
@@ -1066,7 +1066,7 @@ Peak word kernel (with -k or without -n).
 Semisimplicity basis (with -b).
 
 
-@section desc Description
+@section pwkond-desc Description
 
 After the irreducible constituents of a module, or a number of modules,
 have been found with @ref prog_chop "chop", this program can be used
@@ -1074,7 +1074,7 @@ have been found with @ref prog_chop "chop", this program can be used
 - to condense the module using the peak words,
 - to transform the generators on the constituents to the standard
   basis as defined by the peak word kernel, and
-- to calculate a basis reflecting the direct decomposition of the 
+- to calculate a basis reflecting the direct decomposition of the
   module, if the module is semisimple.
 By definition, a "peak word" for the i-th constituent is an algebra element which has
 minimal nullity on the i-th constituent and which operates regularly (i.e., with nullity 0)
@@ -1084,19 +1084,19 @@ its constituent is equal to the degree of the splitting field for that
 constituent.
 
 When more than one module is specified on the command line, the peak words found by
-@b pwkond are "global", i.e., each peak word selects 
-exactly one of the constituents of alle the modules. Running @b pwkond 
-successively on two modules does not generally produce global peak 
+@b pwkond are "global", i.e., each peak word selects
+exactly one of the constituents of alle the modules. Running @b pwkond
+successively on two modules does not generally produce global peak
 words, since a peak word found for module M may have a non-zero
 nullity on a different constituent that occurs in another module N
 but not in M.
 
-The -e option can be used to exclude certain words from the search. 
+The -e option can be used to exclude certain words from the search.
 @em List is a list of integers or ranges of integers, for example
 "-e 57,82-112,289".
-Using "-i" you can specify a list of words which will be tested first. 
-This can significantly reduce computation time if you already know one 
-or more peak words for a given module. 
+Using "-i" you can specify a list of words which will be tested first.
+This can significantly reduce computation time if you already know one
+or more peak words for a given module.
 The "-n" option disables the condensation phase. If this option is used,
 the program stops after the peak words have been found.
 If the "-t" option is specified, @b pwkond transforms the generators of all
@@ -1109,7 +1109,7 @@ the following files:
   the constituent with respect to the standard basis defined by the
   peak word. These files are created only if the `-t' option is used.
 - X10a.op Spin-up script for the standard basis. See ZSB for details.
-- X10a.1k and X10a.2k are th action of the generators on the 
+- X10a.1k and X10a.2k are th action of the generators on the
   condensed module.
 - X10a.np Condensed peak word. This is a nilpotent matrix.
 - X10a.im Image of the peak word.
@@ -1118,29 +1118,29 @@ The .cfinfo file is written each time a peak word is found. So, if
 the program does not terminate or dies unexpectedly the information about
 the peak words found so far are not lost.
 
-If the module is semisimple, @b pwkond can 
+If the module is semisimple, @b pwkond can
 calculate a basis that respects the decomposition into irreducible
 constituents. With respect to this basis, the generators are in block
 diagonal form, where the blocks occur in the order determined by @ref prog_chop "chop".
-All blocks corresponding to the same constituent are equal, not only 
+All blocks corresponding to the same constituent are equal, not only
 equivalent, and the blocks occur in their "natural" order (as defined by
-@ref prog_chop "chop"). This is essential for the tensor condensation procedure 
+@ref prog_chop "chop"). This is essential for the tensor condensation procedure
 (see @ref prog_precond "precond"). To calculate the semisimplicity basis, use the
-"-b" option. 
+"-b" option.
 The basis is written to @em Name.ssb. Using "-b" with a module that is not
-semisimple produces undefined results. Most probably, @b pwkond will stop 
+semisimple produces undefined results. Most probably, @b pwkond will stop
 with the error message "row index out of range", or it will write a
 singular matrix to @em Name.ssb.
 
-@section impl Implementation Details
+@section pwkond-impl Implementation Details
 Internally, a peak word is represented by a pair (n,p) where n is
-the canonical number of the word (See @ref prog_zmw "zmw"), and p is a 
-polynomial. The peak word represented by this pair is p(Wn), Wn 
-being the n-th word. Without "-p", @b pwkond considers only linear 
-polynomials. If the "-p" option is used, @b pwkond can find polynomials 
+the canonical number of the word (See @ref prog_zmw "zmw"), and p is a
+polynomial. The peak word represented by this pair is p(Wn), Wn
+being the n-th word. Without "-p", @b pwkond considers only linear
+polynomials. If the "-p" option is used, @b pwkond can find polynomials
 of any degree.
 
-Whenever a peak word is found, the generalized condensation 
+Whenever a peak word is found, the generalized condensation
 is calculated as follows: The peakword is caculated as a matrix acting on V,
 which is then repeatedly raised to higher powers until the nullity stabilizes.
 The stable nullity equals the multiplicity k of the constituent times the

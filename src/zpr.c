@@ -29,8 +29,8 @@ static int Summary = 0;		/* -s (summary) */
 
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"zpr", "Print Permutations Or Matrices", 
+static MtxApplicationInfo_t AppInfo = {
+"zpr", "Print Permutations Or Matrices",
 "\n"
 "SYNTAX\n"
 "    zpr [-G] [-s] <Binfile> [<Textfile>]\n"
@@ -102,7 +102,7 @@ static void prmatrix()
 
     fprintf(dest,"matrix field=%ld rows=%ld cols=%ld\n",hdr[0],hdr[1],hdr[2]);
     for (loop1 = 1; loop1 <= hdr[1]; ++loop1)
-    {	
+    {
 	if (FfReadRows(inpfile,m1,1) != 1)
 	{
 	    MTX_ERROR1("Cannot read %s",inpname);
@@ -152,8 +152,8 @@ static void prgapmat()
     m1 = FfAlloc((long)1);
     PrString("MeatAxe.Matrix := [\n");
     for (loop1 = 1; loop1 <= hdr[1]; ++loop1)
-    {	
-	if (FfReadRows(inpfile,m1,1) != 1) 
+    {
+	if (FfReadRows(inpfile,m1,1) != 1)
 	    MTX_ERROR1("Cannot read %s",inpname);
 	cnt = 0;
 	fprintf(dest,"[");
@@ -224,8 +224,8 @@ static void prgapimat()
     row = NALLOC(long,hdr[2]);
     PrString("MeatAxe.Matrix := [\n");
     for (loop1 = 1; loop1 <= hdr[1]; ++loop1)
-    {	
-	if (SysReadLong(inpfile,row,hdr[2]) != hdr[2]) 
+    {
+	if (SysReadLong(inpfile,row,hdr[2]) != hdr[2])
 	    MTX_ERROR1("Cannot read %s",inpname);
 	cnt = 0;
 	fprintf(dest,"[");
@@ -265,7 +265,7 @@ static void prgapperm()
     /* Allocate memory for one permutation
       ------------------------------------ */
     perm = NALLOC(long,hdr[1]);
-    if (perm == NULL) 
+    if (perm == NULL)
 	MTX_ERROR("Cannot allocate work space");
 
     PrString("MeatAxe.Perms := [\n");
@@ -322,11 +322,11 @@ static void prpol()
 {
     int i;
     Poly_t *p;
-    
+
     SysFseek(inpfile,HdrPos);
     if ((p = PolRead(inpfile)) == NULL)
 	MTX_ERROR1("Cannot read %s",inpname);
-    
+
 
     fprintf(dest,"polynomial field=%ld degree=%ld\n",hdr[1],hdr[2]);
     for (i = 0; i <= p->Degree; ++i)
@@ -354,7 +354,7 @@ static int prperm()
 	MTX_ERROR("%s: Cannot read permutation\n");
 	return -1;
     }
-    
+
     fprintf(dest,"permutation degree=%d\n",perm->Degree);
     for (i = 0; i < perm->Degree; ++i)
     {
@@ -377,7 +377,7 @@ static void primat()
     long *row;
 
     row = NALLOC(long,hdr[2]);
-    if (row == NULL) 
+    if (row == NULL)
 	MTX_ERROR("Cannot allocate work space");
 
     fprintf(dest,"integer-matrix rows=%ld cols=%ld\n",hdr[1],
@@ -524,7 +524,7 @@ static int ReadHeader(void)
 {
     HdrPos = ftell(inpfile);
     if (feof(inpfile)) return 0;
-    if (SysReadLong(inpfile,hdr,3) != 3) 
+    if (SysReadLong(inpfile,hdr,3) != 3)
 	return 0;
     /* Check the header */
     if (hdr[0] > 65536 || hdr[0] < -20 || hdr[1] < 0 || hdr[2] < 0)
@@ -558,7 +558,7 @@ static int Init(int argc, const char **argv)
     if (inpfile == NULL)
 	return -1;
     if (App->ArgC >= 2)
-    {  
+    {
 	dest = SysFopen(App->ArgV[1],FM_CREATE|FM_TEXT);
 	if (dest == NULL)
 	    return -1;
@@ -603,7 +603,7 @@ int main(int argc, const char **argv)
 @page prog_zpr zpr - Print Matrices and Permutations
 @see @ref prog_zcv
 
-@section syntax Command Line
+@section zpr-syntax Command Line
 <pre>
 zpr [@em Options] [-Gs] @em DataFile [@em TextFile]
 </pre>
@@ -619,15 +619,15 @@ zpr [@em Options] [-Gs] @em DataFile [@em TextFile]
 @par @em TextFile
   Output file (text)
 
-@section inp Input Files
+@section zpr-inp Input Files
 @par @em DataFile
   Input file (binary)
 
-@section out Output Files
+@section zpr-out Output Files
 @par @em TextFile
   Output file (text)
 
-@section desc Description
+@section zpr-desc Description
 This program prints the contents of a MeatAxe data file in readable
 format. The text produced by @b zpr can be converted into binary format by
 the @ref prog_zcv "zcv" program.

@@ -23,8 +23,8 @@ static int opt_G = 0;		/* GAP output */
 static MtxFile_t *InputFile = NULL;
 static const char *inpname = NULL;
 
-static MtxApplicationInfo_t AppInfo = { 
-"ztc", "Trace", 
+static MtxApplicationInfo_t AppInfo = {
+"ztc", "Trace",
 "SYNTAX\n"
 "    ztc [-GQV] <File>"
 "\n"
@@ -55,11 +55,11 @@ static int trmat()
     int i, max;
     PTR m1;
 
-    FfSetField(InputFile->Field); 
+    FfSetField(InputFile->Field);
     FfSetNoc(InputFile->Noc);
     m1 = FfAlloc(1);
     tr = FF_ZERO;
-    if ((max = InputFile->Nor) > InputFile->Noc) 
+    if ((max = InputFile->Nor) > InputFile->Noc)
 	max = InputFile->Noc;
     for (i = 0; i < max; ++i)
     {
@@ -90,7 +90,7 @@ static int trperm()
     int k;
 
     m1 = NALLOC(long,degree);
-    if (m1 == NULL) 
+    if (m1 == NULL)
 	return -1;
 
     if (MfReadLong(InputFile,m1,degree) != degree)
@@ -102,7 +102,7 @@ static int trperm()
     tr = 0;
     for (k = 0; k < degree; ++k)
     {
-	if (m1[k] == k) 
+	if (m1[k] == k)
 	    ++tr;
     }
 
@@ -178,7 +178,7 @@ int main(int argc, const char **argv)
 	MTX_ERROR("Initialization failed");
 	return 1;
     }
-    if (InputFile->Field == -1) 
+    if (InputFile->Field == -1)
 	rc = trperm() != 0 ? 1 : 0;
     else
 	rc = trmat() != 0 ? 1 : 0;
@@ -191,7 +191,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_ztc ztc - Trace
 
-@section syntax Command Line
+@section ztc-syntax Command Line
 <pre>
 ztc [@em Options] [-G] @em Inp
 </pre>
@@ -203,15 +203,15 @@ ztc [@em Options] [-G] @em Inp
 @par @em Inp
   Input matrix or permutation.
 
-@section inp Input Files
+@section ztc-inp Input Files
 @par @em Inp
   Input matrix or permutation.
 
-@section desc Description
+@section ztc-desc Description
 This program reads a matrix or permutation calculates its trace and
 outputs this to the user.
 If the input file is a matrix, it is read row by row and the diagonal
-entries are added up. Note that the matrix need not be square. The 
+entries are added up. Note that the matrix need not be square. The
 result is printed in the form
 <pre>
 Trace is N

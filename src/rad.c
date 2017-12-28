@@ -25,8 +25,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"rad", "Radical series", 
+static MtxApplicationInfo_t AppInfo = {
+"rad", "Radical series",
 "SYNTAX\n"
 "    rad " MTX_COMMON_OPTIONS_SYNTAX " [-l <Length>] [-H <Num>] <Name>\n"
 "\n"
@@ -47,7 +47,7 @@ MTX_COMMON_OPTIONS_DESCRIPTION
 "    This program calculates the radical series of an arbitrary\n"
 "    module given by <gens> or the homomorphisms from the\n"
 "    projective modules corresponding to the composition factors\n"
-"    of the given module to the module.\n" 
+"    of the given module to the module.\n"
 "    In case of option 'h', the vectors generating submodules with\n"
 "    head isomorphic to <cfs>, are stored in gens<Name>.h<num>\n"
 };
@@ -97,7 +97,7 @@ Matrix_t *intersect(Matrix_t *mat1,Matrix_t *mat2)
 
 
 
-/* making the dual of a representation given by gens 
+/* making the dual of a representation given by gens
    -------------------------------------------------- */
 
 static void Dualize(MatRep_t *rep)
@@ -134,7 +134,7 @@ static int ReadFiles()
     if (Rep == NULL)
 	return -1;
 
-    
+
     for (i = 0; i < Info.NCf; ++i)
     {
 	char fn[200];
@@ -223,7 +223,7 @@ static int DualizeConstituents()
     return 0;
 }
 
- 
+
 int main(int argc, const char **argv)
 
 {
@@ -231,8 +231,8 @@ int main(int argc, const char **argv)
     int flag;
     int *cfvec;
     char name[LAT_MAXBASENAME];
-    Matrix_t *stgen, *partbas, 
-             *mat, *seed, 
+    Matrix_t *stgen, *partbas,
+             *mat, *seed,
 	     *emb = NULL, *basis = NULL,
 	     *soc2 = NULL, *rad2, *echbas;
     WgData_t *rep;
@@ -249,7 +249,7 @@ int main(int argc, const char **argv)
     }
 
 
-    while(1) 
+    while(1)
     {
 	Matrix_t *bas, *basi;
 	cfvec = NALLOC(int,Info.NCf);
@@ -270,7 +270,7 @@ int main(int argc, const char **argv)
 	    word = WgMakeWord(rep,Info.Cf[j].peakword);
 	    w = MatTransposed(word);
 	    MatFree(word);
-            sed[j] = MatNullSpace__(MatInsert_(w, Info.Cf[j].peakpol)); 
+            sed[j] = MatNullSpace__(MatInsert_(w, Info.Cf[j].peakpol));
 	}
 	WgFree(rep);
 
@@ -284,13 +284,13 @@ int main(int argc, const char **argv)
    computes the submodules isomorphic to the given composition factor
    ------------------------------------------------------------------ */
 
-            if (sed[j]->Nor != 0) 
+            if (sed[j]->Nor != 0)
 	    {
                 partbas = HomogeneousPart(Rep,CfRep[j],sed[j],OpTable[j],
 		    Info.Cf[j].spl);
 		MatFree(sed[j]);
 	    }
-            else 
+            else
 		partbas = sed[j];
 
 	    cfvec[j] = partbas->Nor / Info.Cf[j].dim;
@@ -307,7 +307,7 @@ int main(int argc, const char **argv)
 	flag = 0;
 	for (j = 0; j < Info.NCf; j++)
 	{
-	    if (cfvec[j] <= 0) 
+	    if (cfvec[j] <= 0)
 		continue;
 	    if (flag++ > 0)
 		MESSAGE(0,(" +"));
@@ -337,7 +337,7 @@ int main(int argc, const char **argv)
 /* -----------------------------------
    exiting if the module is semisimple
    ----------------------------------- */
-	if (socdim == Rep->Gen[0]->Nor) 
+	if (socdim == Rep->Gen[0]->Nor)
         {
 	    stgen = MatInverse(bas);
 	    MatFree(bas);
@@ -443,15 +443,15 @@ int main(int argc, const char **argv)
 
 
     if (socdim == Rep->Gen[0]->Nor && !Head)
-	return 0;	
-    if (socdim < Rep->Gen[0]->Nor && !Head) 
+	return 0;
+    if (socdim < Rep->Gen[0]->Nor && !Head)
     {
 	MESSAGE(0,("Radical length is greater than %d\n",soclen));
 	if (!Head)
-	    return 0;	
+	    return 0;
      }
 
-    
+
 
 /*----------------------------------------------------------------------------*/
 
@@ -483,7 +483,7 @@ int main(int argc, const char **argv)
 	MatInsert_(word, Info.Cf[j].peakpol);
 	if ((seed = MatAlloc(FfOrder, 0, 0)) == NULL)
 	    return 1;
-	for (seed2 = MatNullSpace(word); seed->Nor < seed2->Nor; 
+	for (seed2 = MatNullSpace(word); seed->Nor < seed2->Nor;
 	    seed2 = MatNullSpace(MatMul(word, word)))
 	{
 	    MatFree(seed);
@@ -527,7 +527,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_rad rad - Radical Series
 
-@section syntax Command Line
+@section rad-syntax Command Line
 <pre>
 rad @em Options [-l @em MaxLength] [-H @em Num] @em Module
 </pre>
@@ -541,24 +541,24 @@ rad @em Options [-l @em MaxLength] [-H @em Num] @em Module
 @par @em Module
   Module name.
 
-@section inp Input Files
+@section rad-inp Input Files
 @par @em Name.cfinfo
   Constituent information.
 @par @em NameCf.std.1, @em NameCf.std.2, ...
   Generators on the irreducible constituents.
 
-@section out Output Files
+@section rad-out Output Files
 @par @em Name.cfinfo
   Radical information.
 @par @em NameCf.hX
   Generators for the X-th head.
 
-@section desc Description
+@section rad-desc Description
 This program calculates the radical series of an arbitrary module @em Name,
 or the homomorphisms from the projective modules
 corresponding to the composition factors of the given module to the module.
 
-@section impl Implementation Details
+@section rad-impl Implementation Details
 The program uses an algorithm by Magdolna Szöke, see @ref Sz98 "[Sz98]".
 
 **/

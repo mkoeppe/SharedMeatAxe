@@ -28,7 +28,7 @@
 MTX_DEFINE_FILE_INFO
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "mkgraph", "Plot Submodule Lattice",
 "\n"
 "SYNTAX\n"
@@ -126,7 +126,7 @@ void readfile(void)
     buf = (char *)SysMalloc(LBUFSIZE);
     MESSAGE(1,("Reading %s\n",ifilename));
 
-    /* Read number of submodules 
+    /* Read number of submodules
        ------------------------- */
     fgets(buf,LBUFSIZE,f);
     nsub = atoi(buf);
@@ -150,7 +150,7 @@ void readfile(void)
     {
 	fgets(buf,LBUFSIZE,f);
 	for (c = strtok(buf," "); *c != 0; ++c)
-	{	
+	{
 	    if (*c == 'm') ismount[i] = 1; else
 	    if (*c == 'r') israd[i] = 1; else
 	    if (*c == 's') issoc[i] = 1;
@@ -205,7 +205,7 @@ static int RadLevel(int n)
 
 /* ------------------------------------------------------------------
    buildroot()
- 
+
    Input: nsub, max, lower, upper
    Output: Lattice
    ------------------------------------------------------------------ */
@@ -270,12 +270,12 @@ void buildroot(void)
     Lattice = LdAlloc(xnsub);
     k = 0;
     for (i = 0; i < nsub; ++i)
-    {   
+    {
 	if (flag[i] == 3)
-        {   
+        {
 	    Lattice->Nodes[k].UserData = i;
 	    for (ip = max[i]; *ip >= 0; ++ip)
-	    {   
+	    {
 		if (flag[*ip] == 3)
 		    LdAddIncidence(Lattice,map[*ip],k);
 	    }
@@ -311,11 +311,11 @@ static void SetColors(const char *opt_text_ptr)
 	++opt_text_ptr;
 	if (sscanf(opt_text_ptr,"%d/%d/%d",&r,&g,&b) !=3)
 	    MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
-	while (*opt_text_ptr != 0 && *opt_text_ptr != ',') 
+	while (*opt_text_ptr != 0 && *opt_text_ptr != ',')
 	    ++opt_text_ptr;
-	if (*opt_text_ptr == ',') 
+	if (*opt_text_ptr == ',')
 	    ++opt_text_ptr;
-	if (r < 0 || g < 0 || b < 0 || r > 99 || g > 99 || b > 99) 
+	if (r < 0 || g < 0 || b < 0 || r > 99 || g > 99 || b > 99)
 	    MTX_ERROR1("color value (-c): %E",MTX_ERR_RANGE);
 	ColorMap[i].r = r;
 	ColorMap[i].g = g;
@@ -332,7 +332,7 @@ static void SetColors(const char *opt_text_ptr)
 
 static int Init(int argc, const char **argv)
 
-{	
+{
     const char *c;
 
 
@@ -493,7 +493,7 @@ void writeheader(void)
        --------------------------- */
     fprintf(psfile,"/Thin { %1.1f setlinewidth } def\n",0.4);
     fprintf(psfile,"/Thick { %1.1f setlinewidth } def Thin\n",1.2);
-    
+
     /* Definition of Colors
        --------------------------- */
     for (i = 0; *(c = ColorMap[i].name) != 0; ++i)
@@ -507,7 +507,7 @@ void writeheader(void)
 
 void shownode(int i,double x,double y)
 
-{   
+{
     if (ismount[i]) fprintf(psfile,"Thick mntColor ");
     fprintf(psfile,"(%d) %1.1f %1.1f ",i,XMAP(x),YMAP(y));
     if (israd[i])
@@ -553,7 +553,7 @@ static char *linestyle[MAXIRRED] = {
 
 void showline(int i, int k,int type)
 
-{	
+{
     int t = type;
     if (t < 0) t = 0;
     if (type >= MAXIRRED) t = MAXIRRED-1;
@@ -604,7 +604,7 @@ void display()
     writelegend();
 
     for (i = 0; i < Lattice->NNodes; ++i)
-    {	
+    {
 	fprintf(psfile,"1 { ");
 	shownode(Lattice->Nodes[i].UserData,Lattice->Nodes[i].PosX,
 	    Lattice->Nodes[i].PosY);
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 /**
 @page prog_mkgraph mkgraph - Draw a Submodule Lattice
 
-@section syntax Command Line
+@section mkgraph-syntax Command Line
 <pre>
 mkgraph [@em Options] [-G] [-b @em BlockNo] @em Name [@em Lower @em Upper]A
 </pre>
@@ -748,22 +748,22 @@ mkgraph [@em Options] [-G] [-b @em BlockNo] @em Name [@em Lower @em Upper]A
 @par @em Upper
   Numer of the greatest submodule to be drawn.
 
-@section inp Input Files
+@section mkgraph-inp Input Files
 @par @em Name.gra
   Lattice information.
 
-@section out Output Files
+@section mkgraph-out Output Files
 @par @em Name.ps
   Lattice diagram.
 
-@section desc Description
+@section mkgraph-desc Description
 This program creates a graphical representation of a submodule lattice
 in postscript or other formats. The first argument must be the module
 name. @ref prog_mksub "mksub" must have been run, because @b mkgraph reads
 the ".gra" file created by @ref prog_mksub "mksub".
-If two additional arguments are specified, only the modules between 
-@em Lower and @em Upper are drawn. If @ref prog_mksub "mksub" was used in "block mode", 
-only single blocks can be drawn. In this case, the block number must 
+If two additional arguments are specified, only the modules between
+@em Lower and @em Upper are drawn. If @ref prog_mksub "mksub" was used in "block mode",
+only single blocks can be drawn. In this case, the block number must
 be specified with "-b".
 
 If no other format is specified, @b mkgraph produces PosScript output.
@@ -772,15 +772,15 @@ submodules by a line. Different line styles are used to distinguish between irre
 constituents.
 Each node carries the submodule number as found in the @em Name.out file.
 Local submodules are displayed with thick boxes. The socles are shown
-as circles instead of boxes, and the radicals are shown in diamond shapes. 
-The line style represents the irreducible constituent isomorphic to the 
+as circles instead of boxes, and the radicals are shown in diamond shapes.
+The line style represents the irreducible constituent isomorphic to the
 factor module represented by the line.
 The output is written to @em Name.ps unless "-G" is used.
 
 
 If the option "-G" is used, @b mkgraph creates commands that can be read by xGAP.
 
-@section impl Implementation Details
+@section mkgraph-impl Implementation Details
 The algorithm used to position the nodes (submodules) is very simple. In
 most cases the result is far from optimal, but also much better than a
 random drawing. Submodules are grouped into layers according to their

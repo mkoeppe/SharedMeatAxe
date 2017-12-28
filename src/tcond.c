@@ -32,8 +32,8 @@ static Matrix_t *P[LAT_MAXCF];		/* P matrices (projections) */
 static int WriteGenerators = 0;		/* -t: Write transformed gens of A, B */
 static int NoBasisChange = 0;		/* -n: No basis change */
 
-static MtxApplicationInfo_t AppInfo = { 
-"tcond", "Condense tensor product", 
+static MtxApplicationInfo_t AppInfo = {
+"tcond", "Condense tensor product",
 "\n"
 "SYNTAX\n"
 "    tcond [-QVt] [-T <MaxTime>] [-g <NGen>] <Info> <A> <B> <Result>\n"
@@ -228,12 +228,12 @@ static int Init(int argc, const char **argv)
    FirstRow() - Get first row in Q matrix
 
    Description:
-     This function calculates the index of the first row in the Q matrix 
+     This function calculates the index of the first row in the Q matrix
      which belongs to a given constituent. The constituent is identified by
      it isomorphism type <cf>, and, if the constituent occurs more than once,
-     an additional index, <k>, running from 0 to $m-1$, where $m$ is the 
+     an additional index, <k>, running from 0 to $m-1$, where $m$ is the
      multiplicity.
-     All Indexes are 0-based. 
+     All Indexes are 0-based.
 
    Arguments:
      <info>: Pointer to constituent information
@@ -293,7 +293,7 @@ static void gemap(Matrix_t *conma, Matrix_t *q, Matrix_t *mrow, Matrix_t *nrow)
 	int cfn = TKInfo.CfIndex[1][j];		/* Index of constituent in M */
 	int d = InfoM.Cf[cfm].dim;		/* Dimension */
 	int mj;
-	
+
 	/* For each copy of I in M
 	   ----------------------- */
         for (mj = 0; mj < InfoM.Cf[cfm].mult; ++mj)
@@ -305,7 +305,7 @@ static void gemap(Matrix_t *conma, Matrix_t *q, Matrix_t *mrow, Matrix_t *nrow)
 	    /* For each copy of I in N
 	       ----------------------- */
             for (nj = 0; nj < InfoN.Cf[cfn].mult; nj++)
-            {   
+            {
 		long nstart = FirstRow(&InfoN,cfn,nj);
                 Matrix_t *nop = MatCut(nrow,0,nstart,-1,d);
 		Matrix_t *image = TensorMap(q,mop,nop);
@@ -344,7 +344,7 @@ static int CondenseMat(int gen)
     Matrix_t *mmat, *nmat, *x;		/* The generator on M, N */
 
 
-    /* Make file names 
+    /* Make file names
        --------------- */
     sprintf(resname,"%s.%d",ResultName,gen+1);
     sprintf(aname,"%s.%d",AName,gen+1);
@@ -439,7 +439,7 @@ static int CondenseMat(int gen)
 
 	    	MESSAGE(3,(" %dx%d",mi,ni));
                 gemap(condmat,Q[cf],mrow,nrow);
-                
+
                 /* write result */
                 FfSetNoc(condmat->Noc);
         	FfWriteRows(fptr,condmat->Data,condmat->Nor);
@@ -448,8 +448,8 @@ static int CondenseMat(int gen)
             }
 	    MESSAGE(3,("\n"));
             MatFree(mrow);
-        }   
-    }   
+        }
+    }
 
     /* Clean up
        -------- */
@@ -486,17 +486,17 @@ int main(int argc, const char **argv)
 	    rc = 1;
 	}
     }
-    if (App != NULL) 
+    if (App != NULL)
 	AppFree(App);
     return rc;
-}  
+}
 
 
 
 /**
 @page prog_tcond tcond - Tensor Product Condensation
 
-@section syntax Command Line
+@section tcond-syntax Command Line
 <pre>
 tcond [@em Options] [-nt] [-T @em MaxTime] [-g @em NGen] @em Info @em M @em N @em Result
 </pre>
@@ -519,7 +519,7 @@ tcond [@em Options] [-nt] [-T @em MaxTime] [-g @em NGen] @em Info @em M @em N @e
 @par @em Result
   Condensed representation.
 
-@section inp Input Files
+@section tcond-inp Input Files
 @par @em Info.tki
   Tensor condensation info, made by @ref prog_precond "precond".
 @par @em M.1, @em M.2, ...
@@ -532,10 +532,10 @@ tcond [@em Options] [-nt] [-T @em MaxTime] [-g @em NGen] @em Info @em M @em N @e
   Semisimplicity basis for N, made by @ref prog_pwkond "pwkond".
 @par @em Info.q.1, @em Info.q.2, ...
   Basis matrices for constituents.
-@par @em Info.p.1, @em Info.p.2, 
+@par @em Info.p.1, @em Info.p.2,
   Projection matrices for constituents.
 
-@section out Output Files
+@section tcond-out Output Files
 @par @em Result.1, @em Result.2, ...
   Condensed matrices.
 @par @em M.ss.1, @em M.ss.2, ...
@@ -543,7 +543,7 @@ tcond [@em Options] [-nt] [-T @em MaxTime] [-g @em NGen] @em Info @em M @em N @e
 @par @em N.ss.1, @em N.ss.2, ...
   Transformed generators (with -t)
 
-@section desc Description
+@section tcond-desc Description
 This program performs the final steps of the tensor condensation procedure.
 It calculates, for one or more elements a₁,a₂,…∊A,
 the action of e<sub>H</sub>a<sub>i</sub>e<sub>H</sub> on the condensed tensor
@@ -551,7 +551,7 @@ product (M⊗N)e<sub>H</sub>.
 
 
 As input, the program expects the action of a<sub>i</sub> on M and N with
-respect to the same basis as the generators of the condensation 
+respect to the same basis as the generators of the condensation
 subgroup H that were fed into @ref prog_precond "precond" before.
 The program also needs the semisimplicity basis calculated by
 @ref prog_pwkond "pwkond", and the P and Q matrices calculated by @ref prog_precond "precond".
@@ -563,7 +563,7 @@ change.
 The output are @em NGen matrices describing the action of
 e_<sub>H</sub>a<sub>i</sub>e<sub>H</sub> on
 (M⊗N)e<sub>H</sub>. These matrices are written to @em Result.1, @em Result.2 ...
-If you use the "-t" option, @b tcond also calculates 
+If you use the "-t" option, @b tcond also calculates
 the action of a<sub>i</sub> on M and N with respect to the semisimplicity
 basis. This option cannot be used together with "-n".
 
@@ -581,7 +581,7 @@ tcond -g 2 tp g g result
 After these commands are completed, the action of the condensed generators
 is in "result.1", "result.2", and "result.3".
 
-@section impl Implementatin Details
+@section tcond-impl Implementatin Details
 The algorithm used by this program is described in @ref Wie94 "[Wie94]".
 
 

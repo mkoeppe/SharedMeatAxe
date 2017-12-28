@@ -38,9 +38,9 @@ int firstm, nextm;		/* First and last+1 mountain for the */
 long *sumdim[MAXCYCL];
     /* sumdim[i][j] contains the dimension of mountain[i] + mountain[j].
        Most of the program's work constists in comparing sums of pairs of
-       mountains and looking if they are equal. Thus, a given sum may be 
+       mountains and looking if they are equal. Thus, a given sum may be
        needed many times. Since we don't keep the sums in memory we have
-       to recalculate them each time. But comparing the dimensions we can 
+       to recalculate them each time. But comparing the dimensions we can
        avoid many unnecessary calculations. */
 
 int dotlen;
@@ -54,8 +54,8 @@ static Lat_Info LI;		    /* Data from .cfinfo file */
 
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"mkdotl", "Find Dotted-Lines", 
+static MtxApplicationInfo_t AppInfo = {
+"mkdotl", "Find Dotted-Lines",
 "\n"
 "SYNTAX\n"
 "    mkdotl [<Options>] <Name>\n"
@@ -105,13 +105,13 @@ static void ReadFiles(const char *basename)
        ------------------------- */
     sprintf(fn,"%s.inc",LI.BaseName);
     f = SysFopen(fn,FM_READ);
-    if (f == NULL) 
+    if (f == NULL)
     {
 	MTX_ERROR1("Cannot open %s",fn);
 	return;
     }
     SysReadLong(f,&nmountains,1);
-    if (nmountains != cfstart[LI.NCf]) 
+    if (nmountains != cfstart[LI.NCf])
     {
 	MTX_ERROR("Bad number of mountains in .inc file");
 	return;
@@ -134,7 +134,7 @@ static void ReadFiles(const char *basename)
     sprintf(fn,"%s.mnt",LI.BaseName);
     MESSAGE(1,("Reading classes (%s)\n",fn));
     f = SysFopen(fn,FM_READ);
-    if (f == NULL) 
+    if (f == NULL)
     {
 	MTX_ERROR1("Cannot open %s",fn);
 	return;
@@ -228,7 +228,7 @@ static void nextcf(int cf)
     sprintf(fn,"%s%s.v",LI.BaseName,Lat_CfName(&LI,cf));
     cycl = MatLoad(fn);
 
-    /* Calculate the length of dotted-lines. This is always 
+    /* Calculate the length of dotted-lines. This is always
        Q + 1 where Q is the splitting field order.
        ---------------------------------------------------- */
     dotlen = FfOrder;
@@ -282,7 +282,7 @@ static Matrix_t *sum(int i, int k)
 
     MatEchelonize(s);
 
-    /* Remember the dimension of the sum. We use this information 
+    /* Remember the dimension of the sum. We use this information
        later to avoid unnecessary recalculations.
        ----------------------------------------------------------- */
     sumdim[i][k] = sumdim[k][i] = s->Nor;
@@ -297,18 +297,18 @@ static Matrix_t *sum(int i, int k)
 
 static void lock(int i, char *c)
 
-{	
+{
     int l, m;
     BitString_t *b;
 
     memset(c,0,sizeof(lck));
     for (m = firstm; m < nextm; ++m)
-    {	
+    {
 	if (BsTest(subof[i],m) || BsTest(subof[m],i))
 	    c[m] = 1;
     }
     for (l = firstdotl; l < ndotl; ++l)
-    {	
+    {
 	b = dotl[l];
 	if (!BsTest(b,i))
 	    continue;
@@ -387,30 +387,30 @@ static void trydot(int i, int k, int beg, int next)
     for (l = beg; l < next && count < dotlen; ++l)
     {
 	int abort = 0;
-	if (lck[l] || lck2[l]) 
+	if (lck[l] || lck2[l])
 	    continue;
 	for (m = i; !abort && m < l; ++m)
 	{
-	    if (!BsTest(dot,m)) 
+	    if (!BsTest(dot,m))
 		continue;
 	    if (sumdim[l][m] != 0 && sumdim[l][m] != span->Nor)
 	    	abort = 1;
 	    else
-	    {	
+	    {
 		sp = sum(l,m);
 		abort = (sp->Nor != span->Nor) || !IsSubspace(span,sp,0);
 		MatFree(sp);
 	    }
 	}
 	if (!abort)
-	{	
+	{
 	    BsSet(dot,l);
 	    ++count;
 	    lck[l] = 1;
 	}
     }
     if (count == dotlen)	/* We have found a dotted line */
-    {	
+    {
 	int d;
 
 	MESSAGE(1,("New dotted line: %d+%d\n",i,k));
@@ -440,7 +440,7 @@ static void trydot(int i, int k, int beg, int next)
 	}
 	else
 	    ndotl++;
-	
+
     }
     else
 	free(dot);
@@ -455,7 +455,7 @@ static void trydot(int i, int k, int beg, int next)
      <cf>: Index of the constituent.
 
    Description:
-     This function finds all dotted-lines corresponding to a given 
+     This function finds all dotted-lines corresponding to a given
      constituent.
    -------------------------------------------------------------------------- */
 
@@ -472,8 +472,8 @@ static void mkdot(int cf)
 	MESSAGE(2,("Trying mountain %d\n",i));
 	lock(i,lck);
     	for (k = i+1; k < nextm; ++k)
-    	{	
-	    if (lck[k]) 
+    	{
+	    if (lck[k])
 		continue;
     	    trydot(i,k,k+1,nextm);
     	}
@@ -498,7 +498,7 @@ static void WriteResult()
     MESSAGE(1,("Writing %s (%d dotted line%s)\n",
 	fn,ndotl,ndotl!=1 ? "s" : ""));
     f = SysFopen(fn,FM_CREATE);
-    if (f == NULL) 
+    if (f == NULL)
     {
 	MTX_ERROR1("Cannot open %s",fn);
 	return;
@@ -526,7 +526,7 @@ static void WriteResultGAP()
     {
 	printf( "BlistList([" );
 	for (j = 0 ; j < nmountains ; j++)
-        printf( j < (nmountains - 1) ? "%s," : "%s], [1])" , 
+        printf( j < (nmountains - 1) ? "%s," : "%s], [1])" ,
 	       BsTest(dotl[i],j) ? "1" : "0" );
         printf( ",\n" );
     }
@@ -550,7 +550,7 @@ static int Init(int argc, const char **argv)
        ------------------ */
     opt_G = AppGetOption(App,"-G --gap");
     Opt_FindDuplicates = AppGetOption(App,"--nodup");
-    if (opt_G) 
+    if (opt_G)
 	MtxMessageLevel = -100;
     if (AppGetArguments(App,1,1) != 1)
 	return -1;
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
 /**
 @page prog_mkdotl mkdotl - Find Dotted-lines
 
-@section syntax Command Line
+@section mkdotl-syntax Command Line
 <pre>
 mkdotl [@em Options] [-G] [--nodup] @em Name
 </pre>
@@ -625,7 +625,7 @@ mkdotl [@em Options] [-G] [--nodup] @em Name
 @par @em Name
   Name of the representation.
 
-@section inp Input Files
+@section mkdotl-inp Input Files
 @par @em Name.cfinfo
   Constituent info file.
 @par @em NameCf.v
@@ -634,12 +634,12 @@ mkdotl [@em Options] [-G] [--nodup] @em Name
   Incidence matrix, created by @ref prog_mkinc "mkinc".
 @par @em Name.mnt
   Mountain data, created by @ref prog_mkinc "mkinc".
-  
-@section out Output Files
+
+@section mkdotl-out Output Files
 @par @em Name.dot
   Dotted-lines.
 
-@section desc Description
+@section mkdotl-desc Description
 This program calculates a set of dotted lines between the local
 submodules. More precisely, it computes one dotted line for
 each submodule with head isomoprphic to S⊕S, S irreducible.
@@ -660,10 +660,10 @@ A list of all dotted lines is written to @em Name.dot.
 
 Using the option "--nodup" eliminates redundant dotted-lines from the output.
 If this option is specified, the program will calculate, for each dotted-line,
-the maximal mountains contained in the span of the dotted-line. 
-If a dotted-line has the same set of maximal mountains as an earlier 
-dotted-line, it is considered as redundant and dropped. Note that 
-"--nodup" increases both memory and CPU time usage. However, the 
+the maximal mountains contained in the span of the dotted-line.
+If a dotted-line has the same set of maximal mountains as an earlier
+dotted-line, it is considered as redundant and dropped. Note that
+"--nodup" increases both memory and CPU time usage. However, the
 subsequent step, @ref prog_mkgraph "mkgraph",
 will benefit from a reduction of the number of dotted-lines.
 

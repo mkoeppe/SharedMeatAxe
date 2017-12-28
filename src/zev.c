@@ -37,7 +37,7 @@ static char thisgrp[LINEWIDTH];
 static int opt_G = 0;			/* -G option (GAP output) */
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zev", "Eigenvalues",
 "SYNTAX\n"
 "    zev [-GQV] <Matrix> [<Poly> [<Group>]]\n"
@@ -121,7 +121,7 @@ void Gauss(void)
     static int first = 1;
     int nullity = MatNullity__(W);
     if (opt_G)	/* GAP output */
-    {	
+    {
 	int mult = nullity / deg;
 
     	if (mult > 0)
@@ -186,13 +186,13 @@ int getnextpol(void)
     char *c;
     int i;
     FEL f;
- 
+
     while (!feof(src))
-    {	
-	if (!readln(line)) 
+    {
+	if (!readln(line))
 	    return 0;
 	if (*line != ' ')	/* new group */
-	{	
+	{
 	    strcpy(thisgrp,line);
 	    continue;
 	}
@@ -202,7 +202,7 @@ int getnextpol(void)
     c = strtok(line," \t");
     strcpy(name,c);
     for (deg = 0; (c = strtok(NULL," \t")) != NULL; ++deg)
-    {	
+    {
 	if (!strcmp(c,"-1"))
 	    f = FfNeg(FF_ONE);
 	else
@@ -250,7 +250,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zev zev - Eigenvalues
 
-@section syntax Command Line
+@section zev-syntax Command Line
 <pre>
 zev @em Options [-G] @em Matrix [@em Poly [@em Group]]
 </pre>
@@ -266,14 +266,14 @@ zev @em Options [-G] @em Matrix [@em Poly [@em Group]]
 @par @em Group
   Group of polynomials to check (default: all groups).
 
-@section inp Input Files
+@section zev-inp Input Files
 @par @em Matrix
   Input matrix.
 @par @em Poly
   Polynomials.
 
 
-@section desc Description
+@section zev-desc Description
 This program reads a matrix from @em Matrix and a list of polynomials
 from @em Poly (or from the standard input).
 For each input polynomial, it evaluates that function
@@ -297,7 +297,7 @@ If the nullity is not a multiple of the degree, @b zev prints a
 warning message.
 
 
-@subsection pff Polynomial File Format
+@subsection zev-pff Polynomial File Format
 The data file contains the polynomials in text form.
 Several polynomials can be comprised in a group, and the data file
 can contain any number of groups of polynomials.
@@ -350,7 +350,7 @@ This file contains 7 polynomials in two groups. The polynomial
 "b11" in group "p11b11" is x<sup>5</sup>+4x<sup>4</sup>+4x<sup>3</sup>+x<sup>2</sup>+3x+4.
 
 
-@subsection of Output Format
+@subsection zev-of Output Format
 There are two output formats. By default the nullities are printed in
 tabular form giving group, name, degree and multiplicity (i.e., nullity
 divided by degree) for each
@@ -371,11 +371,11 @@ MeatAxe.BrauerChar := 1*(1) + 4*(-1) + 2*(0) + 1*(-i2);
 Note that "i2" does not appear in the expression because its
 coefficient is zero.
 
-@section impl Implementation Details
+@section zev-impl Implementation Details
 There must be enough memory to hold the input matrix and two
 more matrices of the same size.
 Lines in the polynomial input file must not be longer than 1023
-characters. 
+characters.
 
 It is not checked that the input file is a matrix.
 TAB characters at the beginning of a line are not interpreted

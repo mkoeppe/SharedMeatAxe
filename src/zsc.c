@@ -20,7 +20,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zsc", "Spin up with script",
 "\n"
 "SYNTAX\n"
@@ -30,7 +30,7 @@ static MtxApplicationInfo_t AppInfo = {
 "    <Gen> ................... Generator name\n"
 "    <Seed> .................. Seed vector(s)\n"
 "    <Op> .................... Spin-up script\n"
-"    <Out> ................... Result\n"        
+"    <Out> ................... Result\n"
 "\n"
 "OPTIONS\n"
 MTX_COMMON_OPTIONS_DESCRIPTION
@@ -66,7 +66,7 @@ static Matrix_t *Seed;		/* Seed vectors */
      This function reads the generators and the script file. It also
      allocates a workspace for spin-up.
    -------------------------------------------------------------------------- */
-	     
+
 static int ReadFiles()
 
 {
@@ -210,7 +210,7 @@ int main(int argc, const char *argv[])
 /**
 @page prog_zsc zsc - Spin-Up With Script
 
-@section syntax Command Line
+@section zsc-syntax Command Line
 <pre>
 zsc [@em Options] [-g @em NGen] @em Gen @em Seed @em Script @em Output
 </pre>
@@ -228,7 +228,7 @@ zsc [@em Options] [-g @em NGen] @em Gen @em Seed @em Script @em Output
 @par @em Output
   Output base name. Default is @em Script.
 
-@section inp Input Files
+@section zsc-inp Input Files
 @par @em Gen.1, @em Gen.2, ...
   Generators.
 @par @em Seed
@@ -236,19 +236,19 @@ zsc [@em Options] [-g @em NGen] @em Gen @em Seed @em Script @em Output
 @par @em Op
   Spin-up script.
 
-@section out Output Files
+@section zsc-out Output Files
 @par @em Output.0001, @em Output.0002, ...
   Spin-Up result, one file per seed vector.
 
-@section desc Description
-This program reads in two or more matrices (generators), a list of seed vectors 
-and a list of operations (the script). Then, ZSC applies the script to each 
+@section zsc-desc Description
+This program reads in two or more matrices (generators), a list of seed vectors
+and a list of operations (the script). Then, ZSC applies the script to each
 seed vector and writes the output in a separate file for each vector.
 
-The generators must be square matrices over the same field. @em Seed 
-must be a matrix over the same field with the same number of columns. 
+The generators must be square matrices over the same field. @em Seed
+must be a matrix over the same field with the same number of columns.
 @em Script must be an integer matrix with two columns in the format produced
-by the @ref prog_zsp "zsp" program. 
+by the @ref prog_zsp "zsp" program.
 Only one seed vectur may be used in the script, i.e., each row except the
 first row of @em Script must be of the form (x,y) with x≥0.
 

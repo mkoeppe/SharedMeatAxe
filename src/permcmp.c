@@ -22,15 +22,15 @@ MTX_DEFINE_FILE_INFO
 
 /**
  ** Compare two permutations.
- ** This function compares two permutations. If the permutations are equal, 
- ** the return value is 0. Otherwise the return value is positive if @em a 
- ** is "greater" than  @em b, and negative if @em a is "less" than @em b. The 
+ ** This function compares two permutations. If the permutations are equal,
+ ** the return value is 0. Otherwise the return value is positive if @em a
+ ** is "greater" than  @em b, and negative if @em a is "less" than @em b. The
  ** ordering of permutations is defined as follows. If the permutations have
  ** different degrees, the permutations with the smaller degree is smaller.
  ** Otherwise, the result of the comparison is unspecified.
  **
- ** Note that the return value -1 does not necessarily mean that an error 
- ** occured.
+ ** Note that the return value -1 does not necessarily mean that an error
+ ** occurred.
  ** @param a Pointer to the first permutation.
  ** @param b Pointer to the second permutation.
  ** @return 0, if the matrices are equal, a nonzero value otherwise, -1 on error.

@@ -25,8 +25,8 @@ MTX_DEFINE_FILE_INFO
 
 static int Power;
 
-static MtxApplicationInfo_t AppInfo = { 
-"power", "Power of a matrix or permutation", 
+static MtxApplicationInfo_t AppInfo = {
+"power", "Power of a matrix or permutation",
 "SYNTAX\n"
 "    zpo [<Options>] <In> <n> <Result>\n"
 "\n"
@@ -126,7 +126,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zpo zpo - Power
 
-@section syntax Command Line
+@section zpo-syntax Command Line
 <pre>
 zpo [@em Options] @em Input @em N @em Result
 </pre>
@@ -140,15 +140,15 @@ zpo [@em Options] @em Input @em N @em Result
 @par @em Result
   Output file.
 
-@section inp Input Files
+@section zpo-inp Input Files
 @par @em Input
   Input file.
 
-@section inp Output Files
+@section zpo-out Output Files
 @par @em Result
   Output file.
 
-@section desc Description
+@section zpo-desc Description
 This program calculates the @em N-th power of a matrix or permutation.
 The exponent @em N may be negative. For compatibility with the old @b zsm program,
 the power may be specified in the @b zsm format. The following example

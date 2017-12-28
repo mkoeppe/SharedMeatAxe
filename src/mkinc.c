@@ -29,7 +29,7 @@ int *Class[MAXCYCL];			/* Classes of vectors */
 BitString_t *subof[MAXCYCL];		/* Incidence matrix */
 static Lat_Info LI;			/* Data from .cfinfo file */
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "mkinc", "Mountains and incidence matrix",
 "\n"
 "SYNTAX\n"
@@ -76,7 +76,7 @@ static void ReadFiles(const char *basename)
 	return;
     }
 
-    /* Load the generators 
+    /* Load the generators
        ------------------- */
     Rep = MrLoad(LI.BaseName,LI.NGen);
     if (Rep == NULL)
@@ -109,7 +109,7 @@ static int Init(int argc, const char **argv)
     /* Parse command line
        ------------------ */
     opt_G = AppGetOption(App,"-G --gap");
-    if (opt_G) 
+    if (opt_G)
 	MtxMessageLevel = -100;
     if (AppGetArguments(App,1,1) != 1)
 	return -1;
@@ -137,7 +137,7 @@ static void WriteMountains()
     /* Write dimensions and classes
        ---------------------------- */
     f= SysFopen(strcat(strcpy(fn,LI.BaseName),".mnt"),FM_CREATE|FM_TEXT);
-    if (f == NULL) 
+    if (f == NULL)
     {
 	MTX_ERROR1("Cannot create %s: %S",fn);
 	return;
@@ -286,7 +286,7 @@ static void makeclass(int mnt, int cf, Matrix_t *vectors)
     *p++ = nvec;
     for (k = 0; k < vectors->Nor; ++k)
     {
-	if (tmp[k]) 
+	if (tmp[k])
 	    *p++ = k;
     }
     *p = -1;
@@ -361,7 +361,7 @@ static void WriteIncidenceMatrix()
     /* Write the incidence matrix
        -------------------------- */
     f = SysFopen(strcat(strcpy(fn,LI.BaseName),".inc"),FM_CREATE);
-    if (f == NULL) 
+    if (f == NULL)
     {
 	MTX_ERROR1("Cannot open %s: %S",fn);
 	return;
@@ -449,7 +449,7 @@ static void WriteResultGAP()
 	printf("BlistList([" );
 	for (j = 0 ; j < nmount ; j++)
 	{
-      	    printf(j < (nmount - 1) ? "%s," : "%s], [1])", 
+      	    printf(j < (nmount - 1) ? "%s," : "%s], [1])",
 		BsTest(subof[i],j) ? "1" : "0" ) ;
 	}
 
@@ -494,7 +494,7 @@ int main(int argc, const char **argv)
     WriteMountains();
     CalculateIncidences();
     WriteIncidenceMatrix();
-    if (opt_G) 
+    if (opt_G)
 	WriteResultGAP();
     if (App != NULL) AppFree(App);
     return 0;
@@ -504,7 +504,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_mkinc mkinc - Find Mountains
 
-@section syntax Command Line
+@section mkinc-syntax Command Line
 <pre>
 mkinc [@em Options] [-G] @em Name
 </pre>
@@ -516,7 +516,7 @@ mkinc [@em Options] [-G] @em Name
 @par @em Name
   Name of the representation.
 
-@section inp Input Files
+@section mkinc-inp Input Files
 @par @em Name.cfinfo
   Constituent info file.
 @par @em NameCf.1, @em NameCf.2, ...
@@ -530,7 +530,7 @@ mkinc [@em Options] [-G] @em Name
 @par @em NameCf.k
   Uncondense matrices.
 
-@section out Output Files
+@section mkinc-out Output Files
 @par @em Name.v
   Mountains.
 @par @em Name.mnt
@@ -538,7 +538,7 @@ mkinc [@em Options] [-G] @em Name
 @par @em Name.inc
   Incidence matrix.
 
-@section desc Description
+@section mkinc-desc Description
 This program runs in two steps. During the first step, all cyclic
 cyclic submodules found by @ref prog_mkcycl "mkcycl" are uncondensed, giving the
 local submodules, the "mountains", of the original module. Then, each
@@ -553,11 +553,11 @@ local submodules. The result is a matrix which contains a 1 for
 each incidence. This matrix is written to the file @em Name.inc.
 
 
-@section impl Implementation Details
-The whole calculation of step 2 is done in the condensed modules. 
-This is possible because incidences between local submodules do not 
-change if they are condensed. Usually this saves a lot of both memory 
-and CPU time because one does not have to keep all mountains 
+@section mkinc-impl Implementation Details
+The whole calculation of step 2 is done in the condensed modules.
+This is possible because incidences between local submodules do not
+change if they are condensed. Usually this saves a lot of both memory
+and CPU time because one does not have to keep all mountains
 simultaneously, and the condensed modules have a smaller dimension.
 **/
 

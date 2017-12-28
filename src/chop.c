@@ -20,7 +20,7 @@
 #define MAXTRIES 10000	    /* Number of tries before FindIdWord() fails */
 #define MAXFP	6	    /* Fingerprint size */
 
-MTX_DEFINE_FILE_INFO 
+MTX_DEFINE_FILE_INFO
 
 
 
@@ -81,7 +81,7 @@ static long stat_exsplit = 0;
 
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "chop", "Find irreducible constituents",
 "SYNTAX\n"
 "    chop [<Options>] <Name>\n"
@@ -128,7 +128,7 @@ static node_t *CreateNode(MatRep_t *rep, node_t *parent)
     n->badwords = SetAlloc();
     n->nsp = n->nsptr = NULL;
     n->wg = WgAlloc(n->Rep);
-    if (n->wg == NULL) 
+    if (n->wg == NULL)
     {
 	MTX_ERROR("WgAlloc() failed");
 	return NULL;
@@ -191,7 +191,7 @@ static void MakeWord(node_t *n, long w)
 
 
 /* --------------------------------------------------------------------------
-   InsertWord() - Insert the current word into a polynomial and calculate 
+   InsertWord() - Insert the current word into a polynomial and calculate
    the kernel of both the resulting matrix (nsp), and of the transposed
    matrix (nsptr).
    -------------------------------------------------------------------------- */
@@ -211,7 +211,7 @@ static void InsertWord(node_t *n, Poly_t *p)
 
 
 /* --------------------------------------------------------------------------
-   CreateRoot() - Read the generators and create the root node of the 
+   CreateRoot() - Read the generators and create the root node of the
    constituent tree.
    -------------------------------------------------------------------------- */
 
@@ -260,7 +260,7 @@ static int CreateRoot()
 static int IsBadWord(long w,node_t *n)
 
 {
-    if (n == NULL) 
+    if (n == NULL)
 	return 0;
     if (n->badwords != NULL && SetContains(n->badwords,w))
 	return 1;
@@ -287,7 +287,7 @@ static void PrintCompositionSeries(node_t *n)
     if (n->sub == NULL)		/* Irreducible */
     {
 	if (count >= 20)
-	{   
+	{
 	    printf("\n");
 	    count = 0;
 	}
@@ -407,7 +407,7 @@ static void WriteResult(node_t *root)
 
 static void splitnode(node_t *n, int tr)
 
-{	
+{
     MatRep_t *sub = NULL, *quot = NULL;
 
     /* Split the module
@@ -421,7 +421,7 @@ static void splitnode(node_t *n, int tr)
        module, transpose again and exchange sub and quot.
        ---------------------------------------------------------- */
     if (tr)
-    {	
+    {
 	int i;
 	Matrix_t *x, *y;
 	for (i = 0; i < LI.NGen; ++i)
@@ -434,7 +434,7 @@ static void splitnode(node_t *n, int tr)
 	    quot->Gen[i] = x;
 	}
     }
-    
+
     /* Make new nodes for subspace and quotient
        ---------------------------------------- */
     n->sub = CreateNode(sub,n);
@@ -486,7 +486,7 @@ static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
     for (i = 0, x = tmp; i < dimb; FfStepPtr(&x), ++i)
     {
 	piv = FfFindPivot(x,&f);
-	if (piv == -1) 
+	if (piv == -1)
 	    MTX_ERROR("extendbasis(): zero vector in basis");
 	y = x;
 	for (j = i+1; j < dimb+dims; ++j)
@@ -517,7 +517,7 @@ static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
    checkspl() - Checks if a given representation's splitting field
    has degree [E:F] = dim(V), where V is a given subspace (usually
    the kernel of an algebra element).
-   
+
    Returns 1 if [E:F]=dim(V) or zero otherwise.
    ------------------------------------------------------------------ */
 
@@ -543,7 +543,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 
     sb2 = NULL;	/* Mark as unused */
     while (1)
-    {  
+    {
 	Matrix_t *v2, *subsp;
 
 	/* Spin up v1 under all endomorphisms found so far. If this
@@ -568,7 +568,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 	{
 	    int j;
 	    MatFree(sb2);
-	    for (j = 0; j < LI.NGen; ++j) 
+	    for (j = 0; j < LI.NGen; ++j)
 		MatFree(g2[j]);
 	}
 	v2 = extendbasis(subsp,nsp);	/* Get vector */
@@ -598,7 +598,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 
     /* Clean up
        -------- */
-    MatFree(sb1); 
+    MatFree(sb1);
     for (i = 0; i < LI.NGen; ++i) MatFree(g1[i]);
     if (sb2 != NULL)
     {
@@ -614,11 +614,11 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 
 /* --------------------------------------------------------------------------
    FindIdWord() - Find an identifying word for a module
-   
+
    Description:
-     This function finds an identifying word for a given irreducible module. 
-     This is a word in the generators with minimal nullity, i.e., the nullity 
-     equals the splitting field degree [E:F]. The word is stored in n->idword, 
+     This function finds an identifying word for a given irreducible module.
+     This is a word in the generators with minimal nullity, i.e., the nullity
+     equals the splitting field degree [E:F]. The word is stored in n->idword,
      the polynomial in n->idpol, and its null-space in n->nsp.
 
    Arguments:
@@ -640,7 +640,7 @@ static int FindIdWord(node_t *n)
     MESSAGE(1,("Searching idword, dim=%d\n",n->dim));
     for (i = 1; count <= MAXTRIES; ++i)
     {
-	if (IsBadWord(i,n)) 
+	if (IsBadWord(i,n))
 	    continue;
 
 	/* Make the word and its characteristic polynomial
@@ -657,7 +657,7 @@ static int FindIdWord(node_t *n)
 	   ---------------------------------------- */
 	for (k = 0; k < (int) cpol->NFactors; ++k)
 	{
-	    if (cpol->Factor[k]->Degree > n->ggt) 
+	    if (cpol->Factor[k]->Degree > n->ggt)
 		continue;
 	    ++count;
 	    if (MSG3) PolPrint("  factor",cpol->Factor[k]);
@@ -700,7 +700,7 @@ static void newirred(node_t *n)
 {
     int i, k;
     Matrix_t *b;
-    
+
     /* Check if the module is already in the list
        ------------------------------------------ */
     WgMakeFingerPrint(n->wg,n->fprint);
@@ -745,7 +745,7 @@ static void newirred(node_t *n)
     LI.Cf[i].num = irred[i]->num;
     MESSAGE(0,("Irreducible (%s)\n",Lat_CfName(&LI,i)));
 
-    /* Make idword and change to std basis 
+    /* Make idword and change to std basis
        ----------------------------------- */
     MATFREE(n->nsp);
     if (n->idword == -1)
@@ -791,11 +791,11 @@ static int SplitWithSavedVectors(node_t *n)
 {
     Matrix_t *span;
 
-    if (n->nsp == NULL || n->nsp->Nor == 0) 
+    if (n->nsp == NULL || n->nsp->Nor == 0)
 	return 0;
     MESSAGE(1,("Trying saved vectors..."));
 
-    if (n->subsp != NULL) 
+    if (n->subsp != NULL)
 	MatFree(n->subsp);
     n->subsp = NULL;
     span = SpinUp(n->nsp,n->Rep,SF_EACH|SF_SUB,NULL,NULL);
@@ -833,7 +833,7 @@ Matrix_t *polymap(Matrix_t *v, Matrix_t *m, Poly_t *p)
 	PTR x = result->Data, y = tmp->Data;
 	long i;
 	for (i = v->Nor; i > 0; --i)
-	{   
+	{
 	    FfAddMulRow(x,y,f);
 	    FfStepPtr(&x);
 	    FfStepPtr(&y);
@@ -864,7 +864,7 @@ static void make_kern(node_t *n, Poly_t *p)
     MTX_VERIFY(f->Degree == -1);
     PolFree(f);
 
-    if (n->nsp != NULL) 
+    if (n->nsp != NULL)
 	MatFree(n->nsp);
     seed = MatAlloc(FfOrder,1,n->dim);
     FfInsert(seed->Data,CharPolSeed,FF_ONE);
@@ -896,7 +896,7 @@ int make_trkern(node_t *n, Poly_t *p)
     {
 	Matrix_t *seed = MatAlloc(FfOrder,1,n->dim);
     	FfInsert(seed->Data,CharPolSeed,FF_ONE);
-    	if (n->nsptr != NULL) 
+    	if (n->nsptr != NULL)
 	    MatFree(n->nsptr);
     	n->nsptr = polymap(seed,mt,cof);
 	MatFree(seed);
@@ -964,7 +964,7 @@ static void make_f2(node_t *n)	/* Make f2 */
 {
     Poly_t *f;
 
-    if (n->f2 != NULL) 
+    if (n->f2 != NULL)
 	return;
     n->f2 = PolAlloc(n->f1->Field,0);
     while ((f = CharPolFactor(NULL)) != NULL)
@@ -973,7 +973,7 @@ static void make_f2(node_t *n)	/* Make f2 */
 	PolFree(f);
     }
     if (MSG3)
-    { 
+    {
 	FPoly_t *x = Factorization(n->f2);
 	FpPrint("  f2(x)",x);
 	FpFree(x);
@@ -1045,7 +1045,7 @@ static int PolMultiplicity(const Poly_t *factor, const Poly_t *pol)
 
 /* ------------------------------------------------------------------
    try_poly() - Tries to split with one irreducible factor of c(x).
-   
+
     Return: 1 = success, 0 = failed
    ------------------------------------------------------------------ */
 
@@ -1066,7 +1066,7 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
        criterion. We need that the factor we just tried occurs
        with multiplicity 1 in the characteristic polynomial, c(x).
        ----------------------------------------------------------- */
-    if (n->f2 == NULL) 
+    if (n->f2 == NULL)
 	make_f2(n);
     mult = PolMultiplicity(pol,n->f2) + vfh;	/* Multiplicity in c(x) */
 
@@ -1161,7 +1161,7 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
     Poly_t *p, *q, *tmp, *gcd[3];
     Matrix_t *B, *iA, *v, *v1;
 
-    if (MSG3) 
+    if (MSG3)
     {
 	printf("Trying factor (");
 	PolPrint(NULL,cpf->Factor[factor]);
@@ -1235,7 +1235,7 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
     /* Try to split with this vector
        ----------------------------- */
     MESSAGE(3,("Spinning up:"));
-    if (n->subsp != NULL) 
+    if (n->subsp != NULL)
 	MatFree(n->subsp);
     n->subsp = SpinUp(v,n->Rep,SF_FIRST|SF_SUB,NULL,NULL);
     MatFree(v);
@@ -1277,7 +1277,7 @@ static int try_exceptional(node_t *n)
 
     MESSAGE(2,("Trying exceptional cases\n"));
 
-    /* Calculate the complete characteristic polynomial c(x) 
+    /* Calculate the complete characteristic polynomial c(x)
        and its irreducible factors.
        ----------------------------------------------------- */
     cp = PolDup(n->f1);
@@ -1333,7 +1333,7 @@ static int ChopWithWord(node_t *n, long wn, int try_ex)
     /* Try all factors of c(x)
        ----------------------- */
     for (done = pi = 0; !done && pi < (int) cpol->NFactors; ++pi)
-    {    
+    {
 	if (MSG3) {
 	    printf("Next factor: ");
 	    PolPrint(NULL,cpol->Factor[pi]);
@@ -1415,7 +1415,7 @@ static int Chop(node_t *n)
 	long i;
 	if ((w <= 0) && (int)-w < goodwords->Size)
 	    i = goodwords->Data[(int) -(w--)];
-	else 
+	else
 	{
 	    if (w <= 0)
 		w = i = firstword;	/* Start with word 1 */
@@ -1424,7 +1424,7 @@ static int Chop(node_t *n)
 	    if (SetContains(goodwords,w))  /* Do not try again */
 		continue;
 	}
-	if (IsBadWord(i,n)) 
+	if (IsBadWord(i,n))
 	    continue;
 	if (ChopWithWord(n,i,count > 10))
 	    break;
@@ -1474,7 +1474,7 @@ static void Cleanup()
 int main(int argc, const char **argv)
 
 {
-    
+
     if (Init(argc,argv) != 0)
     {
 	MTX_ERROR("Initialization failed");
@@ -1502,7 +1502,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_chop chop - Find Irreducible Constituents
 
-@section syntax Command Line
+@section chop-syntax Command Line
 <pre>
 chop [@em Options] [-Gi] [-g @em NGen] [-s @em Word] [-n @em MaxNul] [-d @em MaxDeg] @em Name
 </pre>
@@ -1532,11 +1532,11 @@ Set limit on degrees of polynomials.
 @par @em Name
 Name of the module to chop.
 
-@section inp Input Files
+@section chop-inp Input Files
 @par @em Name.1, @em Name.2, ...
 Action of the generators on the module.
 
-@section out Output Files
+@section chop-out Output Files
 
 @par @em Name.cfinfo
 Constituent information file
@@ -1544,7 +1544,7 @@ Constituent information file
 @par @em Name.X.1, @em Name.X.2, ...
 Action of the generators on the constituent X.
 
-@section desc Description
+@section chop-desc Description
 This program calculates the irreducible constituents of a given matrix representation.
 The representing matrices of the generators are read from input files, see "input Files"
 above. Unless a different number of generators has been specified with -g, two
@@ -1555,12 +1555,12 @@ For each composition factor @b chop writes the action of the generators to @em C
 @em CFName.2, ... @em CFName is the name of the composition factor, which is constructed
 by appending the dimension and a letter to the module name. For example, "X10a.1"
 is the action of the first generator on the first composition factor of dimension
-10 of the module X. If a second, inequivalent composition factor of dimension 10 
+10 of the module X. If a second, inequivalent composition factor of dimension 10
 was found, it would be named `X10b' and so on.
 @b chop also creates the file @em Name.cfinfo' containing a list of all composition factors.
 This file is used by subsequent programs such as @ref prog_pwkond "pwkond".
 
-@section impl Implementation Details
+@section chop-impl Implementation Details
 @b chop repeatedly splits a module into submodule and quotient until it arrives at the
 irreducible constituents. Thus, it finds a composition series. The program assumes that the
 algebra generated by the input matrices contains the unit matrix.

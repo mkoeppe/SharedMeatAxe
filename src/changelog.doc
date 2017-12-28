@@ -4,32 +4,39 @@
 
 @page changelog Release Notes
 
-@secion SharedMeatAxe Release 1.0
-@par 27.12.2017
-- Create a shared MeatAxe library using autotools
+@section SM1 SharedMeatAxe Release 1.0, forked off MeatAxe Release 2.4.24
+@par Dec-2017
+- Creation of a shared MeatAxe library using autotools
+- Fixes for documentation
+@par 25-Sep-2015
+- Propagate errors and actually use the custom error handler, instead of crashing.
+@par 19-Sep-2015
+- Implement Strassen-Winograd multiplication.
+- Search and create multiplication tables in MtxLibDir, not in the current directory.
+- Speed-up of echelon computation.
 
-@section MeatAxe Release 2.4.X
+@section M2-4-X MeatAxe Release 2.4.X
 @par 31-Jul-2011
 - Improved GAP support in PWKOND. Output now includes peak words and associated polynomials.
   Note that the output format has changed and is not compatible with previous releases.
 - Added functions for handling of dynamic strings.
 - Documentation enhancements.
 
-@section MeatAxe Release 2.4.13
-@par 11-May-2009 
+@section M2-4-13 MeatAxe Release 2.4.13
+@par 11-May-2009
 - Makefile reorganization and SVN integration. As a consequence of the latter, the third
   component of the version number is now the subversion revision.
-@par 23-Apr-2009 
+@par 23-Apr-2009
 - genmod: fixed broken bit string reading code.
 - pseudochop: integrated changes by Klaus Lux to get it working under 2.4.8.
   Now using simpler integer mat functions.
 
-@section MeatAxe Release 2.4.8
-@par 21-Apr-2009 
+@section M2-4-8 MeatAxe Release 2.4.8
+@par 21-Apr-2009
 - Minor corrections.
 - ZSC: accept spin-up scripts starting with a seed vector differnent from 1.
 
-@section MeatAxe Release 2.4.7
+@section M2-4-7 MeatAxe Release 2.4.7
 @par 09-Sep-2007
 - More bugfixes for 64-bit platforms.
 @par 03-Sep-2007

@@ -20,8 +20,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"znu", "Matrix Null-Space", 
+static MtxApplicationInfo_t AppInfo = {
+"znu", "Matrix Null-Space",
 "SYNTAX\n"
 "    znu [-GQVn] <Matrix> [<NullSpace>]\n"
 "\n"
@@ -82,7 +82,7 @@ static int Init(int argc, const char **argv)
 
 int main(int argc, const char **argv)
 
-{   
+{
     int nspdim;
 
     if (Init(argc,argv) != 0)
@@ -128,7 +128,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_znu znu - Null-Space
 
-@section syntax Command Line
+@section znu-syntax Command Line
 <pre>
 znu @em Options [-G] @e Matrix [@em NullSpace]
 </pre>
@@ -141,23 +141,23 @@ znu @em Options [-G] @e Matrix [@em NullSpace]
   The matrix.
 @par @em NullSpace
   The null-space.
-  
-@section inp Input Files
+
+@section znu-inp Input Files
 @par @em Matrix
   The matrix (M×N).
 
-@section out Output Files
+@section znu-out Output Files
 @par @em NullSpace
   The null-space, a L×M matrix in echelon form.
 
-@section desc Description
+@section znu-desc Description
 This program reads in a matrix and outputs a basis for its null-space in
 echelon form. If the @em Nullspace argument is omitted the null-space is
 not written out, but its dimension is still printed.
 
 Notice that the input matrix does not need to be square.
 
-@section impl Implementation Details
+@section znu-impl Implementation Details
 After reading the matrix, the program generates the n×n identity matrix in
 memory where n is the number of rows. It then proceeds to perform row operations
 on the matrix until it is in echelon form. The same row operations are

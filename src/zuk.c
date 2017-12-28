@@ -20,8 +20,8 @@
 MTX_DEFINE_FILE_INFO
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"zuk", "Uncondense Vectors", 
+static MtxApplicationInfo_t AppInfo = {
+"zuk", "Uncondense Vectors",
 "SYNTAX\n"
 "    zuk " MTX_COMMON_OPTIONS_SYNTAX " <Vectors> <Orbits> <Result>\n"
 "\n"
@@ -83,7 +83,7 @@ static int uncondense()
 		}
 	    }
 	}
-	
+
 	if (MfWriteRows(OutputFile,OutputBuffer,1) != 1)
 	    return -1;
     }
@@ -228,7 +228,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zuk zuk - Uncondense Vectors
 
-@section syntax Command Line
+@section zuk-syntax Command Line
 <pre>
 zuk @em Options @em Vectors @em Orbits @em Result
 </pre>
@@ -242,20 +242,20 @@ zuk @em Options @em Vectors @em Orbits @em Result
 @par @em Result
   Uncondensed vectors.
 
-@section inp Input Files
+@section zuk-inp Input Files
 @par @em Vectors
   Vectors to uncondense.
 @par @em Orbits
   Orbit tables produced by @ref prog_zmo "zmo".
 
-@section out Output Files
+@section zuk-out Output Files
 @par @em Result
   Uncondensed vectors.
 
-@section desc Description
+@section zuk-desc Description
 This program reads a matrix which is assumed to be a condensed space of a permutation
 representation whose orbits are in the file @em Orbits. The vectors in @em Vectors are
-elongated so as to lie in the original permutation space and written out to 
+elongated so as to lie in the original permutation space and written out to
 the file @em Result.
 @em Orbits must be an orbits file in the format defined by @ref prog_zmo "zmo".
 Here is an example:

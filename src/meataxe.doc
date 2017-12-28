@@ -2,15 +2,20 @@
 
 /**
 
-@mainpage The C MeatAxe
+@mainpage The Shared C MeatAxe
 
 @section intro Introduction
-The MeatAxe is a set of programs for working with matrices over
-finite fields. Its primary purpose is the calculation of modular
-character tables, although it can be used for other purposes, such
-as investigating subgroup structure, module structure etc.
-Indeed, there is a set of programs (see @ref pg_progs_lattice)
-to compute automatically the submodule lattice of a given module.
+The SharedMeatAxe is a dynamic (shared) library together with a
+set of programs for working with matrices over finite fields. It is
+a fork of the C MeatAxe, and differs by it by the implementation of
+asymptotically fast matrix multiplication and by providing a dynamic
+(as opposed to static) library.
+
+MeatAxe's primary purpose is the calculation of modular character tables,
+although it can be used for other purposes, such as investigating
+subgroup structure, module structure etc. Indeed, there is a set
+of programs (see @ref pg_progs_lattice) to compute automatically
+the submodule lattice of a given module.
 
 Each of the programs is self-contained, reading its input from files,
 and writing its output to files. To make the MeatAxe usable,
@@ -43,12 +48,10 @@ as possible. Moreover, the source code is freely available, so be free
 to change any parts you are annoyed with.
 
 @section intro_plat Supported platforms
-The MeatAxe should run on most UNIX platforms including Linux, NetBSD,
-Ultrix, Solaris, HP-UX, and on Windows NT. Other platforms as MS-DOS,
-VM/CMS and VMS are not officially supported, but it should not be too
-difficult to compile and run the programs on those systems.
+The SharedMeatAxe uses autotools and should thus run on most UNIX
+platforms including Linux, NetBSD, Ultrix, Solaris, HP-UX.
 
-Users of the MeatAxe on a non-UNIX platform should be aware that their
+Users of the SharedMeatAxe on a non-UNIX platform should be aware that their
 operating system may impose some additional restrictions on the programs.
 For example, the length and syntax of file names may be more restricted
 as in UNIX, and CPU time information may not be available or incorrect.
@@ -84,6 +87,12 @@ Sections:
 
 /**
 @page pg_bib Bibliography
+
+@anchor BDPZ09
+@par [BDPZ09]
+    Brice Boyer, Jean-Guillaume Dumas, Clément Pernet, Wei Zhou:
+    <em> Memory efficient scheduling of Strassen-Winograd’s matrix multiplication algorithm</em>.
+    International Symposium on Symbolic and Algebraic Computation 2009, Séoul, South Korea. pp.8, 2009.
 
 @anchor HR94
 @par [HR94]
@@ -122,7 +131,7 @@ Sections:
     Aachener Beiträge zur Mathematik, Band 24.
     Wissenschaftsverlag Mainz, Aachen, 1998.
 
-@anchor Wie94 
+@anchor Wie94
 @par [Wie94]
     Markus Wiegelmann.
     <em>Fixpunktkondensation von Tensorproduktmoduln</em>.
@@ -143,7 +152,6 @@ documented on a separate page (see @ref prog_stdopts).
 - @subpage prog_chop
 - @subpage prog_decomp
 - @subpage prog_genmod
-- @subpage prog_maketab
 - @subpage prog_mkcycl
 - @subpage prog_mkdotl
 - @subpage prog_mkgraph
@@ -176,7 +184,6 @@ documented on a separate page (see @ref prog_stdopts).
 - @subpage prog_zmw
 - @subpage prog_znu
 - @subpage prog_zor
-- @subpage prog_zpc
 - @subpage prog_zpo
 - @subpage prog_zpr
 - @subpage prog_zpt
@@ -188,7 +195,6 @@ documented on a separate page (see @ref prog_stdopts).
 - @subpage prog_zsp
 - @subpage prog_ztc
 - @subpage prog_zte
-- @subpage prog_ztm
 - @subpage prog_ztr
 - @subpage prog_zts
 - @subpage prog_zuk
@@ -217,7 +223,7 @@ finite fields. The first step is always to find the irreducible constituents of 
 representation with @ref prog_chop "chop", and to find the corresponding peak words with
 @ref prog_pwkond "pwkond".
 Here are some examples of what you can do with the programs:
-- Calculate the complete submodule lattice of a module (using @ref prog_chop "chop", 
+- Calculate the complete submodule lattice of a module (using @ref prog_chop "chop",
   @ref prog_pwkond "pwkond", @ref prog_mkcycl "mkcycl", @ref prog_mkinc "mkinc",
   @ref prog_mkdotl "mkdotl", @ref prog_mksub "mksub", @ref prog_genmod "genmod").
 - Find out if a given irreducible module occurs as a constituent of a module
@@ -255,19 +261,8 @@ programs and how to use them.
 @section start_compile Compiling
 
 Instructions for compiling and installing the MeatAxe can be found in the file
-README, which is included in the distribution package.
-There are several options which can be defined at compile time:
-
-@par @c MTXBIN
-Name of the MeatAxe binary directory. This should be the
-final installation directory. The value selected at compile-time
-can be overridden later by defining the environment variable
-MTXBIN or by using the `-B' option.
-
-@par @c MTXLIB
-Name of the library directory, see @ref sec_libdir.
-The value selected at compile-time can be overridden later by defining
-the environment variable MTXLIB or by using the `-L' option.
+INSTALL, which is included in the distribution package.
+Some further options can be defined at compile time:
 
 @par @c DEBUG
 Useful only for development and bug-fixing. Setting this option
@@ -309,8 +304,6 @@ These tables are read from a file named <tt>pXXX.zzz</tt>.
 where XXX is the field order.
 For example, tables for GF(25) are read from the file <tt>p025.zzz</tt>.
 If the table file does not exist, it will be created automatically.
-You may also use the @ref prog_maketab "maketab" program
-to generate the table file manually.
 Table files may also be placed in the library directory (see below)
 because the programs look there before they try to generate a new file.
 
@@ -338,17 +331,14 @@ with the "--help" option to get an on-line help.
 
 @section sec_libdir The library directory
 When given a file name, all programs look for the file in the current
-directory first. If the file is not found there, some programs try to
-find it in the library directory, provided a library has been defined.
-This extended search applies, for example, to ZEV and @ref prog_zcv "zcv" input files
-and also to the arithmetic table files.
+directory first. If the file is not found there, they try to find it in
+the library directory, provided a library has been defined.
 
-The library is usually defined at compile-time by defining MTXLIB.
-This definition may be overridden at run-time by defining the environment variable MTXLIB.
-In either case MTXLIB must be a directory name including
-a trailing separator character (e.g., '/' for UNIX). When looking for
-files in the library, the programs simply append the file name to the
-value of MTXLIB in order to build the complete file name.
+For MeatAxe applications, the location of the library directory must be
+provided at run-time by defining the environment variable MTXLIB.
+It must be a directory name including a trailing separator character
+(e.g., '/' for UNIX). For library functions, the library directory must
+be provided at run-time by defining the global C variable MtxLibDir.
 **/
 
 
@@ -387,7 +377,7 @@ which have been implemented in the kernel for performance reasons.
 - @ref ff2
 
 \par Layer 2 - Objects
-This layer encapsulates low-level functionality in "objects" 
+This layer encapsulates low-level functionality in "objects"
 like matrices, permutations, and polynomials. It also provides the
 elementary operations with these objects like, for example, matrix
 multiplication.
@@ -425,8 +415,8 @@ See @ref pg_progs_index for detailed descriptions.
 @page pg_compiling Compiling and Linking with the MeatAxe Library
 
 To use the MeatAxe library in your programs you need two files:
-\par libmtx.a
-The library file. This file is generated during the compilation of the MeatAxe.
+\par libmtx.so
+The dynamic library file. This file is generated during the compilation of the SharedMeatAxe.
 \par meataxe.h
 The header file for all MeatAxe library functions.
 This file is part of the distribution.
@@ -447,7 +437,7 @@ cc -c -I/usr/joe/mtx/src -o myprog.o myprog.c
 Having compiled your program you must link it with the
 MeatAxe library. Here is an example:
 <pre>
-*msg{cc -o myprog myprog.o libmtx.a}
+*msg{cc -o myprog myprog.o libmtx.so}
 </pre>
 
 **/

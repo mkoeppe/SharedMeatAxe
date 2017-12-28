@@ -31,7 +31,7 @@ Matrix_t *Trans[LAT_MAXCF];	/* */
 int opt_s = 0;			/* Do NOT use standard generators */
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "precond", "Precondensation",
 "SYNTAX"
 "    precond " MTX_COMMON_OPTIONS_SYNTAX " <Info> <M> <N>\n"
@@ -147,7 +147,7 @@ static int Init(int argc, const char **argv)
    IsDual() - Find matching constituent
 
    Description:
-     This function decides if a given contituent of M is dual to a given 
+     This function decides if a given contituent of M is dual to a given
      contituent of N.
 
    Arguments:
@@ -176,7 +176,7 @@ static int IsDual(int mj, MatRep_t *rep_m, int nj)
     MESSAGE(2,(" (%s%s)",InfoN.BaseName,Lat_CfName(&InfoN,nj)));
     rep_n = Lat_ReadCfGens(&InfoN,nj,LAT_RG_INVERT|LAT_RG_TRANSPOSE
 	| (InfoN.Cf[nj].peakword >= 0 ? LAT_RG_STD : 0));
-    
+
     result = IsIsomorphic(rep_m,minfo,rep_n,Trans + TKInfo.NCf,
 	minfo->peakword >= 0);
     MrFree(rep_n);
@@ -292,7 +292,7 @@ static void MkEndo(const MatRep_t *rep, const CfInfo *cf,
 
 static void MakeQ(int n, int spl, const Matrix_t **endo)
 
-{		  
+{
     int i;
     int dim = endo[0]->Nor;
     Matrix_t *q = MatAlloc(endo[0]->Field,spl,dim*dim);
@@ -377,7 +377,7 @@ static void MakePQ(int n, int mj, int nj)
        ---------------------- */
     MESSAGE(2,("Calculating embedding of E\n"));
     MakeQ(n,spl,(const Matrix_t **)endo);
-    
+
     /* Calculate the E* matrices
        Note: We should use the symmetry under i<-->k here!
        --------------------------------------------------- */
@@ -412,7 +412,7 @@ static void MakePQ(int n, int mj, int nj)
     }
     MatFree(ei);
 
-    /* Transpose the E* matrices. This simplifies the 
+    /* Transpose the E* matrices. This simplifies the
        calculation of tr(z E*) below.
        ----------------------------------------------- */
     MESSAGE(2,("   Transposing E* matrices\n"));
@@ -553,7 +553,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_precond precond - Precondensation of Tensor Products"
 
-@section syntax Command Line
+@section precond-syntax Command Line
 <pre>
 precond @em Options @em Info @em M @em N
 </pre>
@@ -567,13 +567,13 @@ precond @em Options @em Info @em M @em N
 @par @em N
   Name of second module (right factor).
 
-@section inp Input Files
+@section precond-inp Input Files
 @par @em M.cfinfo, @em N.cfinfo
   Constituent information.
 @par @em MCf.std.1, @em MCf.std.2, ..., @em NCf.std.1, @em NCf.std.2, ...
   Standard generators of the condensation subgroup H for each constituent.
 
-@section out Output Files
+@section precond-out Output Files
 @par @em Info.tki
   Tensor condensation info file.
 @par @em Info.q.1, @em Info.q.2, ...
@@ -582,35 +582,35 @@ precond @em Options @em Info @em M @em N
   Projections for each constituent.
 
 
-@section desc Description
+@section precond-desc Description
 This program performs two tasks:
 - It compares the irreducible constituents of M<sub>H</sub> and N<sub>H</sub>,
   and finds all pairs (S<sub>i</sub>,T<sub>j</sub>) of constituents where
   S<sub>i</sub>≅T<sub>j</sub><sup>⋆</sup>.
 - For each pair (S,T) of constituents found in step 1, the program
-  calculates the embedding of (S⊗T)e<sub>H</sub> into S⊗T as an 
+  calculates the embedding of (S⊗T)e<sub>H</sub> into S⊗T as an
   direct summand, and the corresponding projection of S⊗T onto
   (S⊗T)e<sub>H</sub>.
 If there is no peak word for a constituent, @b precond will issue a warning
 but continue. However, the P and Q matrices for this constituent are zero.
 
-@section impl Implementation Details
+@section precond-impl Implementation Details
 Step 1, matching of constituents, is implemented in the same way as in @ref prog_chop "chop"
-and @ref prog_cfcomp "cfcomp", i.e., by using the standard basis with respect to identifying 
+and @ref prog_cfcomp "cfcomp", i.e., by using the standard basis with respect to identifying
 words.
 Step 2 is based on two observations:
 - (A):
     V⊗V<sup>*</sup>≅Hom<sub>k</sub>(V,V)$, and (S⊗T)e_H≅End<sub>kH</sub>(V)
     as $kH$-Modules.
 - (B):
-    There is a natural, H-invariant non-degenerate scalar product on 
+    There is a natural, H-invariant non-degenerate scalar product on
     Hom<sub>k</sub>(V,V), given by Γ(φ,ψ)=Trace(φ∘ψ).
 
 From (A) it is clear that calculating the embedding of
 (S⊗T)e<sub>H</sub> into S⊗T is equivalent to computing a basis
 of End<sub>kH</sub>(V).
 The latter is easily accomplished using the peak word of V.
-As a consequence of the second observation, there is a natural one-to-one 
+As a consequence of the second observation, there is a natural one-to-one
 correspondence between H-invariant linear forms on Hom_k(V,V)
 and End<sub>kH</sub>(V), which is used to calculate the projection from
 Hom<sub>k</sub>(V,V) on End<sub>kH</sub>(V).

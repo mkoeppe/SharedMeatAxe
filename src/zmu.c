@@ -22,8 +22,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"zmu", "Multiply", 
+static MtxApplicationInfo_t AppInfo = {
+"zmu", "Multiply",
 "SYNTAX\n"
 "    zmu [-r <Row>[.<#Rows>]] [-c <Col>[.<#Cols>]] <A> <B> <Result>\n"
 "\n"
@@ -49,7 +49,7 @@ static MtxApplicationInfo_t AppInfo = {
 
 static MtxApplication_t *App = NULL;
 static const char *aname, *bname, *cname;	/* File names */
-static FILE *afile = NULL; 
+static FILE *afile = NULL;
 static FILE *bfile = NULL;
 static FILE *cfile = NULL;		    /* File handles */
 static int fl1, fl2;			    /* Field order */
@@ -71,7 +71,7 @@ static int multpm(void)
     Perm_t *perm;
     Matrix_t *row;
 
-    if (nor1 != nor2) 
+    if (nor1 != nor2)
     {
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
 	return -1;
@@ -99,7 +99,7 @@ static int multpm(void)
     /* Write out the rows of <B> in the order defined by <A>.
        ------------------------------------------------------ */
     for (i = 0; i < nor1; ++i)
-    {	
+    {
 	FfSeekRow(bfile,perm->Data[i]);
 	if (FfReadRows(bfile,row->Data,1) != 1)
 	{
@@ -133,7 +133,7 @@ static int multmp(void)
     PTR row_in, row_out;
     int i;
 
-    if (noc1 != nor2) 
+    if (noc1 != nor2)
     {
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
 	return -1;
@@ -160,7 +160,7 @@ static int multmp(void)
     if ((cfile = FfWriteHeader(cname,fl1,nor1,noc1)) == NULL)
 	return -1;
 
-    /* Process A row by row. Permute the 
+    /* Process A row by row. Permute the
        marks of each row according to B.
        ---------------------------------- */
     for (i = 0; i < nor1; ++i)
@@ -205,11 +205,11 @@ static int multsm(FILE *s, FILE *m, int nor3, int noc3)
     f = FfExtract(ms,0);
     FfSetNoc(noc3);
     mm = FfAlloc(1);
-	
+
     if ((cfile = FfWriteHeader(cname,fl1,nor3,noc3)) == NULL)
 	return -1;
     for (i = 0; i < nor3; ++i)
-    {	
+    {
 	if (FfReadRows(m,mm,1) != 1)
 	{
 	    MTX_ERROR("Cannot read from input file");
@@ -252,12 +252,12 @@ static int multmm(void)
 	return multsm(afile,bfile,nor2,noc2);
     else if (noc2 == 1 && nor2 == 1)
 	return multsm(bfile,afile,nor1,noc1);
-    if (noc1 != nor2) 
+    if (noc1 != nor2)
     {
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
 	return -1;
     }
-    if ((long) nrows > nor1 || (long) ncols > noc2) 
+    if ((long) nrows > nor1 || (long) ncols > noc2)
     {
 	MTX_ERROR("Matrix too small");
     }
@@ -334,12 +334,12 @@ static int multpp(void)
 {
     Perm_t *a, *b;
 
-    if (fl1 != fl2) 
+    if (fl1 != fl2)
     {
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
 	return -1;
     }
-    if (fl1 != -1) 
+    if (fl1 != -1)
     {
 	MTX_ERROR("Monomials are not supported");
 	return -1;
@@ -375,7 +375,7 @@ static int multpp(void)
        --------- */
     PermFree(a);
     PermFree(b);
-    return 0;    
+    return 0;
 }
 
 
@@ -437,10 +437,10 @@ static int OpenFiles()
 
 {
     afile = FfReadHeader(aname,&fl1,&nor1,&noc1);
-    if (afile == NULL) 
+    if (afile == NULL)
 	return -1;
     bfile = FfReadHeader(bname,&fl2,&nor2,&noc2);
-    if (bfile == NULL) 
+    if (bfile == NULL)
 	return -1;
     return 0;
 }
@@ -461,7 +461,7 @@ static void Cleanup()
 
 
 int main(int argc, const char **argv)
-{   
+{
     int result;
 
     if (Init(argc,argv) != 0)
@@ -472,14 +472,14 @@ int main(int argc, const char **argv)
 
     /* Call the appropriate multiplication function.
        --------------------------------------------- */
-    if (fl1 < 0 && fl2  < 0) 
-	result = multpp(); 
-    else if (fl1 > 1 && fl2 > 1) 
-	result = multmm(); 
-    else if (fl1 > 1 && fl2 == -1) 
-	result = multmp(); 
-    else if (fl1 == -1 && fl2  > 1) 
-	result = multpm(); 
+    if (fl1 < 0 && fl2  < 0)
+	result = multpp();
+    else if (fl1 > 1 && fl2 > 1)
+	result = multmm();
+    else if (fl1 > 1 && fl2 == -1)
+	result = multmp();
+    else if (fl1 == -1 && fl2  > 1)
+	result = multpm();
     else
     {
 	MTX_ERROR3("%s and %s: %E",aname,bname,MTX_ERR_INCOMPAT);
@@ -499,7 +499,7 @@ int main(int argc, const char **argv)
 
 @see  @ref prog_zpt
 
-@section syntax Command Line
+@section zmu-syntax Command Line
 <pre>
 zmu @em [Options] [-r @em Row[/@em NRows]] [-c @em Col[/@em NCols]] @em A @em B @em Result
 </pre>
@@ -514,7 +514,7 @@ of @em A.
 
 @par -c @em Col[/@em NCols]
 Divide the matrix @em B vertically into @em NCols slices (default: 2) and use the
-@em Col-th slice as right factor. @em NCols must not be larger than the number of 
+@em Col-th slice as right factor. @em NCols must not be larger than the number of
 columns of @em B.
 
 @par @em A
@@ -526,7 +526,7 @@ Right factor.
 @par @em Result
 Product.
 
-@section inp Input Files
+@section zmu-inp Input Files
 
 @par @em A
 Left factor.
@@ -534,12 +534,12 @@ Left factor.
 @par @em B
 Right factor.
 
-@section out Output Files
+@section zmu-out Output Files
 
 @par @em Result
 Product.
 
-@section desc Description
+@section zmu-desc Description
 This program reads two matrices or permutations and writes their product to @em Result.
 
 The input files must contain two compatible objects, i.e., their product must be defined.
@@ -582,7 +582,7 @@ The associative law a(bc)=(ab)c holds whenever ab and bc are defined (a,b,c bein
 permutations). A permutation matrix created with @ref prog_zcv "zcv" or @ref prog_zcf "zcf",
 if multiplied with another matrix, produces the same result as the original permutation.
 
-@subsection bl Blockwise Matrix Multiplication
+@subsection zmu-bl Blockwise Matrix Multiplication
 In the case of two matrices, a blockwise multiplication can be performed using the
 "-r" and "-c" options. If one or both of these options are specified on the command line,
 @em zmu will read only some rows of @em A and/or some columns of @em B.
@@ -610,4 +610,8 @@ zmu -r 3/5
 means to cut @em A horizontally into five slices and use the third
 slice for multiplication. The number of slice must not be greater
 than the number of rows.
+
+@section zmu-impl Implementation Details
+This program uses schoolbook multiplication. Asymptotically fast
+Winograd-Strassen multiplication (see @ref TODO) is not used.
 */

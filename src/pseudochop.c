@@ -97,7 +97,7 @@ int main(int argc, const char *argv[])
         }
         old = MatInsert(WgMakeWord(rep,mycfinfo.Cf[j].peakword),mycfinfo.Cf[j].peakpol);
 	nulsp = MatNullSpace(old);
-	newnul = nulsp->Nor; 
+	newnul = nulsp->Nor;
         oldnul = 0;
 
 	/* Find stable nullity */
@@ -110,7 +110,7 @@ int main(int argc, const char *argv[])
             MatFree(old);
             MatFree(nulsp);
             old = MatDup(newmat);
-            nulsp = MatNullSpace__(newmat); 
+            nulsp = MatNullSpace__(newmat);
             newnul= nulsp->Nor;
         }
         MatFree(old);
@@ -136,7 +136,7 @@ int main(int argc, const char *argv[])
             mat = MatLoad(name2);
             if (mat->Field != gens->Gen[0]->Field)
             {
-		MTX_ERROR2("%s: %E",name2,MTX_ERR_INCOMPAT); 
+		MTX_ERROR2("%s: %E",name2,MTX_ERR_INCOMPAT);
                 return -1;
             }
             MatSave(mat, name);
@@ -146,7 +146,7 @@ int main(int argc, const char *argv[])
             mat = MatLoad(name2);
             MatSave(mat, name);
             MatFree(mat);
-        } 
+        }
     }
     if (dim < gens->Gen[0]->Nor)
         fprintf(stderr, "The given compositionfactors form only %d from whole dimension %d!\n\n",
@@ -155,9 +155,9 @@ int main(int argc, const char *argv[])
     strcpy(mycfinfo.BaseName,App->ArgV[0]);
     Lat_WriteInfo(&mycfinfo);
 
-    return 0;	
+    return 0;
 }
-    
+
 
 /**
 @page prog_pseudochop pseudochop - Chop with known peak words
@@ -166,7 +166,7 @@ int main(int argc, const char *argv[])
 - @ref prog_chop
 - @ref prog_pwkond
 
-@section syntax Syntax
+@section pseudochop-syntax Syntax
 <pre>
 pseudochop [-QVs] @em Module @em Reference
 </pre>
@@ -182,7 +182,7 @@ Name of the module to chop.
 @par @em Reference
 Name of the reference module, where chop and pwknd -t have been run.
 
-@section inp Input files
+@section pseudochop-inp Input files
 @par @em Reference.cfinfo
 Constituent information for the reference module.
 
@@ -192,10 +192,10 @@ Composition factors of the reference module.
 @par @em Module .1 @em Module .2 ...
 Action of the generators on @em Module
 
-@section out Output files
-The output is the same as for chop.
+@section pseudochop-out Output files
+The output is the same as for @ref chop-out "chop".
 
-@section desc Description
+@section pseudochop-desc Description
 This program can be used to produce the chop output for a given module without
 actually doing all the work. To do so, there must be another module (the "reference
 module") which contains all constituents that occur in the module to be chopped,

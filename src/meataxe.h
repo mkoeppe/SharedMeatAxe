@@ -101,10 +101,10 @@ typedef unsigned short *PTR;
 extern int FfOrder;		/**< Current field order */
 extern int FfChar;		/**< Current characteristic */
 extern FEL FfGen;		/**< Generator */
-extern int FfNoc;		/**< Number of columns for row ops */
+extern int FfNoc;		/**< Current number of columns for row ops */
 extern size_t FfCurrentRowSize;
 extern int FfCurrentRowSizeIo;
-extern int MPB;         /** No. of marks per byte */
+extern int MPB;         /** Number of marks per byte (depends on field order) */
 extern int LPR;         /** Long ints per row */
 
 
@@ -166,13 +166,14 @@ int FfWriteRows(FILE *f, PTR buf, int n);
 
 #if ZZZ==0
 
-extern FEL mtx_tmult[256][256];
-extern FEL mtx_tadd[256][256];
-extern FEL mtx_taddinv[256], mtx_tmultinv[256];
-extern FEL mtx_tffirst[256][2];
-extern FEL mtx_textract[8][256];
+extern FEL mtx_tmult[256][256];  /**< table for field element multiplication */
+extern FEL mtx_tadd[256][256];   /**< table for field element addition */
+extern FEL mtx_taddinv[256];     /**< table for field element negation */
+extern FEL mtx_tmultinv[256];    /**< table for field element inversion */
+extern FEL mtx_tffirst[256][2];  /**< table for value and index of the first non-zero mark in byte */
+extern FEL mtx_textract[8][256]; /**< table for extraction of a mark from a byte */
 extern FEL mtx_tnull[8][256];
-extern FEL mtx_tinsert[8][256];
+extern FEL mtx_tinsert[8][256];  /**< table for insertion of a mark into a byte */
 extern long mtx_embedord[4];
 extern FEL mtx_embed[4][16];
 extern FEL mtx_restrict[4][256];
@@ -229,7 +230,7 @@ void MtxCleanupLibrary();
  **/
 
 typedef struct {
-    char *S;	/* pointer to NUL terminated string */
+    char *S;	/**< pointer to NUL terminated string */
 } String;
 
 String StrAlloc(size_t initial_capacity);
@@ -249,8 +250,13 @@ void StrPrintF(String *s, const char *fmt, ...);
    Application framework
    ------------------------------------------------------------------ */
 
-extern char MtxBinDir[1024];	/* MeatAxe library directory */
-extern char MtxLibDir[1024];	/* MeatAxe program directory */
+/**
+ ** @addtogroup app
+ ** @{
+ **/
+
+extern char MtxBinDir[1024];	/**< MeatAxe program directory */
+extern char MtxLibDir[1024];	/**< MeatAxe library directory (for multiplication tables etc.) */
 
 #define APP_MAX_ARGS 50
 
@@ -281,8 +287,6 @@ typedef struct
     const char *Description;	/**< One-line description of the program. */
     const char *Help;		/**< Help text. */
 } MtxApplicationInfo_t;
-
-
 
 
 /** Application data.
@@ -325,39 +329,62 @@ const char *AppCreateTempDir(MtxApplication_t *app);
     "    -V ...................... Verbose, more messages\n" \
     "    -T <MaxTime> ............ Set CPU time limit [s]\n"
 
+/** @} **/
+
+/** @addtogroup err
+ ** @{
+**/
 
 /* ------------------------------------------------------------------
    Messages and error handling
    ------------------------------------------------------------------ */
 				/* Error message codes (%E arguments) */
-#define MTX_ERR_NOMEM	    1	/* Not enough memory */
-#define MTX_ERR_GAME_OVER   2	/* Time limit exceeded */
-#define MTX_ERR_DIV0	    8	/* Division by 0 or singular Matrix */
-#define MTX_ERR_FILEFMT	    24	/* Bad format */
-#define MTX_ERR_BADARG	    31	/* Bad argument */
-#define MTX_ERR_RANGE	    33	/* Out of range */
-#define MTX_ERR_NOTECH	    34	/* Matrix not in chelon form */
-#define MTX_ERR_NOTSQUARE   35	/* Matrix not square */
-#define MTX_ERR_INCOMPAT    36	/* Arguments are incompatible */
-#define MTX_ERR_BADUSAGE    41	/* Bad command line */
-#define MTX_ERR_OPTION	    42	/* Bad usage of option */
-#define MTX_ERR_NARGS	    43	/* Bad number of arguments */
-#define MTX_ERR_NOTMATRIX   51	/* Not a matrix */
-#define MTX_ERR_NOTPERM	    53	/* Not a permutation */
-
+#define MTX_ERR_NOMEM	    1	/**< Not enough memory */
+#define MTX_ERR_GAME_OVER   2	/**< Time limit exceeded */
+#define MTX_ERR_DIV0	    8	/**< Division by 0 or singular Matrix */
+#define MTX_ERR_FILEFMT	    24	/**< Bad format */
+#define MTX_ERR_BADARG	    31	/**< Bad argument */
+#define MTX_ERR_RANGE	    33	/**< Out of range */
+#define MTX_ERR_NOTECH	    34	/**< Matrix not in chelon form */
+#define MTX_ERR_NOTSQUARE   35	/**< Matrix not square */
+#define MTX_ERR_INCOMPAT    36	/**< Arguments are incompatible */
+#define MTX_ERR_BADUSAGE    41	/**< Bad command line */
+#define MTX_ERR_OPTION	    42	/**< Bad usage of option */
+#define MTX_ERR_NARGS	    43	/**< Bad number of arguments */
+#define MTX_ERR_NOTMATRIX   51	/**< Not a matrix */
+#define MTX_ERR_NOTPERM	    53	/**< Not a permutation */
 
 
 /**
- ** Source file information.
+ ** File information.
+ ** This data structure contains information about a source file. The
+ ** information is used when an error is reported via MtxError().
  **/
-typedef struct { const char *Name; const char *BaseName; } MtxFileInfo_t;
+typedef struct
+{
+	const char *Name;		/**< Path to the file */
+	const char *BaseName;	/**< Base name of the file */
+}
+MtxFileInfo_t;
 
 /**
- ** Run-time error information.
+ ** Run-time errors.
+ ** This data structure contains detailed information on an error that occurred
+ ** inside the {\MeatAxe} library.
+ ** @see MtxSetErrorHandler
  **/
-typedef struct { const MtxFileInfo_t *FileInfo; int LineNo; const char *Text; }
-    MtxErrorRecord_t;
+typedef struct
+{
+	const MtxFileInfo_t *FileInfo;	/**< File that is raising the error */
+	int LineNo;						/**< Line in which the error is raised */
+	const char *Text;				/**< Error message */
+}
+MtxErrorRecord_t;
 
+/**
+ ** Error handlers.
+ ** @see MtxSetErrorHandler MtxErrorRecord_t
+ **/
 typedef void MtxErrorHandler_t(const MtxErrorRecord_t *);
 
 #define MTX_DEFINE_FILE_INFO \
@@ -411,6 +438,8 @@ extern int MtxMessageLevel;
 #define MESSAGE(level,args)\
   (MtxMessageLevel>=(level) ? ( printf args , fflush(stdout), 1) : 0 )
 
+/** @} **/
+
 
 /* ------------------------------------------------------------------
    Miscellaneous
@@ -427,9 +456,14 @@ long lcm(long a, long b);
    Structured text files (stfXXX.c)
    ------------------------------------------------------------------ */
 
-/** Structured text file.
-This structure is used for reading from , and writing to
-structured text files.
+/** @addtogroup stf
+ ** @{
+ **/
+
+/**
+ ** Structured text file.
+ ** This structure is used for reading from , and writing to
+ ** structured text files.
 **/
 typedef struct
 {
@@ -462,6 +496,9 @@ int StfGetString(StfData *f, char *buf, size_t bufsize);
 int StfMatch(StfData *f, const char *pattern);
 int StfGetVector(StfData *f, int *bufsize, int *buf);
 
+/**
+ ** @}
+ **/
 
 /* ------------------------------------------------------------------
    MeatAxe files
@@ -548,16 +585,19 @@ void Mat_DeletePivotTable(Matrix_t *mat);
    Greased matrices
    ------------------------------------------------------------------ */
 
+/** @addtogroup grmat
+ ** @{
+ **/
+
 /**
  ** Extraction table for greasing.
  ** This  structure is used internally for all greased matrix operations.
  **/
 
 typedef struct {
-    long ***tabs; /* tables for different remainders
-		     of byte numbers mod grrows */
-    int *nrvals;  /* number of values produced by each table */
-    int nrtabs;   /* number of tables used */
+    long ***tabs; /**< tables for different remainders of byte numbers mod grrows */
+    int *nrvals;  /**< number of values produced by each table */
+    int nrtabs;   /**< number of tables used */
 } GrExtractionTable_t;
 
 const GrExtractionTable_t *GrGetExtractionTable(int fl,int grrows);
@@ -569,15 +609,16 @@ const GrExtractionTable_t *GrGetExtractionTable(int fl,int grrows);
 
 typedef struct
 {
-    unsigned long Magic;
-    int Field, Nor, Noc;
-    int GrRows;			/* Grease level (# of rows, 0=no grease) */
-    int GrBlockSize;		/* Vectors per block (= Field^GrRows) */
-    int NumVecs;		/* Total number of vectors in <PrecalcData> */
-    PTR PrecalcData;		/* Precalculated data */
-    const GrExtractionTable_t
-	*ExtrTab;		/* Extraction table */
-    int MPB;			/* Number of marks per byte */
+    unsigned long Magic; /**< Used internally */
+    int Field;			/**< Field size */
+    int Nor;			/**< Number of rows */
+    int Noc;			/**< Number of columns */
+    int GrRows;			/**< Grease level (# of rows, 0=no grease) */
+    int GrBlockSize;	/**< Vectors per block (= Field^GrRows) */
+    int NumVecs;		/**< Total number of vectors in <PrecalcData> */
+    PTR PrecalcData;	/**< Precalculated data */
+    const GrExtractionTable_t *ExtrTab;		/**< Extraction table */
+    int MPB;			/**< Number of marks per byte */
 } GreasedMatrix_t;
 
 void GrMapRow(PTR v,GreasedMatrix_t *M, PTR w);
@@ -585,13 +626,21 @@ GreasedMatrix_t *GrMatAlloc(const Matrix_t *m, int gr_rows);
 int GrMatFree(GreasedMatrix_t *mat);
 int GrMatIsValid(const GreasedMatrix_t *mat);
 
-
+/**
+ ** @}
+ **/
 
 /* ------------------------------------------------------------------
    Permutations
    ------------------------------------------------------------------ */
 
-/** A Permutation. */
+/** @addtogroup perm
+ ** @{
+ **/
+
+/**
+ ** A Permutation.
+ **/
 typedef struct
 {
     unsigned long Magic;  /**< Used internally. */
@@ -617,9 +666,15 @@ int PermWrite(const Perm_t *perm, FILE *f);
 
 void Perm_ConvertOld(long *data, int len);
 
+/** @} **/
+
 /* ------------------------------------------------------------------
    Polynomials
    ------------------------------------------------------------------ */
+
+/** @addtogroup poly
+ ** @{
+ **/
 
 typedef struct
 {
@@ -652,7 +707,7 @@ Poly_t *PolRead(FILE *f);
 int PolSave(const Poly_t *pol, const char *fn);
 int PolWrite(const Poly_t *p, FILE *f);
 
-
+/** @} **/
 
 /* ------------------------------------------------------------------
    Factored polynomials
@@ -962,13 +1017,13 @@ FPoly_t *MinPol(Matrix_t *mat);
 typedef struct
 {
     long dim, num, mult;
-    long idword;		/* Identifying word */
+    long idword;		/**< Identifying word */
     Poly_t *idpol;
-    long peakword;		/* Peak word */
+    long peakword;		/**< Peak word */
     Poly_t *peakpol;
-    long nmount;		/* Number of mountains */
-    long ndotl;			/* Number of dotted lines */
-    long spl;			/* Degree of splitting field */
+    long nmount;		/**< Number of mountains */
+    long ndotl;			/**< Number of dotted lines */
+    long spl;			/**< Degree of splitting field */
 }
 CfInfo;
 

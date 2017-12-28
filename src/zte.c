@@ -21,8 +21,8 @@ static const char *aname, *bname, *cname;	/* File names */
 static MtxFile_t *AFile, *BFile;
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"zte", "Tensor Product", 
+static MtxApplicationInfo_t AppInfo = {
+"zte", "Tensor Product",
 "SYNTAX\n"
 "    zte [-QV] [-T <MaxTime>] <A> <B> <Result>"
 "\n"
@@ -57,7 +57,7 @@ static int tensormatrices()
 
 
     MESSAGE(1,("Computing matrix tensor product:"));
-    MESSAGE(1,(" (%d,%d)*(%d,%d)=(%d,%d)\n", 
+    MESSAGE(1,(" (%d,%d)*(%d,%d)=(%d,%d)\n",
 	a_nor,a_noc,b_nor,b_noc,c_nor,c_noc));
 
     /* Allocate buffers.
@@ -75,7 +75,7 @@ static int tensormatrices()
     /* Read the second matrix (B).
        --------------------------- */
     FfSetNoc(b_noc);
-    if (MfReadRows(BFile,m2,b_nor) != b_nor) 
+    if (MfReadRows(BFile,m2,b_nor) != b_nor)
 	return -1;
 
     /* Open the outpt file.
@@ -139,7 +139,7 @@ static int tensorperms(void)
     MtxFile_t *f;
     long *a_buf, *b_buf, *c_buf;
     int i;
-    
+
     MESSAGE(1,("Computing permutation tensor product:"));
     MESSAGE(1,(" %d*%d=%d\n", a_deg,b_deg,c_deg));
 
@@ -148,7 +148,7 @@ static int tensorperms(void)
     a_buf = NALLOC(long,a_deg);
     b_buf = NALLOC(long,b_deg);
     c_buf = NALLOC(long,b_deg);
-    if (a_buf == NULL || b_buf == NULL || c_buf == NULL) 
+    if (a_buf == NULL || b_buf == NULL || c_buf == NULL)
 	return -1;
     if (MfReadLong(AFile,a_buf,a_deg) != a_deg ||
         MfReadLong(BFile,b_buf,b_deg) != b_deg)
@@ -275,7 +275,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zte zte - Tensor Product
 
-@section syntax Command Line
+@section zte-syntax Command Line
 <pre>
 zte [@em Options] @em A @em B @em Result
 </pre>
@@ -289,17 +289,17 @@ zte [@em Options] @em A @em B @em Result
 @par @em Result
   Result matrix
 
-@section inp Input Files
+@section zte-inp Input Files
 @par @em A
   Left factor (patrix or permutation).
 @par @em B
   Right factor (patrix or permutation).
 
-@section out Output Files
+@section zte-out Output Files
 @par @em Result
   Result matrix
 
-@section desc Description
+@section zte-desc Description
 This program reads in two matrices or permutations and writes out their tensor
 (Kronecker) product.
 If @em A is an m×n matrix, and @em B is an m'×n' matrix, the
@@ -323,10 +323,10 @@ matrix field=17 nor=2 noc=6
 2 0 2 0 0 0
 1 3 1 3 0 0
 </pre>
-If the input files contain permutations on n and n' points, 
-respectively, the result is a permutation on nn' points, which 
-describes the action of (A,B) on ordered pairs of points. This 
-action is defined in the obvious way: (i,k) maps to (iA,kB). 
-In the output, pairs are represented as numbers using the 
+If the input files contain permutations on n and n' points,
+respectively, the result is a permutation on nn' points, which
+describes the action of (A,B) on ordered pairs of points. This
+action is defined in the obvious way: (i,k) maps to (iA,kB).
+In the output, pairs are represented as numbers using the
 lexicographic ordering (1,1), ..., (1,n'), (2,1), ..., (n,n').
 **/

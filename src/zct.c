@@ -23,7 +23,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zct", "Cut Matrices Or Permutations",
 "SYNTAX\n"
 "    zct <Rows>[:<Columns>] <Input> <Output>\n"
@@ -63,10 +63,10 @@ static FILE *InputFile, *OutputFile;
 
 static void err(int c)
 
-{   
+{
     fprintf(stderr,"ZCT ERROR - ");
     switch (c)
-    {	
+    {
 	case 'a':
 	    fprintf(stderr,"BAD RANGE\n");
 	    break;
@@ -90,7 +90,7 @@ static void err(int c)
 
 static int list(long x[MAXPIECES][2], const char *c)
 
-{   
+{
     int n = 0;
 
     while (isdigit(*c))
@@ -167,17 +167,17 @@ static int init()
 
 {
     int i;
-	
+
     if ((InputFile = FfReadHeader(ifilename,&fl,&nor,&noc)) == NULL)
 	return -1;
     if (fl == -1)	/* Is it a permutation? */
-    {	
+    {
 	if (ncols > 0) err('P');
     }
     else
-    {	
+    {
 	if (ncols == 0)
-	{	
+	{
 	    ncols = 1;
 	    collist[0][0] = 1;
 	    collist[0][1] = noc;
@@ -187,7 +187,7 @@ static int init()
     if (nrows == 0)
 	onor = nor;
     else
-    {	
+    {
 	onor = 0;
 	for (i = 0; i < nrows; ++i)
 	    onor += rowlist[i][1]-rowlist[i][0]+1;
@@ -195,7 +195,7 @@ static int init()
     if (ncols == 0)
 	onoc = noc;
     else
-    {	
+    {
 	onoc = 0;
 	for (i = 0; i < ncols; ++i)
 	    onoc += collist[i][1]-collist[i][0]+1;
@@ -282,11 +282,11 @@ static int cutmatrix()
     x = FfAlloc(onor);
     y = x;
     for (i = 0; i < nrows; ++i)
-    {	
+    {
 	FfSetNoc(noc);
 	FfSeekRow(InputFile,rowlist[i][0]-1);
 	for (k = 0; k <= rowlist[i][1]-rowlist[i][0]; ++k)
-	{   
+	{
 	    FfSetNoc(noc);
 	    FfReadRows(InputFile,row,1);
 	    pos = 0;
@@ -349,7 +349,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zct zct - Cut
 
-@section syntax Command Line
+@section zct-syntax Command Line
 <pre>
 zct @em Options @em Rows[:@em Columns] @em Input @em Output
 </pre>
@@ -365,16 +365,16 @@ Input matrix or permutation.
 @par @em Output
 Output file.
 
-@section inp Input Files
+@section zct-inp Input Files
 @par @em Input
 Input matrix or permutations.
 
-@section out Output Files
+@section zct-out Output Files
 @par @em Output
 Output file.
 
 
-@section desc Description
+@section zct-desc Description
 This program cuts a piece, specified by @em Rows and @em Columns,
 out of the file @em Input, and writes the piece to @em Output.
 The input may be a matrix or a set of permutations.
@@ -439,7 +439,7 @@ list must be empty in  this case, because @b zct can cut only entire
 permutations.
 
 
-@section impl Implementation Details
+@section zct-impl Implementation Details
 The number of entries in the @em Rows and @em Columns list
 must not be greater than 10. One row (or permutation, respectively)
 of the input file and the whole result of the cut must fit into

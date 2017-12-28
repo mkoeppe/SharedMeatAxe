@@ -11,6 +11,27 @@
 #include <inttypes.h>
 #include "meataxe.h"
 
+/**
+ ** @defgroup matwin Strassen-Winograd multiplication
+ ** @{
+ ** @details
+ ** A matrix window is a rectangular part of a matrix. As an implementation
+ ** detail, each row of the window must be formed by longs.
+ ** Hence, not all upper left corners are allowed and not all row sizes
+ ** are possible.
+ **
+ ** Matrix windows are used in the asymptoticall fast Strassen-Winograd
+ ** multiplication algorithm, that is a divide-and-conquer algorithm.
+ ** In order to avoid the allocation of additional matrices (thus, in order
+ ** to be efficient), intermediate results are stored in the same matrix
+ ** that will eventuall contain the final result of the multiplication.
+ **
+ ** We use the memory efficient schedule of Douglas-Heroux-Slishman-Smith
+ ** described in @ref BDPZ09 "[BDPZ09]".
+ **
+ **/
+
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -19,23 +40,31 @@ MTX_DEFINE_FILE_INFO
 
 typedef unsigned char BYTE;
 
+/** Matrix Window.
+The MatrixWindow_t structure represents a rectangular part of a matrix.
+***/
 typedef struct
 {
-  int Nor;                      /* #rows of the window */
-  size_t RowSize;               /* size of window rows in long integers */
-  Matrix_t *Matrix;             /* ambient matrix containing the window */
-  PTR ULCorner;                 /* Pointer to the upper left window corner */
+  int Nor;                      /**< #rows of the window */
+  size_t RowSize;               /**< size of window rows (number of longs in a contiguous memory chunk) */
+  Matrix_t *Matrix;             /**< ambient matrix containing the window */
+  PTR ULCorner;                 /**< Pointer to the upper left window corner */
 }
     MatrixWindow_t;
 
 size_t cutoff = sizeof(long)/2;
 
-/** The divide-and-conquer approach is only done for
- * matrices with at least "cutoff*MPB*sizeof(long)" rows which
- * are formed by at least "cutoff" longs.
- *
- * The above rule means that the "critical matrices" are square.
+/**
+ ** Set the cutoff for Winograd-Strassen multiplication.
+ ** The divide-and-conquer approach is only done for
+ ** matrices with at least "cutoff*MPB*sizeof(long)" rows which
+ ** are formed by at least "cutoff" longs.
+ ** That rule means that the "critical matrices" are roughly square.
+ **
+ ** If @a size is zero, the default cutoff "sizeof(long)/2" is used.
+ ** @param size New cutoff.
  **/
+
 void StrassenSetCutoff(size_t size)
 {   if (size)
         cutoff = size;
@@ -48,18 +77,22 @@ void StrassenSetCutoff(size_t size)
    Allocation and deallocation of a matrix window
 
    ------------------------------------------------------------------ */
+
+
 /**
- * Note that the rowsize is given in long, not in byte. The reason is
- * functions such as FfAddRowPartial or FfAddMapRowWindow internally
- * operating on longs. By consequence, in the Strassen-Winograd
- * multiplication algorithm, we have to divide our matrix rows
- * into longs, not into bytes.
+ ** Allocation and null initialisation of a matrix window.
+ **
+ ** Note that the rowsize is given in long, not in byte. The reason is
+ ** functions such as FfAddRowPartial() or FfAddMapRowWindow() are internally
+ ** operating on longs. By consequence, in the Strassen-Winograd
+ ** multiplication algorithm, we have to divide our matrix rows
+ ** into longs, not into bytes.
+ ** @param fl Field size.
+ ** @param nor Number of rows.
+ ** @param rowsize Rows are formed by @a rowsize longs in memory.
+ ** @return Matrix window, with pointer in the upper left corner, initialised to zero.
  **/
 
-/* Allocation with initialisation */
-/* Create an empty matrix that is identical with the window. */
-/* fl is the field size, nor is the number of rows. rowsize is */
-/* the size of a row in longs. */
 MatrixWindow_t *WindowAlloc(int fl, int nor, size_t rowsize)
 {
     MatrixWindow_t *out;
@@ -87,8 +120,11 @@ MatrixWindow_t *WindowAlloc(int fl, int nor, size_t rowsize)
     return out;
 }
 
-/** WARNING: Only to be used if the surrounding matrix can be destroyed
-    Otherwise, just do free(m)! **/
+/**
+ ** Release the memory used by this window.
+ ** @attention Only to be used if the surrounding matrix can be destroyed! Otherwise, just do free(@a m)!
+ ** @param m Matrix window to be freed.
+ **/
 void WindowFree(MatrixWindow_t *m)
 {
     if (m->Matrix != NULL)
@@ -101,7 +137,7 @@ void WindowFree(MatrixWindow_t *m)
 /* ------------------------------------------------------------------
  * Auxiliary / Debugging
  ----------------------------------------------------------------- */
-
+/*
 void WindowShow(MatrixWindow_t *A)
 {
 long i,j;
@@ -114,10 +150,11 @@ for (i=A->Nor; i>0; i--, FfStepPtr(&p))
   printf("\n");
   }
 }
+*/
 
 /**
- ** Overwrite the window by zeroes, but let the
- ** rest of the ambient matrix untouched
+ ** Overwrite the window by zeroes, but let the rest of the ambient matrix untouched.
+ ** @param A The matrix window to be zeroed out.
  **/
 
 void WindowClear(MatrixWindow_t *A)
@@ -132,16 +169,16 @@ for (i=A->Nor; i>0; i--, FfStepPtr(&p))
 
 /**
  ** Multiply a vector by a matrix window.
- ** This function multiplies the vector @em row from the right by the matrix window
- ** @em mat and adds the result into @em result.
- ** The number of columns in both @em mat and @em result is determined by @em rowsize.
- ** @attention @em result and @em row must not overlap. Otherwise the result is
- ** undefined.
- ** @param row The source vector (nor columns).
- ** @param matrix A matrix window (nor by (rowsize*sizeof(long)*MPB)) of a matrix whose rowsize is FfCurrRowSize.
- ** @param nor number of rows in the matrix window.
- ** @param[out] result The resulting vector ((rowsize*sizeof(long)*MPB) columns).
- ** @param rowsize number of longs forming a row of @em mat.
+ ** This function multiplies the vector @a row from the right by the matrix window
+ ** pointed at by @a matrix and @em adds the result into @a result. The number of columns
+ ** in both @a matrix and @a result is determined by @a rowsize.
+ ** @attention @a result and @a row must not overlap. Otherwise the result is undefined!
+ ** @param row The source vector, formed by @a nor columns.
+ ** @param matrix A pointer to a mark in a matrix, defining a window in a matrix whose rowsize is FfCurrRowSize.
+ *  ( nor by (rowsize*sizeof(long)*MPB)) of a matrix whose
+ ** @param nor Number of rows or the matrix window.
+ ** @param[out] result The vector which @a row * @a matrix is added to. It has @a rowsize * sizeof(long) * MPB columns.
+ ** @param rowsize Number of longs forming a row of @a matrix.
  **/
 
 void FfAddMapRowWindow(PTR row, PTR matrix, int nor, PTR result, size_t rowsize)
@@ -268,10 +305,14 @@ __asm__("    popl %ebx\n"
     }
 }
 
-/** dest := left+right
-   left and right must be distinct, but one of them may coincide with dest -- under the assumption
-   that, in that case, the ambient matrices coincide as well.
-   Return dest, or NULL on error (the only error may occur in a compatibility check). **/
+/**
+ ** Add two matrix windows @a left and @a right and put the result into @a dest.
+ ** @a left and @a right must be distinct, but one of them may coincide with @a dest
+ ** @param[out] dest Matrix window which the results is to be assigned to.
+ ** @param left Matrix window.
+ ** @param right Matrix window.
+ ** @return Either @a dest or the NULL pointer on error (the only error may occur in a compatibility check).
+ **/
 MatrixWindow_t *WindowSum(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
   PTR x, result, tmp;
@@ -337,11 +378,14 @@ MatrixWindow_t *WindowSum(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWind
   return dest;
 }
 
-/** dest := left-right
-   left and right must be distinct, but one of them may coincide with dest -- under the assumption
-   that, in that case, the ambient matrices coincide as well.
-   Return dest, or NULL on error (the only error may occur in a compatibility check).
-**/
+/**
+ ** Subtract two matrix windows @a left and @a right and put the result into @a dest.
+ ** @a left and @a right must be distinct, but one of them may coincide with @a dest
+ ** @param[out] dest Matrix window which the results is to be assigned to.
+ ** @param left Matrix window.
+ ** @param right Matrix window.
+ ** @return Either @a dest or the NULL pointer on error (the only error may occur in a compatibility check).
+ **/
 MatrixWindow_t *WindowDif(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
   PTR x, result, tmp;
@@ -407,14 +451,19 @@ MatrixWindow_t *WindowDif(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWind
 }
 
 /**
-   Add left*right to dest.
+ ** Add @a left * @a right to @a dest.
+ **
+ ** It is assumed that @a dest->Matrix is allocated with the correct field
+ ** and dimensions as well, so that we can write the result into it. Moreover,
+ ** the chunk of memory pointed at by @a dest @em must be disjoint
+ ** from the chunks for @a left and @a right! Compatibility of dimensions
+ ** is not tested
 
-   It is assumed that "dest->Matrix" is allocated (with the correct field and dimensions as well), so that we
-   can write the result into it. Moreover, the chunk of memory pointed at by dest MUST be disjoint
-   from the chunks for left and right!
-
-   Dimensions are not tested, always dest will be returned (no error value).
-**/
+ ** @param[out] dest Matrix window which the product of @a left and @a right is added to.
+ ** @param left Matrix window.
+ ** @param right Matrix window.
+ ** @return @a dest, there is no error return value.
+ **/
 MatrixWindow_t *WindowAddMul(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixWindow_t *right)
 {
     PTR x, y, result;
@@ -445,6 +494,13 @@ MatrixWindow_t *WindowAddMul(MatrixWindow_t *dest, MatrixWindow_t *left, MatrixW
     return dest;
 }
 
+/** Create a window of a matrix.
+ ** @param out An allocated matrix window whose data fields will be filled with new data.
+ ** @param M matrix.
+ ** @param nor Number of rows of the window.
+ ** @param rowsize Rowsize of the window, which must correspond to a block of longs in memory.
+ ** @param p Pointer to the upper left corner of the window
+ **/
 inline void MatrixToWindow (MatrixWindow_t *out, const Matrix_t *M, long nor, long rowsize, PTR p)
 /* presumably M will be freed separately. Hence, use free(...) to free
    the result of this function
@@ -457,15 +513,18 @@ inline void MatrixToWindow (MatrixWindow_t *out, const Matrix_t *M, long nor, lo
 }
 
 /**
- ** Multiply matrix windows
- ** This function multiplies @em A_win from the right by @em B_win and writes
- ** the result into @em dest_win.
+ ** Multiply matrix windows.
+ ** This function multiplies @a A_win from the right by @a B_win and writes
+ ** the result into @a dest_win.
+ ** @attention @a dest must be initialised to zero!
+ **
  ** The matrix windows must be compatible for multiplication, i.e. they must be over
- ** the same field, and the number of columns of @em A_win must be equal to the
- ** number of rows of @em B_win.
- ** Moreover, it is assumed that @em dest_win is allocated in the right dimensions.
- ** Since parts of @em dest_win are used to store temporary results, it is essential
- ** that @em dest_win initially is zero!
+ ** the same field, and the number of columns of @a A_win must be equal to the
+ ** number of rows of @a B_win.
+ **
+ ** Moreover, it is assumed that @a dest_win is allocated in the right dimensions.
+ ** Since parts of @a dest_win are used to store temporary results, it is essential
+ ** that @a dest_win initially is zero.
  ** @param[out] dest_win Result.
  ** @param A_win Left factor.
  ** @param B_win Right factor
@@ -922,19 +981,31 @@ int StrassenStep(MatrixWindow_t *dest_win, MatrixWindow_t *A_win, MatrixWindow_t
 }
 
 /**
- ** Multiply matrices
- ** This function multiplies @em A from the right by @em B and writes
- ** the result into @em dest.
+ ** @}
+ **/
+
+
+/**
+ ** @addtogroup mat
+ ** @{
+ **/
+
+/**
+ ** Multiply matrices.
+ ** This function multiplies @a A from the right by @a B and writes
+ ** the result into @a dest.
  ** The matrices must be compatible for multiplication, i.e. they must be over
- ** the same field, and the number of columns of @em A must be equal to the
- ** number of rows of @em B.
- ** Moreover, it is assumed that @em dest is allocated in the right dimensions.
- ** Since parts of @em dest are used to store temporary results, it is essential
- ** that @em dest initially is zero!
+ ** the same field, and the number of columns of @a A must be equal to the
+ ** number of rows of @a B.
+ ** Moreover, it is assumed that @a dest is allocated in the right dimensions.
+ ** Since parts of @a dest are used to store temporary results, it is essential
+ ** that @a dest initially is zero!
+ **
+ ** @see matwin
  ** @param[out] dest Result.
  ** @param A Left factor.
  ** @param B Right factor
- ** @return The function returns @em dest, or NULL on error.
+ ** @return Either @a dest, or NULL on error.
  **/
 Matrix_t *MatMulStrassen(Matrix_t *dest, const Matrix_t *A, const Matrix_t *B)
 {
@@ -949,3 +1020,7 @@ Matrix_t *MatMulStrassen(Matrix_t *dest, const Matrix_t *A, const Matrix_t *B)
   if (StrassenStep(dest_win, A_win, B_win)) return NULL;
   return dest;
 }
+
+/**
+ ** @}
+ **/

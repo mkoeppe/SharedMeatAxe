@@ -49,7 +49,7 @@ int LPR = 0;		/* Long ints per row */
 
 /**
  ** @defgroup ff Finite Fields
- ** 
+ **
  ** The finite field part of the kernel provides finite field arithmetic and
  ** basic operations with vectors and matrices over finite fields.
  ** The kernel cannot operate simultaneously with different finite fields,
@@ -59,7 +59,7 @@ int LPR = 0;		/* Long ints per row */
  ** There are two finite field modules available: one for small fields (up
  ** to 256) and one for larger fields (up to 2<sup>16</sup>). The finite field
  ** module is selected at compile time.
- ** 
+ **
  ** @section ff_dt Basic data types
  ** The kernel defines two basic data types:
  ** @par FEL
@@ -74,7 +74,7 @@ int LPR = 0;		/* Long ints per row */
  ** Depending on which kernel you are using, FF_ZERO and FF_ONE need
  ** not be constants.
  ** They may be defined as variables or even function calls.
- ** 
+ **
  ** @section ff_intrep Internal data representation
  ** @par 'Small' Kernel (q≤256)
  ** In the "small" kernel, field elements of GF(q) are represented
@@ -82,7 +82,7 @@ int LPR = 0;		/* Long ints per row */
  ** Conway polynomial p(x), a polynomial of degree n over ℤ<sub>p</sub>[x],
  ** where q=p<sup>n</sup>. Thus, we have a one-to-one correspondence of field
  ** elements a∈GF(q) and polynomials f<sub>a</sub>(x)∈ ℤ<sub>p</sub>[x] of
- 
+
  ** degree less than n. By treating ℤ<sub>p</sub> as a subset of ℤ ---
  ** actually, on the computer, elements of ℤ<sub>p</sub> are represented
  ** by integers --- this is also a polynomial over *ℤ. Now,
@@ -109,7 +109,7 @@ int LPR = 0;		/* Long ints per row */
  **   and FF_ONE constants define in |meataxe.h|.
  ** - Do not cast an integer to FEL or vice versa. Use
  **   FfFromInt() and FfToInt() instead.
- ** 
+ **
  ** @section ff_convert Converting between finite field elements and integers
  ** The MeatAxe defines a standard numbering of field elements,
  ** i.e., a bijection between GF(q) and the set {0,1,..,q-1}.
@@ -126,7 +126,7 @@ int LPR = 0;		/* Long ints per row */
  ** functions, FfFromInt() and FfToInt(). Since the actual numeric
  ** representation of field elements depends on the kernel, you cannot
  ** convert a FEL to an integer simply by type casting.
- ** 
+ **
  ** @section ff_embed Embedding of subfields
  ** In the MeatAxe there is a `standard' generator for each finite
  ** field. The generator for the field currently in use is available in
@@ -332,7 +332,7 @@ static int ReadTableFile(FILE *fd, int field)
     }
     if (hdr[2] != field || hdr[1] < 0 || hdr[1] > field ||
         hdr[0] <= 1 || hdr[2] % hdr[0] != 0 || hdr[3] < 1 || hdr[3] > 8)
-    {	
+    {
 	MTX_ERROR("Table file is corrupted");
 	return -1;
     }
@@ -474,7 +474,7 @@ size_t FfTrueRowSize(int noc)
  ** @param a Element of the subfield field.
  ** @param subfield Subfield order. Must be a divisor of the current field order.
  ** @return @em a, embedded into the current field, or 255 on error.
- **/ 
+ **/
 
 FEL FfEmbed(FEL a, int subfield)
 
@@ -527,7 +527,7 @@ FEL FfRestrict(FEL a, int subfield)
 static void __inline__ FastXor(void *dest, const void *src)
 {
 __asm__(
-	
+
 	"    pushl %ebx\n"
 	"    pushl %ecx\n"
 	"    pushl %edx\n"
@@ -726,7 +726,7 @@ PTR FfSubRow(PTR dest, PTR src)
     register int i;
 
     if (FfChar == 2)	/* characteristic 2 is simple... */
-    {	
+    {
 #ifdef ASM_MMX
     /* This assumes Intel with 4 bytes per long, but MMX implies Intel anyway.*/
 	__asm__(
@@ -1067,7 +1067,7 @@ FEL FfFromInt(int l)
  **/
 
 int FfToInt(FEL f)
-{	
+{
     return (int) f;
 }
 
@@ -1077,7 +1077,7 @@ int FfToInt(FEL f)
  ** This function multiplies the vector @em row from the right by the matrix @em mat and
  ** stores the result into @em result.
  ** The number of columns in both @em mat and @em result is determined by the current row size.
- ** (see FfNoc()).
+ ** (@see FfNoc()).
  ** @attention @em result and @em row must not overlap. Otherwise the result is
  ** undefined.
  ** @param row The source vector (FfNoc columns).
@@ -1302,7 +1302,6 @@ void FfExtractColumn(PTR mat,int nor,int col,PTR result)
 
 
 /**
- ** Insert a mark into a row
  ** This function inserts the field element @em mark at position @em col into @em row.
  ** Column indexes start with 0.
  ** Before this function can be used, the field must be selected with FfSetField().
@@ -1355,7 +1354,7 @@ void FfInsert(PTR row, int col, FEL mark)
     returns the first entry of a row. Like |FfInsert()|, this function
     does not depend on the current row size. Reading beyond the end of
     a row will probably not produce an error, but the result is undefined.
- ** @see FfInsert
+ ** @see FfInsert()
  **/
 
 FEL FfExtract(PTR row, int col)

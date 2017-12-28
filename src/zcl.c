@@ -3,8 +3,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"zcl", "Clean Matrix", 
+static MtxApplicationInfo_t AppInfo = {
+"zcl", "Clean Matrix",
 "SYNTAX\n"
 "    zcl <Subsp> <Mat> <Cleaned mat> <Ops>\n"
 "\n"
@@ -126,7 +126,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zcl zcl - Clean
 
-@section syntax Command Line
+@section zcl-syntax Command Line
 <pre>
 zcl [@em Options] @em Subsp @em Mat @em CleanedMat @em Ops
 </pre>
@@ -142,20 +142,20 @@ zcl [@em Options] @em Subsp @em Mat @em CleanedMat @em Ops
 @par @em Ops
   Row operations.
 
-@section ifile Input Files
+@section zcl-inp Input Files
 @par @em Subsp
   Subspace to clean with, a N⨯M matrix in echelon form.
 @par @em Mat
   Matrix to be cleaned (L⨯M).
 
-@section ofile Output Files
+@section zcl-out Output Files
 @par @em CleanedMat
   Cleaned matrix (L⨯M).
 @par @em Ops
   Row operations (L⨯N).
 
 
-@section desc Description
+@section zcl-desc Description
 This program "cleans" @em Mat with @em Subsp, i.e., it adds suitable linear
 combinations of rows of @em Subsp to each row of @em Mat such that all pivot
 columns in the result are zero. It writes two matrices to @em CleanedMat and @em Ops
@@ -179,11 +179,11 @@ calculates the action on the subspace in @c gen_s.
 The action on the quotient of a given subspace can be calculated with
 the @ref prog_zqt "zqt" program.
 
-@section imspl Implementation Details
+@section zcl-impl Implementation Details
 The subspace is loaded into memory and, if necessary, reduced to echelon form.
 The second matrix, is then processed a row at a time.
-Row operations are performed to clear out the pivot points of the input row using the 
-rows of the first input matrix. A row describing what was done is written 
+Row operations are performed to clear out the pivot points of the input row using the
+rows of the first input matrix. A row describing what was done is written
 out to @em Ops, and the remnant (clean) row is output to @em CleanedMat.
 **/
 

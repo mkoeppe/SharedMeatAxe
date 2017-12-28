@@ -24,19 +24,19 @@
  ** idea to delete a matrix as early as possible. There is only one possibility
  ** of deleting a matrix: calling MatFree().
  **
- ** @section ech Echelon form and pivot tables
+ ** @section echelon-doc Echelon form and pivot tables
  ** A matrix A with entries (a<sub>ij</sub>) is said to be in <b>echelon form</b>
  ** if the following conditions are satisfied:
- ** 
+ **
  ** - Each row has a first non-zero element, called the <b>pivot element</b>.
  **   The pivot element may have any value except zero.
  ** - If a<sub>ij</sub> is the pivot element of the i-th row, all elements below are zero,
  **   i.e., a<sub>ik</sub>=0 for all k>i.
- ** 
- ** If a matrix is in echelon form, the column indexes of its pivot elements are 
- ** called the <b>pivot columns</b> of the matrix. The list of all pivot columns 
+ **
+ ** If a matrix is in echelon form, the column indexes of its pivot elements are
+ ** called the <b>pivot columns</b> of the matrix. The list of all pivot columns
  ** is called the <b>pivot table</b> of the matrix.
- ** 
+ **
  ** The Matrix_t structure, which represents a matrix, has a @c PivotTable field
  ** which is used to store the pivot table. When different from 0, @c PivotTable
  ** is a pointer to an array of integers containing first the pivot columns
@@ -59,7 +59,7 @@
  ** Besides the marks, each matrix carries the field order, the number of rows and the number
  ** of columns. There is no global field order or row length as at the kernel layer.
  **/
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -68,8 +68,8 @@ MTX_DEFINE_FILE_INFO;
 
 #define MAT_MAGIC 0x6233af91
 
-   
-   
+
+
 /** Check if the matrix is valid.
  ** This function checks if the argument is a pointer to a valid matrix. If the matrix is o.k.,
  ** the function returns 1.  Otherwise, an error is signalled and, if the error handler does not
@@ -85,7 +85,7 @@ int MatIsValid(const Matrix_t *mat)
 	MTX_ERROR("NULL matrix");
 	return 0;
     }
-    if (mat->Magic != MAT_MAGIC || mat->Field < 2 || mat->Nor < 0 || 
+    if (mat->Magic != MAT_MAGIC || mat->Field < 2 || mat->Nor < 0 ||
 	mat->Noc < 0)
     {
 	MTX_ERROR3("Invalid matrix (field=%d, nor=%d, noc=%d)",mat->Field,

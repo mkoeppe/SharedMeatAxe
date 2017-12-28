@@ -21,8 +21,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
-"soc", "Socle series", 
+static MtxApplicationInfo_t AppInfo = {
+"soc", "Socle series",
 "\n"
 "SYNTAX\n"
 "    soc " MTX_COMMON_OPTIONS_SYNTAX " [-l <length>] <Name>\n"
@@ -194,14 +194,14 @@ static int NextLayer()
             MTX_ERROR1("Missing peak word for constituent %d - run pwkond!",j);
 	    return -1;
 	}
-	
+
 	sed = seed[j];
 	dimendS = LI.Cf[j].spl;
 
 
 	/* determines a basis for the corresponding part in the socle
 	   ---------------------------------------------------------- */
-	if (sed->Nor != 0) 
+	if (sed->Nor != 0)
 	{
 	    partbas = HomogeneousPart(Rep,CfRep[j],sed,OpTableMat[j],dimendS);
 	    if (partbas == NULL)
@@ -210,9 +210,9 @@ static int NextLayer()
 		return -1;
 	    }
 	}
-	else 
+	else
 	    partbas = MatDup(sed);
-                
+
 	/* Append the new basis to the old one.
 	   ------------------------------------ */
 	cfvec[j] = partbas->Nor / LI.Cf[j].dim;
@@ -231,7 +231,7 @@ static int NextLayer()
     flag = 0;
     for (j = 0; j < LI.NCf; j++)
     {
-	if (cfvec[j] <= 0) 
+	if (cfvec[j] <= 0)
 	    continue;
 	if (flag++ > 0)
 	    MESSAGE(0,(" +"));
@@ -243,7 +243,7 @@ static int NextLayer()
     MESSAGE(0,("\n"));
     Lat_AddSocle(&LI,cfvec);
 
-  
+
     SysFree(cfvec);
 
 
@@ -252,7 +252,7 @@ static int NextLayer()
    -------------------------------------------------- */
 
     if (SocDim == Dimension)
-    { 
+    {
 	/* multiplies the last two basistransformations
 	   -------------------------------------------- */
 	if (basis == NULL)
@@ -271,8 +271,8 @@ static int NextLayer()
         return 1;
     }
 
-    
-    
+
+
     /* Extend the basis of the socle to a basis of the whole module.
        ------------------------------------------------------------- */
     echbas = MatAlloc(bas->Field,bas->Noc,bas->Noc);
@@ -283,7 +283,7 @@ static int NextLayer()
     MatFree(bas);
     bas = echbas;
 
-	    
+
 
 /* multiplying the last two basischanges
    ------------------------------------- */
@@ -385,12 +385,12 @@ int main( int argc, const char **argv)
     return 0;
 }
 
-    
+
 
 /**
 @page prog_soc soc - Socle Series
 
-@section syntax Command Line
+@section soc-syntax Command Line
 <pre>
 soc @em Options [-l @em MaxLength] @em Module
 </pre>
@@ -402,7 +402,7 @@ soc @em Options [-l @em MaxLength] @em Module
 @par @em Module
   Module name.
 
-@section inp Input Files
+@section soc-inp Input Files
 @par @em Name.cfinfo.
   Constituent information.
 @par @em NameCf.std.1, @em NameCf.std.2, ...
@@ -412,13 +412,13 @@ soc @em Options [-l @em MaxLength] @em Module
 @par @em NameCf.k
   Uncondense matrix
 
-@section out Output Files
+@section soc-out Output Files
 @par @em Name.cfinfo.
-  Socle information, see description.
+  Socle information, see @ref soc-desc "description".
 @par @em Name.soc.
   A basis reflecting the Loewy structure.
 
-@section desc Description
+@section soc-desc Description
 This program determines the Loewy structure of a module by calculating the socles.
 Before using the program, you must run @ref prog_chop "chop" and @ref prog_pwkond "pwkond"
 with the "-t" option. For example,
@@ -429,7 +429,7 @@ soc m11
 </pre>
 For each layer of the socle series, the program prints the dimension
 and the multiplicities of the irreducible constituents in this layer.
-This information is also written to the cfinfo file. The following 
+This information is also written to the cfinfo file. The following
 example shows the relevant portion of the cfinfo file:
 <pre>
 CFInfo.NSocles := 5;
@@ -439,16 +439,16 @@ The numbers in @c CFInfo.socles are the multiplicities of the
 irreducible constituents for each layer of the socle series.
 
 Using the "-l" option, you can specify a maximum length.  After @em MaxLength socles
-have been calculated, the program prints a warning and stops. 
+have been calculated, the program prints a warning and stops.
 
-A basis basis reflecting the Loewy structure of the module is 
+A basis basis reflecting the Loewy structure of the module is
 written to @em Name.soc.
 Note: @b soc always writes a basis of the full space.
 If the socle series is not calculated completely because the maximum length
 has been reached, the partial basis found so far is extended with random
 vectors to form a complete basis.
 
-@section impl Implementation Details
+@section soc-impl Implementation Details
 This program uses an algorithm by Magdolna Szöke, see @ref Sz98 "[Sz98]".
 
 **/

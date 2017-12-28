@@ -35,7 +35,7 @@ MTX_DEFINE_FILE_INFO
  **   that is not equal in both matrices.
  **
  ** In case an error occurs, the return value is -1. But note that a return value of -1 does
- ** not necessarily mean that an error has occured.
+ ** not necessarily mean that an error has occurred.
  ** @param a First matrix.
  ** @param b Second matrix.
  ** @return 0 if the matrices are equal, nonzero otherwise (see description), -2 on error.

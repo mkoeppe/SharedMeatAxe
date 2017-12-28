@@ -21,7 +21,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zsy", "Symmetrized Tensor Product",
 "SYNTAX\n"
 "    zsy " MTX_COMMON_OPTIONS_SYNTAX " [-G] <Mode> <Inp> <Out>\n"
@@ -84,7 +84,7 @@ static int Prepare()
 
     if (fl >= 2)	/* Matrix */
     {
-	FfSetField(fl); 
+	FfSetField(fl);
 	FfSetNoc(noc);
 	m1 = FfAlloc(nor);
 	MfReadRows(f,m1,nor);
@@ -95,16 +95,16 @@ static int Prepare()
 	if (row == NULL)
 	    return -1;
 	for (i = 0; i < nor; ++i)
-	{	
+	{
 	    row[i] = m1;
 	    FfStepPtr(&m1);
 	}
     }
     else		/* Permutation */
-    {	
+    {
 	SysFseek(f->File,0);
 	PermIn = PermRead(f->File);
-	if (PermIn == NULL) 
+	if (PermIn == NULL)
 	    return -1;
     }
     MfClose(f);
@@ -155,11 +155,11 @@ static int Prepare()
 	}
     }
     else
-    {	
+    {
 	MESSAGE(0,("Output has degree %ld\n",nor2));
 	fflush(stdout);
 	PermOut = PermAlloc(nor2);
-	if (PermOut == NULL) 
+	if (PermOut == NULL)
 	    return -1;
     }
 
@@ -181,17 +181,17 @@ static void zs2()
 
     MESSAGE(1,("Mode S2, part 1\n"));
     for (i1 = 0; i1 < nor - 1; ++i1)
-    {	
+    {
 	for (i2 = i1 + 1; i2 < nor; ++i2)
-	{   
+	{
 	    FfMulRow(m2,FF_ZERO);
 	    j3 = 0;
 	    for (j1 = 0; j1 < noc - 1; ++ j1)
-	    {	
+	    {
 		f11 = FfExtract(row[i1],j1);
 		f21 = FfExtract(row[i2],j1);
 		for (j2 = j1+1; j2 < noc; ++j2)
-		{   
+		{
 		    f12 = FfExtract(row[i1],j2);
 		    f22 = FfExtract(row[i2],j2);
 		    w1 = FfMul(f11,f22);
@@ -212,14 +212,14 @@ static void zs2()
 
     MESSAGE(1,("Mode S2, part 2\n"));
     for (i1 = 0; i1 < nor; ++i1)
-    {	
+    {
 	j3 = 0;
 	FfMulRow(m2,FF_ZERO);
 	for (j1 = 0; j1 < noc-1; ++j1)
-	{   
+	{
 	    f1 = FfExtract(row[i1],j1);
 	    for (j2 = j1+1; j2 < noc; ++j2)
-	    {	
+	    {
 		f2 = FfExtract(row[i1],j2);
 		w2 = FfMul(f1,f2);
 		FfInsert(m2,j3,FfAdd(w2,w2));
@@ -227,7 +227,7 @@ static void zs2()
 	    }
 	}
 	for (j2 = 0; j2 < noc; ++j2)
-	{   
+	{
 	    f1 = FfExtract(row[i1],j2);
 	    FfInsert(m2,j3,FfMul(f1,f1));
 	    ++j3;
@@ -244,7 +244,7 @@ static void zs2()
 
 static int maps2(int i, int k)
 
-{	
+{
     if (i <= k)
 	return ((k*(k+1))/2 + i);
     else
@@ -261,7 +261,7 @@ static void zs2p()
     int i;
 
     for (i = 0; i < nor; ++i)
-    {	
+    {
 	int k;
 	for (k = 0; k <= i; ++k)
 	    p2[maps2(i,k)] = maps2(p1[i],p1[k]);
@@ -294,7 +294,7 @@ static void ze2p()
     int i;
 
     for (i = 0; i < nor; ++i)
-    {	
+    {
 	int k;
 	for (k = 0; k < i; ++k)
 	    p2[mape2(i,k)] = mape2(p1[i],p1[k]);
@@ -316,11 +316,11 @@ static void ze2()
     FEL f12, f22, w1, w2, w3;
 
     for (i1 = 0; i1 < nor-1; ++i1)
-    {	
-        MESSAGE(1,("i1 = %d\n",i1)); 
+    {
+        MESSAGE(1,("i1 = %d\n",i1));
 	for (i2 = i1+1; i2 < nor; ++i2)
 	{
-            MESSAGE(2,("i2 = %d\n",i2)); 
+            MESSAGE(2,("i2 = %d\n",i2));
 	    FfMulRow(m2,FF_ZERO);
 	    j3 = 0;
 	    for (j1 = 0; j1 < noc-1; ++j1)
@@ -355,23 +355,23 @@ static void ze3()
     int i1, i2, i3, j1, j2, j3, jins;
 
     for (i1 = 0; i1 < nor-2; ++i1)
-    {	
-   	MESSAGE(1,("i1 = %d\n",i1)); 
+    {
+   	MESSAGE(1,("i1 = %d\n",i1));
 	for (i2 = i1+1; i2 < nor-1; ++i2)
-	{   
-   	    MESSAGE(2,("i2 = %d\n",i2)); 
+	{
+   	    MESSAGE(2,("i2 = %d\n",i2));
 	    for (i3 = i2+1; i3 < nor; ++i3)
-	    {	
-   	       	MESSAGE(3,("i3 = %d\n",i3)); 
+	    {
+   	       	MESSAGE(3,("i3 = %d\n",i3));
 		FfMulRow(m2,FF_ZERO);
 		jins = 0;
 		for (j1 = 0; j1 < noc-2; ++j1)
-		{   
+		{
 		    f11 = FfExtract(row[i1],j1);
 		    f21 = FfExtract(row[i2],j1);
 		    f31 = FfExtract(row[i3],j1);
 		    for (j2 = j1+1; j2 < noc-1; ++j2)
-		    {	
+		    {
 			f12 = FfExtract(row[i1],j2);
 			f22 = FfExtract(row[i2],j2);
 			f32 = FfExtract(row[i3],j2);
@@ -404,7 +404,7 @@ static void ze3()
 
 static long mape3(long i, long k, long l)
 
-{	
+{
     register long tmp;
     if (i < k) SWAP(i,k);
     if (i < l) SWAP(i,l);
@@ -421,7 +421,7 @@ static void ze3p()
     long *p2 = PermOut->Data;
     int i, k, l;
     for (i = 2; i < nor; ++i)
-    {	
+    {
 	for (k = 1; k < i; ++k)
 	{
 	    for (l = 0; l < k; ++l)
@@ -444,20 +444,20 @@ static void ze4()
     int i1, i2, i3, i4, j1, j2, j3, j4, jins;
 
     for (i1 = 0; i1 < nor-3; ++i1)
-    {	
-        MESSAGE(1,("i1 = %d\n",i1)); 
+    {
+        MESSAGE(1,("i1 = %d\n",i1));
 	for (i2 = i1+1; i2 < nor-2; ++i2)
-	{   
-            MESSAGE(2,("i2 = %d\n",i2)); 
+	{
+            MESSAGE(2,("i2 = %d\n",i2));
 	    for (i3 = i2+1; i3 < nor-1; ++i3)
-	    {   
-            	MESSAGE(3,("i3 = %d\n",i3)); 
+	    {
+            	MESSAGE(3,("i3 = %d\n",i3));
 		for (i4 = i3+1; i4 < nor; ++i4)
-	    	{   
+	    	{
 		    FfMulRow(m2,FF_ZERO);
 		    jins = 0;
 		    for (j1 = 0; j1 < noc-3; ++j1)
-		    {   
+		    {
 			f11 = FfExtract(row[i1],j1);
 		    	f21 = FfExtract(row[i2],j1);
 		    	f31 = FfExtract(row[i3],j1);
@@ -547,7 +547,7 @@ static int Init(int argc, const char **argv)
     else if (!strcmp(arg3,"e3")) mode = M_E3;
     else if (!strcmp(arg3,"e4")) mode = M_E4;
     else if (!strcmp(arg3,"s2")) mode = M_S2;
-    else 
+    else
     {
 	MTX_ERROR1("Unknown mode '%s'",arg3);
 	return -1;
@@ -578,7 +578,7 @@ int main(int argc, const char **argv)
     if (Prepare() != 0)
 	return 1;
     switch (mode)
-    {	
+    {
 	case M_S2: fl >= 2 ? zs2() : zs2p(); break;
 	case M_E2: fl >= 2 ? ze2() : ze2p(); break;
 	case M_E3: fl >= 2 ? ze3() : ze3p(); break;
@@ -600,7 +600,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zsy zsy - Symmetrized Tensor Product
 
-@section syntax Command Line
+@section zsy-syntax Command Line
 <pre>
 zsy [@em Options] [-G] @em Mode @em Inp @em Out
 </pre>
@@ -616,15 +616,15 @@ zsy [@em Options] [-G] @em Mode @em Inp @em Out
 @par @em Out
   Result matrix.
 
-@section inp Input Files
+@section zsy-inp Input Files
 @par @em Mat
   Input matrix or permutation.
 
-@section out Output Files
+@section zsy-out Output Files
 @par @em Result
   Result matrix.
 
-@section desc Description
+@section zsy-desc Description
 This program reads a matrix or permutation, calculates its symmetrized tensor
 product according to @em Mode, and writes out the result.
 
@@ -641,12 +641,12 @@ and the kind of symmetrization to be performed. Currently there are
 - "e4" is the antisymmetric fourth power. The output has size
   n(n-1)(n-2)(n-3)/24.
 
-Since the typical application of @b zsy is to generate new representations from 
+Since the typical application of @b zsy is to generate new representations from
 existing ones, it will usually be used with square matrices. However,
 the input is not required to be square.
 
 
-@subsection perms Permutations
+@subsection zsy-perms Permutations
 Currently, only modes s2, e2 and e3 are available for permutations.
 The result gives the operation of the input permutation on unordered
 pairs (e2, s2) or triples (e3) of points.
@@ -658,7 +658,7 @@ More precisely, if the given permutation operates on 1...n, then:
 In the output, pairs and triples are numbered lexicographically.
 For example, E2 uses the following order:
 (1,2), (1,3), (2,3), (1,4), ...
-Notice that the symmetric square is never transitive but 
+Notice that the symmetric square is never transitive but
 decomposes into the diagonal and the antisymmetric square.
 Here are some examples:
 <pre>
@@ -669,7 +669,7 @@ e3(p) = (1 5 8 10 4)(2 6 9 3 7)
 </pre>
 
 
-@subsection mats Matrices
+@subsection zsy-mats Matrices
 The r-th exterior power (modes e2, e3, e4) has as its entries the determinants of
 r times r submatrices of the input. Rows and columns are ordered lexicographically,
 which is equivalent to taking the following basis in the tensor product:
@@ -734,7 +734,7 @@ Here are some examples:
 
 
 
-@section impl Implementation Details
+@section zsy-impl Implementation Details
 If the input file contains more than one permutation, only the
 first permutation is read in and processed.
 

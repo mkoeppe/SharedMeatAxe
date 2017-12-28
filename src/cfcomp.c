@@ -1,6 +1,6 @@
 /* ============================= C MeatAxe ==================================
    File:        $Id: cfcomp.c,v 1.1.1.1 2007/09/02 11:06:16 mringe Exp $
-   Comment:     
+   Comment:
    --------------------------------------------------------------------------
    (C) Copyright 1997 Michael Ringe, Lehrstuhl D fuer Mathematik,
    RWTH Aachen, Germany  <mringe@math.rwth-aachen.de>
@@ -19,7 +19,7 @@
 
 MTX_DEFINE_FILE_INFO
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "cfcomp", "Compare irreducible constituents",
 "SYNTAX\n"
 "    cfcomp <Module <Module2> ...\n"
@@ -141,7 +141,7 @@ static void Compare(const char *name)
    ------------------------------------------------------------------ */
 
 int main(int argc, const char *argv[])
-{   
+{
     int i;
 
     if (Init(argc,argv) != 0)
@@ -160,7 +160,7 @@ int main(int argc, const char *argv[])
 /**
 @page prog_cfcomp cfcomp - Compare Irreducible Constituents
 
-@section syntax Command Line
+@section cfcomp-syntax Command Line
 <pre>
 cfcomp [@em Options] @em Module @em Irred [@em Irred ...]
 </pre>
@@ -172,16 +172,16 @@ cfcomp [@em Options] @em Module @em Irred [@em Irred ...]
 @par @em Irred
   Irreducible module.
 
-@section inp Input Files
+@section cfcomp-inp Input Files
 @par @em Module.cfinfo
   Constituent info file.
 @par @em Irred.1, @em Irred.2, ...
   Generators.
 
-@section desc Description
-After @em Module has been chopped, you can use this program to determine 
+@section cfcomp-desc Description
+After @em Module has been chopped, you can use this program to determine
 if a given irreducible module, @em Irred, is a constituent of @em Module.
-If yes, the program finds out which of the constituents of @em Module is 
+If yes, the program finds out which of the constituents of @em Module is
 isomorphic to @em Irred.
 
 The program needs at least two arguments. The first argument is the name of

@@ -36,7 +36,7 @@ static long Stack[STACKSIZE];
 static int Sp = -1;
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zmo", "Make Orbits",
 "SYNTAX\n"
 "    zmo [<Options>] [-g <#Perms>] <Perm> <Orbits>\n"
@@ -97,7 +97,7 @@ static int Init(int argc, const char **argv)
 static void Cleanup()
 
 {
-    if (OrbNo!= NULL) 
+    if (OrbNo!= NULL)
 	SysFree(OrbNo);
     AppFree(App);
 }
@@ -132,7 +132,7 @@ static int MakeOrbits()
 	long orb;
 	int i;
 
-	/* If there is somthing on the stack, take it. 
+	/* If there is somthing on the stack, take it.
 	   Otherwise start a new orbit.
 	   ------------------------------------------- */
 	if (Sp >= 0)
@@ -201,7 +201,7 @@ static int CalcSizes()
 
 
 
-static int WriteOutput() 
+static int WriteOutput()
 {
     long hdr[3];
     FILE *f;
@@ -309,7 +309,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zmo zmo - Make Orbits
 
-@section syntax Command Line
+@section zmo-syntax Command Line
 <pre>
 zmo @em Options [-g @em NPerms] [-s @em Seed] @em Perm @em Orbits
 </pre>
@@ -329,21 +329,21 @@ Permutation base name.
 @par @em Orbits
 Output file name.
 
-@section inp Input Files
+@section zmo-inp Input Files
 @par @em Perm.1, @em Perm.2, ...
 Permutations.
 
-@section out Output Files
+@section zmo-out Output Files
 @par @em Orbits
 Orbit number and sizes.
 
 
-@section desc Description
+@section zmo-desc Description
 
 This program calculates the orbits under a set of permutations.
 By default, the program works with two permutations which are read
 from @em Perm.1 and @em Perm.2.  Using the `-g' option you
-can specify a different number of permutations (using the same file 
+can specify a different number of permutations (using the same file
 name convention). For example,
 <pre>
 zmo -g 3 p orbs
@@ -357,19 +357,19 @@ The result is written to @em Orbits and consists of two parts:
   The i-th entry in this table contains the orbit number of
   point i. Note: Orbit numbers start with 0.
 - The orbit sizes table. This is an integer matrix with one
-  row and K columns, where K is the number of orbits. The 
+  row and K columns, where K is the number of orbits. The
   i-th entry contains the size of the orbit number i.
 This file can be fed into @ref prog_zkd "zkd" or @ref prog_zuk "zuk".
 At the end, the program prints a message containing the orbit sizes.
 Note that at most 20 different orbit sizes are shown here.
 
 
-@section impl Implementation Details
+@section zmo-impl Implementation Details
 The algorithm uses a fixed size stack to store points. At the beginning,
 a seed point is searched which has not yes assigned an orbit number.
 This point is assigned the next orbit number (beginning with 0) and put on the stack.
 The main part consists of taking a point from the stack and applying all generators.
-Any new points obtained in this way are assigned the same orbit 
+Any new points obtained in this way are assigned the same orbit
 number and put on the stack. This step is repeated until the stack is
 empty, i.e., the orbit is exhausted. Then, the next seed point is
 seached, and its orbit is calculated, and so on, until all orbits
@@ -377,7 +377,7 @@ are found.
 By default, the first seed point is 1. A different seed point may
 be selected with the "-s" option.
 
-The number of permutations must be less than 50. All permutations must 
-fit into memory at the same time. Also the stack size is limited to 
+The number of permutations must be less than 50. All permutations must
+fit into memory at the same time. Also the stack size is limited to
 100000 positions.
 */

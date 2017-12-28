@@ -27,8 +27,8 @@ static int fl2;			    /* Field to convert to */
 static int nor, noc;		    /* Parameters of input file */
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"zcf", "Change Format", 
+static MtxApplicationInfo_t AppInfo = {
+"zcf", "Change Format",
 "SYNTAX\n"
 "    zcf " MTX_COMMON_OPTIONS_SYNTAX " <Field> <Input> <Output>\n"
 "\n"
@@ -53,38 +53,38 @@ static MtxApplication_t *App = NULL;
 
 static int checkfl()
 
-{	
+{
     int f;
-	
+
     if (fl2 < 2)
     {
     	MTX_ERROR1("Invalid field order %d",fl2);
 	return -1;
     }
-    if (fl == -1) 
+    if (fl == -1)
 	return 3;
-    if (fl == fl2) 
+    if (fl == fl2)
     {
 	MTX_ERROR2("%s is already over GF(%d)",iname,fl);
 	return -1;
     }
     else if (fl < fl2)
-    {	
+    {
 	for (f = fl2; f % fl == 0; f /= fl);
-	if (f == 1) 
+	if (f == 1)
 	    return 1;
-	else 
+	else
 	{
 	    MTX_ERROR2("Cannot change from GF(%d) to GF(%d)",fl,fl2);
 	    return -1;
 	}
     }
     else if (fl > fl2)
-    {	
+    {
 	for (f = fl; f % fl2 == 0; f /= fl2);
-	if (f == 1) 
+	if (f == 1)
 	    return 1;
-	else 
+	else
 	{
 	    MTX_ERROR2("Cannot change from GF(%d) to GF(%d)",fl,fl2);
 	    return -1;
@@ -113,7 +113,7 @@ int PermToMat1(const Perm_t *perm, PTR row)
 	register const long *p = perm->Data;
 	int i;
 	for (i = 0; rc == 0 && i < nor; ++i)
-	{	
+	{
 	    FfMulRow(row,FF_ZERO);
 	    FfInsert(row,p[i],FF_ONE);
 	    if (MfWriteRows(out,row,1) != 1)
@@ -374,7 +374,7 @@ int main(int argc, const char **argv)
     if (rc == 0)
     {
 	switch (checkfl())
-	{	
+	{
 	    case 1:	/* Embed into larger field */
 		rc = ChangeField();
 		break;
@@ -395,7 +395,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zcf zcf - Change Field
 
-@section syntax Command Line
+@section zcf-syntax Command Line
 <pre>
 zcf @em Options @em q @em Input @em Output
 </pre>
@@ -412,17 +412,17 @@ Input file.
 @par @em Output
 Output file.
 
-@section inp Input Files
+@section zcf-inp Input Files
 
 @par @em Input
 Input file.
 
-@section out Output Files
+@section zcf-out Output Files
 
 @par @em Output
 Output file.
 
-@section desc Description
+@section zcf-desc Description
 
 This program converts between various data types. Currently
 there are two kinds of conversions available:
@@ -434,7 +434,7 @@ there are two kinds of conversions available:
   into the corresponding n times n permutation matrix over
   GF(@em q).
 
-@section impl Implementation Details
+@section zcf-impl Implementation Details
 For matrices, the conversion is done in two steps. First,
 all entries of the matrix are converted to integers.
 Then, they are mapped to the new field and reassembled into rows.

@@ -17,8 +17,8 @@
 MTX_DEFINE_FILE_INFO
 
 
-static MtxApplicationInfo_t AppInfo = { 
-"zts", "Tensor Spin", 
+static MtxApplicationInfo_t AppInfo = {
+"zts", "Tensor Spin",
 "\n"
 "SYNTAX\n"
 "    zts [<Options>] <M> <N> <Seed> [<Sub>]\n"
@@ -68,7 +68,7 @@ static Matrix_t **Basis = NULL;	    /* Basis of invariant subspace */
 static tPivotEntry *Piv = NULL;	    /* Has alwas the same size as Basis */
 static int Dim = 0;		    /* Number of M-Vectors in <Basis> */
 static int Src = 0;		    /* Index of vector to map next (0-based) */
-static int MaxDim = 0;		    /* Capacity of <Basis> */ 
+static int MaxDim = 0;		    /* Capacity of <Basis> */
 static Matrix_t *Seed;		    /* Seed vectors */
 static int NoAction = 0;	    /* -n: Only subspace, no actions */
 static int TpDim = 0;		    /* Dimension of the tensor product */
@@ -164,13 +164,13 @@ static int FindPivot(Matrix_t *m, tPivotEntry *piv)
 }
 
 
-static void Clean(Matrix_t *mat, const Matrix_t **basis, 
+static void Clean(Matrix_t *mat, const Matrix_t **basis,
     const tPivotEntry *piv, int dim)
 
 {
     int i;
 
-    MTX_ASSERT(dim == 0 || 
+    MTX_ASSERT(dim == 0 ||
 	       (mat->Noc == basis[0]->Noc && mat->Nor == basis[0]->Nor));
     FfSetNoc(mat->Noc);
     for (i = 0; i < dim; ++i)
@@ -185,7 +185,7 @@ static void Clean(Matrix_t *mat, const Matrix_t **basis,
 
 
 
-static void Clean2(Matrix_t *mat, const Matrix_t **basis, 
+static void Clean2(Matrix_t *mat, const Matrix_t **basis,
     const tPivotEntry *piv, int dim, PTR op)
 
 {
@@ -407,7 +407,7 @@ int main(int argc, const char **argv)
 @page prog_zts zts - Tensor Split
 
 
-@section syntax Command Line
+@section zts-syntax Command Line
 <pre>
 zts @em Options [-g @em NumGen] @em M @em N @em Seed [@em Sub]
 </pre>
@@ -436,7 +436,7 @@ Standard options, see @ref prog_stdopts
     on the invariant subspace.
 
 
-@section inp Input Files
+@section zts-inp Input Files
 
 @par \em M.1, \em M.2, ...
 Generator action on left module. Unless changed with -g,
@@ -448,7 +448,7 @@ Generator action on right module
 @par @em Seed
 Seed vector(s).
 
-@section out Output Files
+@section zts-out Output Files
 
 @par @em Sub
 Basis of the invariant subspace.
@@ -460,7 +460,7 @@ Generator action on the invariant subspace.
 - @ref prog_tuc
 - @ref prog_zsp
 
-@section desc Description
+@section zts-desc Description
 This program is similar to @ref prog_zsp "zsp", but it works on the tensor
 product of two modules, M⊗N. @b zts spins up one or more vectors, and optionally
 calculates a matrix representation corresponding to the invariant
@@ -477,13 +477,13 @@ The default is two generators.
 Seed vectors are read from @em Seed.
 They must be given with respect to the lexicographically ordered
 basis explained below.
-    
+
 If the @em Sub argument is given, ZTS writes a basis of the
 invariant subspace to @em Sub, calculates the action of the
 generators on the invariant subspace, and writes it to
 @em Sub.1, @em Sub.2,...
 
-@section impl Implementation Details
+@section zts-impl Implementation Details
 Let \f$B=(b_1,\ldots,b_m)\f$ be a basis of \e M,
 \f$C=(c_1,\ldots,c_n)\f$ a basis of \e N,
 and denote by \f$B\otimes C\f$ the lexicographically ordered basis

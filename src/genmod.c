@@ -29,7 +29,7 @@ int opt_m = 0;			/* Option -m used */
 static Lat_Info LI;		/* Data from .cfinfo file */
 static const char *ModuleName = NULL;
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "genmod", "Make submodule",
 "SYNTAX"
 "    genmod [-QVm] <Name> <Number>\n"
@@ -86,7 +86,7 @@ static int Init(int argc, const char **argv)
     mountains = MatLoad(strcat(strcpy(fn,LI.BaseName),".v"));
     nmount = mountains->Nor;
     MESSAGE(1,("%d mountains\n",nmount));
-    
+
 
     /* Read the bit string from xxx.sub or set up the bit string
        to contain only the requested mountain (-m)
@@ -177,7 +177,7 @@ int main(int argc, const char *argv[])
 /**
 @page prog_genmod genmod - Make Submodule
 
-@section syntax Command Line
+@section genmod-syntax Command Line
 <pre>
 genmod @em Options [-m] @em Name @em Number
 </pre>
@@ -191,17 +191,17 @@ genmod @em Options [-m] @em Name @em Number
 @par @em Number
   Submodule number.
 
-@section inp Input Files
+@section genmod-inp Input Files
 @par @em Name.sub
   Submodule information.
 @par @em Name.v
   Mountains.
 
-@section out Output Files
+@section genmod-out Output Files
 @par Name.sNumber, Name.mNumber
   The result (see decription).
 
-@section desc Description
+@section genmod-desc Description
 This program makes a submodule, i.e., it takes the mountains
 contained in that submodule and spins them up. The result
 is written to <em>Name</em>.s<em>Number</em>. The program assumes that

@@ -15,10 +15,9 @@
 #include <errno.h>
 
 /**
- ** @addtogroup app
+ ** @addtogroup err
  ** @{
  **/
-
 
 /* ------------------------------------------------------------------
    Global data
@@ -59,7 +58,7 @@ static struct msg_struct { int ErrNo; char *smsg; } msgs[] =
 
     { MTX_ERR_NOTMATRIX, "Not a matrix" },
     { MTX_ERR_NOTPERM, "Not a permutation" },
-    
+
     { -1, NULL }
 };
 
@@ -67,6 +66,13 @@ static struct msg_struct { int ErrNo; char *smsg; } msgs[] =
 /* ------------------------------------------------------------------
    errmsg()
    ------------------------------------------------------------------ */
+
+/**
+ ** Error message.
+ ** Only used internally.
+ ** @param en Error number.
+ ** @return Error message associated with @a en.
+ **/
 
 static char *errmsg(int en)
 {
@@ -84,12 +90,14 @@ static char *errmsg(int en)
 
 
 
-/* ------------------------------------------------------------------
-   FormatString() - Copy string to message buffer
-
-   Description:
-       This function is used internally by MtxFormatMessage().
-   ------------------------------------------------------------------ */
+/**
+ ** Copy string to message buffer.
+ ** This function is used internally by MtxFormatMessage().
+ ** @param buf Buffer that the string is copied to.
+ ** @param count pointer to an int variable.
+ ** @param bufsize size of @a buf.
+ ** @param c String to be copied.
+ **/
 
 static void FormatString(char **buf, int *count, int bufsize, const char *c)
 {
@@ -101,12 +109,14 @@ static void FormatString(char **buf, int *count, int bufsize, const char *c)
 }
 
 
-/* ------------------------------------------------------------------
-   FormatInteger() - Write decimal integer to message buffer
-
-   Description:
-       This function is used internally by MtxFormatMessage().
-   ------------------------------------------------------------------ */
+/**
+ ** Write decimal integer to message buffer.
+ ** This function is used internally by MtxFormatMessage().
+ ** @param buf pointer to a string that the int is converted to.
+ ** @param count pointer to an int variable.
+ ** @param bufsize size of @a buf.
+ ** @param val int to be converted to a string.
+ **/
 
 static void FormatInteger(char **buf, int *count, int bufsize, int val)
 {
@@ -115,14 +125,20 @@ static void FormatInteger(char **buf, int *count, int bufsize, int val)
     FormatString(buf,count,bufsize,tmp);
 }
 
+/**
+ ** Write decimal integer to message buffer.
+ ** This function is used internally by MtxFormatMessage().
+ ** @param buf pointer to a string that the int is converted to.
+ ** @param count pointer to an int variable.
+ ** @param bufsize size of @a buf.
+ ** @param val int to be converted to a string.
+**/
 static void FormatLong(char **buf, int *count, int bufsize, long int val)
 {
     char tmp[20];
     sprintf(tmp,"%ld",val);
     FormatString(buf,count,bufsize,tmp);
 }
-
-
 
 
 /**
@@ -134,7 +150,7 @@ static void FormatLong(char **buf, int *count, int bufsize, long int val)
  ** - @c @%s prints a string. The corresponding argument must be a pointer
  **   to a null-terminated string.
  ** - @c @%E takes an @c int argument, which must be one the MeatAxe error
- **   codes (@c MTX_ERR_xxxx) defined in "meataxe.h". It prints a 
+ **   codes (@c MTX_ERR_xxxx) defined in "meataxe.h". It prints a
  **   description of the error.
  ** - @c @%S prints the system error name corresponding to the current
  **   value of @c errno.

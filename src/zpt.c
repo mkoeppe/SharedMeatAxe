@@ -18,7 +18,7 @@
    ------------------------------------------------------------------ */
 
 MTX_DEFINE_FILE_INFO
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zpt", "Paste Matrices or Permutations",
 "SYNTAX\n"
 "    zpt [-c <NCols>] [-r <NRows>] <Out> [<Inp> ...]\n"
@@ -67,7 +67,7 @@ static const char *mkname(int r, int c)
 
 static int Init(int argc, const char **argv)
 
-{   
+{
     MtxFile_t *f;
 
     App = AppAlloc(&AppInfo,argc,argv);
@@ -80,7 +80,7 @@ static int Init(int argc, const char **argv)
     ncols = AppGetIntOption(App,"-c",1,1,100);
 
     /* Command line arguments.
-       ----------------------- */ 
+       ----------------------- */
     if (nrows == 1 && ncols == 1)
     {
 	if (AppGetArguments(App,2,1000) < 0)
@@ -123,9 +123,9 @@ static int checksizes()
 
     MESSAGE(1,("Checking sizes\n"));
     fl = 0;
-    for (i = 0; i < nrows; ++i) 
+    for (i = 0; i < nrows; ++i)
 	height[i] = -1;
-    for (k = 0; k < ncols; ++k) 
+    for (k = 0; k < ncols; ++k)
 	width[k] = -1;
 
     for (i = 0; i < nrows; ++i)
@@ -150,14 +150,14 @@ static int checksizes()
 		MTX_ERROR3("%s and %s: %E",mkname(0,0),c,MTX_ERR_INCOMPAT);
 		return -1;
 	    }
-	    if (height[i] == -1) 
+	    if (height[i] == -1)
 		height[i] = nor2;
 	    else if (height[i] != nor2)
 	    {
 		MTX_ERROR3("%s and %s: %E",mkname(i,0),c,MTX_ERR_INCOMPAT);
 		return -1;
 	    }
-	    if (width[k] == -1) 
+	    if (width[k] == -1)
 		width[k] = noc2;
 	    else if (width[k] != noc2)
 	    {
@@ -172,7 +172,7 @@ static int checksizes()
     noc = nor = maxnor = 0;
     for (i = 0; i < nrows; ++i)
     {
-	if (height[i] == -1) 
+	if (height[i] == -1)
 	{
 	    MTX_ERROR("Undetermined size");
 	    return -1;
@@ -203,7 +203,7 @@ static int checksizes()
 
 static int pastemat()
 
-{   
+{
     PTR m, piece, x, y;
     int i, k;
     int l, j;
@@ -218,12 +218,12 @@ static int pastemat()
 	return -1;
     }
     for (i = 0; i < nrows; ++i)
-    {	
+    {
 	MESSAGE(1,("Pasting row %d\n",i));
 	FfSetNoc(noc);
 	x = m;
 	for (l = maxnor; l > 0; --l)
-	{	
+	{
 	    FfMulRow(x,FF_ZERO);
 	    FfStepPtr(&x);
 	}
@@ -245,7 +245,7 @@ static int pastemat()
 		y = piece;
 		FfSetNoc(noc);
  		for (l = 0; l < nor2; ++l)
-		{	
+		{
 		    for (j = 0; j < noc2; ++j)
 			FfInsert(x,j+pos,FfExtract(y,j));
 		    FfSetNoc(noc2);
@@ -367,11 +367,11 @@ int main(int argc, const char **argv)
 
 
 
- 
+
 /**
 @page prog_zpt zpt - Paste
 
-@section syntax Command Line
+@section zpt-syntax Command Line
 <pre>
 zpt @em Options [-r @em NRows] [-c @em NCols] @em Out @em Inp [@em Inp ...]
 </pre>
@@ -387,16 +387,16 @@ Output file.
 @par @em Inp
 Input piece.
 
-@section inp Input Files
+@section zpt-inp Input Files
 @par @em Inp
 Input piece.
 
-@section out Output Files
+@section zpt-out Output Files
 @par @em Out
 Output file.
 
 
-@section desc Description
+@section zpt-desc Description
 This program reads matrices from one or more input files and pastes the pieces together
 to one matrix. The way in which the pieces are put together is controlled by two
 parameters, @em NRows and @em NCols. For example,
@@ -422,9 +422,9 @@ A 0
 0 B
 </pre>
 If only one of @em NRows and @em NCols is specified, the other
-parameter is assumed to be one. 
+parameter is assumed to be one.
 
-@subsection perms Permutations
+@subsection zpt-perms Permutations
 The program can also paste permutations, i.e., copy permutations from
 several files into one file. In this case, "-c" cannot be used. For
 example,

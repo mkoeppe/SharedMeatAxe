@@ -42,7 +42,7 @@ static int Init(int argc, const char **argv)
        ------------------- */
     if (AppGetArguments(App,2,2) < 0)
 	return -1;
-    
+
     iname = App->ArgV[0];
     oname = App->ArgV[1];
     return 0;
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 /**
 @page prog_zbl zbl - Bottom Left
 
-@section syntax Command Line
+@section zbl-syntax Command Line
 <pre>
 zbl [@em Options] @em Input @em Output
 </pre>
@@ -124,15 +124,15 @@ Input matrix
 @par @em Output
 Result matrix
 
-@section inp Input Files
+@section zbl-inp Input Files
 @par @em Input
 Input matrix
 
-@section out Output Files
+@section zbl-out Output Files
 @par @em Output
 Result matrix
 
-@section desc Description
+@section zbl-desc Description
 
 This program reads in a matrix, zeroizes all entries above the main diagonal,
 and writes out the result. For example:
@@ -162,7 +162,7 @@ it is just a bodge, but it is possible:
   diagonal entries of any fixed quadratic form must all be equal, so try each field entry in
   turn by adding that scalar matrix to the bottom half of the symplectic form.
 -# For each quadratic form Q made as in 3, test if it is fixed by forming @f$G^TQG@f$ for each
-  generator @f$G@f$, and checking that the diagonal is still the same as it was before (the
+  generator @f$G@f$), and checking that the diagonal is still the same as it was before (the
   symplectic form should have been checked before starting). The check can be done by adding
   the form to the result, then doing @b zbl, @b ztr and @b zbl again --- the result will be the zero
   matrix (use @ref prog_znu "znu") iff the form was fixed (given that the symplectic one was).

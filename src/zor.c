@@ -60,9 +60,9 @@ static int ordmat()
     char *ispiv;
     int ord, i;
 
-    FfSetField(ifile->Field); 
-    FfSetNoc(ifile->Noc); 
-    if (ifile->Nor != ifile->Noc) 
+    FfSetField(ifile->Field);
+    FfSetNoc(ifile->Noc);
+    if (ifile->Nor != ifile->Noc)
     {
 	MTX_ERROR2("%s: %E",iname,MTX_ERR_NOTSQUARE);
 	return 1;
@@ -82,7 +82,7 @@ static int ordmat()
     bend = base;
 
     for (dim = 0; dim < FfNoc; )
-    {	
+    {
 	PTR start = bend;
 	int tord = 0;
 	int closed = 0;
@@ -108,10 +108,10 @@ static int ordmat()
 	    if (!closed)
 	    {	b = base;
 	    	for (i = 0; i < dim; ++i)
-	    	{   
+	    	{
 		    f = FfExtract(bend,piv[i]);
 		    if (f != FF_ZERO)
-		    {	
+		    {
 			FfAddMulRow(bend,b,FfNeg(FfDiv(f,FfExtract(b,piv[i]))));
 		    }
 		    FfStepPtr(&b);
@@ -129,7 +129,7 @@ static int ordmat()
 	    /* Apply the matrix.
 	       ----------------- */
 	    if (++tord > MAXORDER_C)
-	    {  
+	    {
 		MTX_ERROR1("zor: Partial order is over %d",MAXORDER_C);
 		return 1;
 	    }
@@ -180,7 +180,7 @@ static int ordperm()
     Perm_t *perm;
 
 
-    if (ifile->Field != -1) 
+    if (ifile->Field != -1)
     {
 	MTX_ERROR2("%s: %E",iname,MTX_ERR_NOTPERM);	/* No monomials */
 	return -1;
@@ -190,7 +190,7 @@ static int ordperm()
 	MTX_ERROR("Error allocating permutation");
 	return -1;
     }
-    if (opt_G) 
+    if (opt_G)
 	printf("MeatAxe.Orders := [");
     for (iper = 1; iper <= ifile->Noc; ++iper)
     {
@@ -289,7 +289,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zor zor - Order
 
-@section syntax Command Line
+@section zor-syntax Command Line
 <pre>
 zor @em Options [-q] [-m @em MaxOrder] @em Input
 </pre>
@@ -303,28 +303,28 @@ zor @em Options [-q] [-m @em MaxOrder] @em Input
 @par @em Input
   Input file.
 
-@section inp Input Files
+@section zor-inp Input Files
 @par @em Input
   Matrix or permutation.
 
-@section desc Description
+@section zor-desc Description
 This program reads a file, containing either permutations, or a
 square matrix, and calculates the order(s) and prints the message
 <pre>
 ORDER IS xxxx</pre>
 There are two options to reduce the run time of the program.
-Using the "-m" option you can specify a maximal expected order. 
-If, during the algorithm described below, the order reaches 
+Using the "-m" option you can specify a maximal expected order.
+If, during the algorithm described below, the order reaches
 this limit, the program will stop and print an appropriate message.
 The second option, "-q", makes @b zor stop if the dimension of W
-(see below) reaches 1/10 of the dimension of the whole space. In 
+(see below) reaches 1/10 of the dimension of the whole space. In
 this case, the message is
 <pre>
 ORDER IS A MULTIPLE OF @em NNN
 </pre>
 Note: The "-q" and "-m" options have no effect for permutations.
 
-@section impl Implementation Details
+@section zor-impl Implementation Details
 If the input is a matrix, the order is found by calculating the orders on cyclic
 subspaces and taking the least common multiple.
 The algorithm works as follows:
@@ -336,7 +336,7 @@ The algorithm works as follows:
 - W:=W + C. If W=V, o is the order of A and the program terminates.
   Otherwise, continue with (NEXT).
 
-Gaussian elimination is used to maintain a basis of W in echelon form. 
+Gaussian elimination is used to maintain a basis of W in echelon form.
 In order to avoid infinite loops, there is a limit on o'. If the
 vector does not return after 1000 multiplications the order is assumed
 to be infinite and the program stops with an error message. This happens

@@ -88,7 +88,7 @@ MTX_DEFINE_FILE_INFO
  ** of @a level must be between 0 and 100. If not specified by the user,
  ** a default value of 42 is used.
  **
- ** @section tmpdir Temporary Directories
+ ** @section args-tmpdir Temporary Directories
  ** If an application needs a temporary directory to store interdediate files,
  ** it can use AppCreateTempDir(). This function creates a new directory and
  ** returns its name. The directory will be removed when the application object
@@ -118,12 +118,11 @@ MTX_DEFINE_FILE_INFO
 
 /**
  ** MeatAxe Binary Directory.
- ** This variable contains the name of the MeatAxe binary directory. This directory
- ** is used, for example, to find the @ref prog_maketab "maketab" program for automatic
- ** arithmetic table generation. The value of MtxBinDir can be set on the command line
- ** with the "-B" option. Otherwise, the value of the environment variable
- ** MTXBIN is used. If neither "-B" nor MTXBIN are defined, the default
- ** directory, which was selected when building the MeatAxe, is used.
+ ** This variable contains the name of the MeatAxe binary directory. The
+ ** value of MtxBinDir can be set on the command line with the "-B" option.
+ ** Otherwise, the value of the environment variable MTXBIN is used. If
+ ** neither "-B" nor MTXBIN are defined, the default directory, which was
+ ** selected when building the MeatAxe, is used.
  **/
 
 char MtxBinDir[] = MTXBIN;

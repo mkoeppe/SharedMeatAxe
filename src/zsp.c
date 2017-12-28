@@ -45,7 +45,7 @@ static int MaxTries = 0;		/* -x: max. # of tries */
 
 
 
-static MtxApplicationInfo_t AppInfo = { 
+static MtxApplicationInfo_t AppInfo = {
 "zsp", "Spinup, split, and standard basis",
 "\n"
 "SYNTAX\n"
@@ -155,7 +155,7 @@ static int ReadSeed()
 
     if ((sf = MfOpen(SeedName)) == NULL)
 	return -1;
-    if (sf->Field < 2) 
+    if (sf->Field < 2)
     {
 	MTX_ERROR2("%s: %E",SeedName,MTX_ERR_NOTMATRIX);
 	return -1;
@@ -324,7 +324,7 @@ static int WriteResult()
        ----------------------------- */
     if (SubspaceName != NULL)
 	MatSave(Span,SubspaceName);
-    
+
     /* Write <Op> file
        --------------- */
     if (OpName != NULL)
@@ -435,7 +435,7 @@ int main(int argc, const char **argv)
 /**
 @page prog_zsp zsp - Spin Up
 
-@section syntax Command Line
+@section zsp-syntax Command Line
 <pre>
 zsp [@em Options] [-1emc] [-b @em Bas] [-s @em Sub] [-q @em Quot] [-o @em Scr] [-n @em Vector]
     [-d @em MaxDim] [-x @em MaxTries] @em Gen1 @em Gen2 @em Seed
@@ -473,7 +473,7 @@ Standard options, see @ref prog_stdopts
 @par -x
     Assume the subspace is closed, if @em MaxTries vectors have been multiplied by
     all generators without yielding a new vector.
-@par -g 
+@par -g
     Set the number of generators.
 @par -G
     GAP output.
@@ -487,7 +487,7 @@ Standard options, see @ref prog_stdopts
   Seed space file name.
 
 
-@section inp Input Files
+@section zsp-inp Input Files
 @par @em Gen1
   First generator, if "-g" is not used.
 @par @em Gen2
@@ -497,7 +497,7 @@ Standard options, see @ref prog_stdopts
 @par @em Seed
   Seed vectors.
 
-@section out Output Files
+@section zsp-out Output Files
 @par @em Sub.1, @em Sub.2, ...
   Action on the subspace (with -s).
 @par @em Quot.1, @em Quot.2, ...
@@ -507,71 +507,71 @@ Standard options, see @ref prog_stdopts
 @par @em Script
   Spin-up script (with -o).
 
-@section desc Description
-This program takes as input a set of matrices or permutations (the "generators"), 
+@section zsp-desc Description
+This program takes as input a set of matrices or permutations (the "generators"),
 and a list of seed vectors. It uses the spin-up algorithm to find a subspace which
 is invariant under the generators. If the generators are matrices, @b zsp can optionally split the representation, i.e., calculate the
 action of the generators on both subspace and quotient. Splitting is currently
 not possible for permutations.
 
 
-@subsection inp Specifying Input Files
-There are two ways to inkove @b zsp. The first form, without `-g' expects three 
+@subsection zsp-spec-inp Specifying Input Files
+There are two ways to inkove @b zsp. The first form, without `-g' expects three
 arguments, the two generators and the seed vector file. For example,
 ||    zsp mat1 mat2 seed
-reads the generators from `mat1' and `mat2', and the seed vector from 
+reads the generators from `mat1' and `mat2', and the seed vector from
 `seed'.
 
-If the number of generators is not two, you must use the second form, 
+If the number of generators is not two, you must use the second form,
 which expects only two arguments. The first argument is treated as a base name.
 The actual file names are built by appending suffixes ".1", ".2",... to @em Gen.
 For example,
 <pre>
 zsp -g 3 module seed</pre>
 reads three genrators from "module.1", "module.2", and "module.3".
-The last argument, @em Seed is always treated as a single file name, 
-containing the seed vectors. Of course, the seed vectors must be 
+The last argument, @em Seed is always treated as a single file name,
+containing the seed vectors. Of course, the seed vectors must be
 compatible with the generators, i.e., they must be over the save field
-and have the same number of columns. The generators must be square 
+and have the same number of columns. The generators must be square
 matrices of the same size and over the same field.
 
-@subsection seedmode Specifying the Seed Mode
+@subsection zsp-seedmode Specifying the Seed Mode
 @b zsp has three ways of interpreting the seed vector file. The default is
 to treat @em Seed as a list of seed vectors, which are used ony-by-one
-until one seed vector is successful (see below for the meaning of 
+until one seed vector is successful (see below for the meaning of
 successful), or until all vectors have been used. Normally, @b zsp starts
-with the first row of @em Seed, but this can be changed using the `-n' 
+with the first row of @em Seed, but this can be changed using the `-n'
 option. For example,
 <pre>
 zsp -n 4 gen1 gen2 seed</pre>
-starts with spinning up the fourth row of "seed". If this is not 
+starts with spinning up the fourth row of "seed". If this is not
 successful, @b zsp continues with row 5 and so on up to the end of the
 seed vector file.
 
-With "-1" @b zsp spins up only the first seed vector and stops, even if 
+With "-1" @b zsp spins up only the first seed vector and stops, even if
 the spin-up was not successful. You can use "-n" to select a different
 row as seed vector. If any of these options is used, @b zsp loads only
 the seed vectors that are actually needed.
 
-If you use the "-m" option, @b zsp treats @em Seed as the basis of a 
+If you use the "-m" option, @b zsp treats @em Seed as the basis of a
 seed space and tries all 1-dimensional subspaces as seed vectors. In
 this mode, seed vectors are constructed by taking linear combinations
-of the rows of @em Seed. This option is typically used to search a 
-subspace exhaustively for vectors generating a nontrivial invariant 
-subspace. 
-Of course "-1" and "-m" cannot be used together. Also, "-m" cannot be 
+of the rows of @em Seed. This option is typically used to search a
+subspace exhaustively for vectors generating a nontrivial invariant
+subspace.
+Of course "-1" and "-m" cannot be used together. Also, "-m" cannot be
 used together with "-n".
 
 
-@subsection srchmode  Specifying the Search Mode
+@subsection zsp-srchmode  Specifying the Search Mode
 What @b zsp does after spinning up a seed vector depends on the options
 "-e", and "-c". Without any of these options, @b zsp tries to find a proper
 invariant subspace. If the seed vector generates the whole space, @b zsp
 tries the next seed vector and repeats until a proper invariant subspace
 has been found, or until there are no more seed vectors.
 
-With "-e", @b zsp tries to find a cyclic vector. In this mode, the program 
-spins up seed vectors one-by-one until it finds a vector that generates 
+With "-e", @b zsp tries to find a cyclic vector. In this mode, the program
+spins up seed vectors one-by-one until it finds a vector that generates
 the whole space, or until there are no more seed vectors available.
 
 If you use the the option "-c" instead, @b zsp combines the span of all
@@ -579,7 +579,7 @@ seed vectors. In other words, "-c" calculates the closure of the
 seed space under the generators.  For example
 ||    zsp -c -b sub seed gen1 gen2
 calculates the closure of "seed" under the two generators and writes
-a basis of the invariant subspace to "sub". 
+a basis of the invariant subspace to "sub".
 @b zsp will print an error message if you try to use "-c"
 together with any of "-1", "-m", or "-e".
 
@@ -590,34 +590,34 @@ the search continues with the next seed vector. "-d" cannot be used
 together with neither "-e" nor "-c".
 
 
-@subsection stdb Standard Basis
-If you use "-t", @b zsp spins up canonically, producing the "standard 
-basis". In this mode, the production of the subspace from the seed 
+@subsection zsp-stdb Standard Basis
+If you use "-t", @b zsp spins up canonically, producing the "standard
+basis". In this mode, the production of the subspace from the seed
 vector is independent of the chosen basis. Note that the standard
 basis algorithm allocates an additional matrix of the same size as
 the generators.
 
 
-@subsection of Specifying Output Files
+@subsection zsp-of Specifying Output Files
 @b zsp can produce four different output files, which are all optional.
 If you use the "-b" option, a basis of the invariant subspace is written
-to @em Bas. The basis is always in echelon form. 
+to @em Bas. The basis is always in echelon form.
 
-"-s" and "-q" tell @b zsp to calculate the action of the generators on 
-the subspace and on the quotient, respectively. The file names are 
-treated as base names with the same convention as explained above. 
+"-s" and "-q" tell @b zsp to calculate the action of the generators on
+the subspace and on the quotient, respectively. The file names are
+treated as base names with the same convention as explained above.
 For example,
 <pre>
 zsp -q quot -s sub gen1 gen2 seed
 </pre>
-Finds an invariant subspace, calculates the action on subspace an 
-quotient, and write the action to "sub.1", "sub.2", "quot.1", and 
+Finds an invariant subspace, calculates the action on subspace an
+quotient, and write the action to "sub.1", "sub.2", "quot.1", and
 "quot.2". A second example:
 <pre>
 zsp -c -s std -g 3 gen pw
 </pre>
 Here, a standard basis is constructed using three generators, "gen.1",
-"gen.2", and "gen.3", and seed vectors from "pw". The generators are 
+"gen.2", and "gen.3", and seed vectors from "pw". The generators are
 then transformed into the standard basis and written to "std.1",
 "std.2", and "std.3".
 
@@ -637,14 +637,14 @@ on the subspace.
 
 Finally, you can write a spin-up script by using the "-o" option.
 The spin-up script contains the operations performed by the spin-up
-algorithm to create the subspace from the seed vectors and the 
+algorithm to create the subspace from the seed vectors and the
 generators. It can be used with the @ref prog_zsc "zsc" program to
 repeat the same process with different seed vectors and generators.
 Details on the format of the spin-up script can be found in the library reference
 under SpinUp().
 
 
-@section impl Implementation Details
+@section zsp-impl Implementation Details
 All generators, the seed vectors (depending on "-1" and "-n"), and
 a workspace are hold in memory.
 The workspace is the size as generators unless the maximal
