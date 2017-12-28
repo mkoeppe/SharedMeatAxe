@@ -930,10 +930,11 @@ PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len)
  ** This function adds a multiple of @em src to @em dest.
  ** This works like FfAddRow(), but the operation is performed only on a given range of
  ** columns.
- ** @param dest The row to add to.
- ** @param src The row to add.
- ** @param first Number of bytes to skip.
- ** @param len Number of bytes to add.
+ ** @param dest row to add to.
+ ** @param src row to be multiplied with @a f and added to @a dest.
+ ** @param f field element.
+ ** @param first number of bytes to skip.
+ ** @param len number of bytes to process.
 **/
 /* Warning!! Let L be the long integer to which the first byte of the a row
  * belongs. It is assumed that all previous bytes in L are zero!
@@ -1012,7 +1013,10 @@ void FfMulRow(PTR row, FEL mark)
 
 /**
  ** Add a multiple of a row.
- ** This function adds a multiple of @em src to @em dest.
+ ** This function adds a scalar multiple of @a src to @a dest.
+ ** @param dest row to add to.
+ ** @param src row to be multiplied with @a f and added to @a dest.
+ ** @param f field element.
  **/
 
 void FfAddMulRow(PTR dest, PTR src, FEL f)

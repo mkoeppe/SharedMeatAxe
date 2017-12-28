@@ -370,7 +370,7 @@ MtxFileInfo_t;
 /**
  ** Run-time errors.
  ** This data structure contains detailed information on an error that occurred
- ** inside the {\MeatAxe} library.
+ ** inside the MeatAxe library.
  ** @see MtxSetErrorHandler
  **/
 typedef struct
@@ -615,7 +615,7 @@ typedef struct
     int Noc;			/**< Number of columns */
     int GrRows;			/**< Grease level (# of rows, 0=no grease) */
     int GrBlockSize;	/**< Vectors per block (= Field^GrRows) */
-    int NumVecs;		/**< Total number of vectors in <PrecalcData> */
+    int NumVecs;		/**< Total number of vectors in @a PrecalcData */
     PTR PrecalcData;	/**< Precalculated data */
     const GrExtractionTable_t *ExtrTab;		/**< Extraction table */
     int MPB;			/**< Number of marks per byte */

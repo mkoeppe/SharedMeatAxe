@@ -45,7 +45,7 @@ The MatrixWindow_t structure represents a rectangular part of a matrix.
 ***/
 typedef struct
 {
-  int Nor;                      /**< #rows of the window */
+  int Nor;                      /**< number of rows of the window */
   size_t RowSize;               /**< size of window rows (number of longs in a contiguous memory chunk) */
   Matrix_t *Matrix;             /**< ambient matrix containing the window */
   PTR ULCorner;                 /**< Pointer to the upper left window corner */

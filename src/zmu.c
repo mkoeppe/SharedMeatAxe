@@ -613,5 +613,5 @@ than the number of rows.
 
 @section zmu-impl Implementation Details
 This program uses schoolbook multiplication. Asymptotically fast
-Winograd-Strassen multiplication (see @ref TODO) is not used.
+Winograd-Strassen multiplication (@see MatMulStrassen) is not used.
 */
