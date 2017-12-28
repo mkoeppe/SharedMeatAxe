@@ -2,6 +2,8 @@ ACLOCAL_AMFLAGS = -I m4
 ZZZ = 0
 SUBDIRS = src
 
+EXTRA_DIST = etc/Doxyfile etc/meataxe-footer.html
+
 @DX_RULES@
 
 .PHONY: doc

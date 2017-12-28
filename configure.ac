@@ -47,6 +47,8 @@ AC_OUTPUT
 
 # Summary
 echo "
+SUMMARY
+=======
 $PACKAGE_NAME version $PACKAGE_VERSION
 Prefix.........: $prefix
 C Compiler.....: $CC $CFLAGS $CPPFLAGS
