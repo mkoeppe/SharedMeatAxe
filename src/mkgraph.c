@@ -128,7 +128,10 @@ void readfile(void)
 
     /* Read number of submodules
        ------------------------- */
-    fgets(buf,LBUFSIZE,f);
+    if (fgets(buf,LBUFSIZE,f) == NULL)
+    {	perror(ifilename);
+		err("Input file doesn't contain enough data");
+	}
     nsub = atoi(buf);
     MESSAGE(1,("%d submodules\n",nsub));
 
@@ -148,7 +151,10 @@ void readfile(void)
        ---------------- */
     for (i = 0; i < nsub; ++i)
     {
-	fgets(buf,LBUFSIZE,f);
+	if (fgets(buf,LBUFSIZE,f) == NULL)
+	{	perror(ifilename);
+		err("Input file doesn't contain enough data");
+	}
 	for (c = strtok(buf," "); *c != 0; ++c)
 	{
 	    if (*c == 'm') ismount[i] = 1; else
@@ -598,7 +604,7 @@ void display()
     psfile = SysFopen(ofilename,FM_CREATE|FM_TEXT);
     if (psfile == NULL)
     {	perror(ofilename);
-	exit(1);
+		err("Error opening output file");
     }
     writeheader();
     writelegend();
