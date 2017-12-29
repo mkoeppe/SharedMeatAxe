@@ -18,7 +18,6 @@ PACKAGE OVERVIEW
 
 Directory	Contents
 ----------	--------------------------------------------
-bin/		Executables (empty).
 src/		Source files.
 test/		Test suite.
-doc/ 		Documentation in HTML format.
+etc/ 		Helpers for creating docs with doxygen.
