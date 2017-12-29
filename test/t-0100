@@ -5,22 +5,20 @@
 # Create a data file containing matrices and permutations (f1).
 # Convert to text with ZPR (f2) and back to binary with ZCV (f3).
 # Verify f1 = f3.
-# 
+#
 
-. ./t.config
-
+# Initialize
+# ----------
+. $srcdir/t.config
+cd t-0100_out
 
 # Run the test
 # ------------
+
 FILES="Perm1 Perm2 Mat2 Mat5 Mat25 Perm1 Mat256 Mat125 Perm2"
 rm -f f1
 for f in $FILES ; do cat $DATA/$f >> f1; done
 zpr f1 f2 || exit 1
 zcv -Q f2 f3 || exit 1
 cmp f1 f3 || exit 1
-
-
-# Clean up
-# --------
-rm -f f1 f2 f3
 

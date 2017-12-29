@@ -5,7 +5,8 @@
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0112_out
 
 
 # Run the test
@@ -34,15 +35,10 @@ zcv -Q orbs.txt orbs || error "ZCV failed"
 for f in 2 5 9 25 67 125 256 ; do
     zuk -Q ${DATA}/Mat$f orbs x$f || error "ZUK failed"
 done
-checksum x2 108.2330969734 || exit 1
-checksum x5 228.2024623685 || exit 1
-checksum x9 324.3705451271 || exit 1
-checksum x25 636.903809115 || exit 1
-checksum x67 636.518282449 || exit 1
-checksum x125 636.113758504 || exit 1
-checksum x256 636.811420983 || exit 1
-
-# Clean up
-# --------
-rm -rf orbs.txt orbs x x2 x5 x9 x25 x67 x125 x256 *.zzz
-
+../checksum x2 108.2330969734 || exit 1
+../checksum x5 228.2024623685 || exit 1
+../checksum x9 324.3705451271 || exit 1
+../checksum x25 636.903809115 || exit 1
+../checksum x67 636.518282449 || exit 1
+../checksum x125 636.113758504 || exit 1
+../checksum x256 636.811420983 || exit 1

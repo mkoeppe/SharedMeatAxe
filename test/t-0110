@@ -2,13 +2,14 @@
 
 #:Test ZMO/ZKD
 # ------------
-# 
-# 
-# 
+#
+#
+#
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0110_out
 
 
 # Run the test
@@ -25,15 +26,10 @@ zkd -Q 2 yorb x.1 xk2
 zkd -Q 67 xorb y.1 yk67
 zkd -Q 67 yorb x.1 xk67
 
-checksum xk2 36.4104902758 || exit 1
-checksum xk67 156.4003365128 || exit 1
-checksum yk2 42.210610943 || exit 1
-checksum yk67 237.2386581868 || exit 1
-
-# Clean up
-# --------
-rm -f xorb yorb x.1 y.1 xk* yk* p002.zzz p067.zzz
-
+../checksum xk2 36.4104902758 || exit 1
+../checksum xk67 156.4003365128 || exit 1
+../checksum yk2 42.210610943 || exit 1
+../checksum yk67 237.2386581868 || exit 1
 
 
 

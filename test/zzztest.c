@@ -11,6 +11,7 @@
 
 #include "meataxe.h"
 #include "check.h"
+#include "config.h"
 
 #include "c-args.h"
 #include "c-bitstring.h"
@@ -289,7 +290,7 @@ int main(int argc, const char **argv)
 }
 #endif
 
-    printf("%s\n",PACKAGE_VERSION);
+    printf("%s\n",PACKAGE_STRING);
     for (i = 0; TestFunctions[i].Name != NULL; ++i)
     {
 	int id = TestFunctions[i].Id;

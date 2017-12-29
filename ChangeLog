@@ -4,4 +4,7 @@ Simon King (6):
       Implement and use Strassen-Winograd multiplication
       Some performance improvements
       Propagating errors rather than crashing
-      Use autotools, build shared library -> SharedMeatAxe 1.0
+      Use autotools, build shared library
+      Fix and extend documentation
+      Enable parallel tests
+      -> SharedMeatAxe 1.0

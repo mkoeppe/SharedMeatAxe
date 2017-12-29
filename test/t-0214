@@ -5,7 +5,8 @@
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0214_out
 
 # Run the test
 # ------------
@@ -22,10 +23,3 @@ for g in 1 2; do
        cmp a b || error "Endomorphism does not commute with generators"
    done
 done
-
-
-
-# Clean up
-# --------
-rm -f ac* end* a b p003.zzz
-

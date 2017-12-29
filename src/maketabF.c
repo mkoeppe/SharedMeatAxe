@@ -340,7 +340,7 @@ static int writeheader()
 	if (initarith()) return 1;	/* Init index- and Zech-tables */
     }
     else
-    {	
+    {
 	P = Q;
 	/* Find a generator
 	   ---------------- */
@@ -468,7 +468,7 @@ static int mkembed()
 	/* Calculate a generator for the subfield
 	   -------------------------------------- */
 	emb = 1;
-	for (i = (Q-1)/(q-1); i > 0; --i) 
+	for (i = (Q-1)/(q-1); i > 0; --i)
 	    emb = mult(emb,(BYTE) G);
 
 	/* Look up the polynomial

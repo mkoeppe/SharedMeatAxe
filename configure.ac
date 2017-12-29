@@ -26,6 +26,7 @@ DX_INIT_DOXYGEN([shared_meataxe], [$(top_srcdir)/etc/Doxyfile], [$(docdir)])
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
+AC_PROG_MKDIR_P
 
 # Checks for libraries.
 
@@ -42,7 +43,7 @@ AC_CHECK_SIZEOF([long])
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
 AC_OUTPUT
 
 # Summary

@@ -2,11 +2,12 @@
 
 #:Test ZTR.
 # ---------
-# 
+#
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0107_out
 
 # Run the test
 # ------------
@@ -16,15 +17,8 @@ ztr ${DATA}/Mat25 x25
 ztr ${DATA}/Mat67 x67
 ztr ${DATA}/ac.1 ac
 
-checksum x2 84.1963892729 || exit 1
-checksum x5 204.3745149098 || exit 1
-checksum x25 588.499337148 || exit 1
-checksum x67 588.2460095492 || exit 1
-checksum ac 5690.872810896 || exit 1
-
-
-
-# Clean up
-# --------
-rm -f x2 x5 x25 x67 ac *.zzz
-
+../checksum x2 84.1963892729 || exit 1
+../checksum x5 204.3745149098 || exit 1
+../checksum x25 588.499337148 || exit 1
+../checksum x67 588.2460095492 || exit 1
+../checksum ac 5690.872810896 || exit 1

@@ -327,7 +327,7 @@ static int ReadTableFile(FILE *fd, int field)
        -------------------------------- */
     if (SysReadLong(fd,hdr,5) != 5)
     {
-	MTX_ERROR("Cannot read table file header");
+	MTX_ERROR1("Cannot read table file header for GF(%d)", field);
 	return -1;
     }
     if (hdr[2] != field || hdr[1] < 0 || hdr[1] > field ||

@@ -3,7 +3,7 @@
 #include "check.h"
 
 #include <string.h>
-
+MTX_DEFINE_FILE_INFO
 
 static int ErrorFlag = 0;
 static MtxApplication_t *App;
@@ -29,7 +29,7 @@ static int CheckError()
 static void Test1()
 {
     const char *t;
-    static const char *ArgV1[] = 
+    static const char *ArgV1[] =
     { "---", "-a", "--option1", "--option2", "optarg2", "arg1", "arg2" };
     int ArgC1 = (sizeof(ArgV1)/sizeof(ArgV1[0]));
 
@@ -74,7 +74,7 @@ static void Test1()
 
 static void Test2()
 {
-    static const char *ArgV1[] = 
+    static const char *ArgV1[] =
     { "---", "-a", "--", "-b" };
     int ArgC1 = (sizeof(ArgV1)/sizeof(ArgV1[0]));
 
@@ -104,7 +104,7 @@ static void Test2()
 static void Test3()
 
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "-a", "10", "--bbb", "-20", "-c", "3" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 
@@ -126,7 +126,7 @@ static void Test3()
 
 static void Test4()
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "-a", "1x0", "--bbb", "20", "-c", "30" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 
@@ -147,7 +147,7 @@ static void Test4()
 
 static void Test5()
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "-a", "xxx", "-b", "yyy" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 
@@ -167,7 +167,7 @@ static void Test5()
 
 static void Test6()
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "-a", "-b", "-a", "-bb", "--all", "-ca" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 
@@ -184,7 +184,7 @@ static void Test6()
 
 static void Test7()
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "--quiet", "-B", "binbinbin", "-L", "libliblib" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 
@@ -206,7 +206,7 @@ static void Test7()
 
 static void Test8()
 {
-    static const char *argv[] = 
+    static const char *argv[] =
 	{ "-", "-V", "-VV", "--mtxlib", "LIBLIB", "--mtxbin", "BINBIN" };
     int argc = (sizeof(argv)/sizeof(argv[0]));
 

@@ -5,31 +5,27 @@
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0115_out
 
 
 # Run the test
 # ------------
 
 zte ${DATA}/Perm1 ${DATA}/Perm2 x1 || error "ZTE failed"
-checksum x1 1612.4035182646 || exit 1
+../checksum x1 1612.4035182646 || exit 1
 
 zte ${DATA}/Mat2 ${DATA}/Mat2 x2 || error "ZTE failed"
-checksum x2 41484.1750919850 || exit 1
+../checksum x2 41484.1750919850 || exit 1
 zte ${DATA}/Mat5 ${DATA}/Mat5 x3 || error "ZTE failed"
-checksum x3 110604.1725989114 || exit 1
+../checksum x3 110604.1725989114 || exit 1
 zte ${DATA}/Mat9 ${DATA}/Mat9 x4 || error "ZTE failed"
-checksum x4 165900.1690157962 || exit 1
+../checksum x4 165900.1690157962 || exit 1
 zte ${DATA}/Mat25 ${DATA}/Mat25 x5 || error "ZTE failed"
-checksum x5 331788.373389295 || exit 1
+../checksum x5 331788.373389295 || exit 1
 zte ${DATA}/Mat67 ${DATA}/Mat67 x6 || error "ZTE failed"
-checksum x6 331788.1207955285 || exit 1
+../checksum x6 331788.1207955285 || exit 1
 zte ${DATA}/Mat125 ${DATA}/Mat125 x7 || error "ZTE failed"
-checksum x7 331788.1186469864 || exit 1
+../checksum x7 331788.1186469864 || exit 1
 zte ${DATA}/Mat256 ${DATA}/Mat256 x8 || error "ZTE failed"
-checksum x8 331788.2568263515 || exit 1
-
-# Clean up
-# --------
-rm -f x1 x2 x3 x4 x5 x6 x7 x8 p???.zzz
-
+../checksum x8 331788.2568263515 || exit 1

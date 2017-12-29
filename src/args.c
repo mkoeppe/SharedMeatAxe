@@ -24,7 +24,7 @@
 #define MTXBIN "/usr/local/mtx/bin"
 #endif
 #if !defined(MTXLIB)
-#define MTXLIB "/usr/local/mtx/lib"
+#define MTXLIB "."
 #endif
 
 #define MTX_MAX_ARGS 150

@@ -117,7 +117,7 @@ long SysTimeUsed(void)
 
     struct tms t;
     static long clk_tck = 0;
-    if (clk_tck == 0) 
+    if (clk_tck == 0)
 	clk_tck = sysconf(_SC_CLK_TCK);
     times(&t);
     return ((long)((t.tms_utime + t.tms_stime) * 10 / clk_tck ));
@@ -198,13 +198,14 @@ void SysSetTimeLimit(long nsecs)
 /**
  ** Open a file.
  ** This function opens a file, like @c fopen(). The second argument, must be one of the
- ** predfined constants FM_READ (open for reading), FM_CREAT (create a new file and open for
+ ** predefined constants FM_READ (open for reading), FM_CREAT (create a new file and open for
  ** writing, or FM_APPEND (append to existing file or create a new file).
  ** Additional flags may be or'ed to the mode:
  ** @par FM_LIB
  ** If the file does not exist in the current directory, look in the library directory.
- ** The library directory is defined either by the environment variable @c MTXLIB, or at
- ** compile-time by the macro @c MTXLIB.
+ ** The library directory is provided in a C constant @c MtxLibDir, that users of the
+ ** MeatAxe library should define. When running a MeatAxe application, it is also
+ ** possible to define the library location by the environment variable @c MTXLIB.
  ** @par FM_TEXT
  ** Open in text mode. This flag must be used on some systems (e.g., MS-DOS) to open text files.
  ** By default, files are assumed to contain binary data.
@@ -230,7 +231,7 @@ FILE *SysFopen(const char *name, int mode)
 
     /* Search library directory
        ------------------------ */
-    if ((mode & FM_LIB) != 0) 
+    if ((mode & FM_LIB) != 0)
     {
         if (*MtxLibDir != 0)
             {
@@ -251,7 +252,7 @@ FILE *SysFopen(const char *name, int mode)
     /* Error handling
        -------------- */
     if (f == NULL && (mode & FM_NOERROR) == 0)
-    MTX_ERROR1("%s: %S",name);
+		MTX_ERROR1("%s: %S",name);
     return f;
 }
 
@@ -281,7 +282,7 @@ int SysFseek(FILE *file, long pos)
  ** This function deletes a file. On a UNIX system, SysRemoveFile() just calls remove().
  ** If the file to be deleted does not exist or cannot be removed for some other reason,
  ** run-time error error is generated.
- **/ 
+ **/
 
 int SysRemoveFile(const char *name)
 {
@@ -370,7 +371,7 @@ void *SysMalloc(size_t nbytes)
 {
     void *x;
 
-    if (nbytes == 0) 
+    if (nbytes == 0)
 	nbytes = 1;
     x = malloc(nbytes);
     if (x == NULL)
@@ -391,7 +392,7 @@ void *SysMalloc(size_t nbytes)
 void *SysRealloc(void *buf, size_t nbytes)
 {
     void *x;
-    if (nbytes == 0) 
+    if (nbytes == 0)
 	nbytes = 1;
     x = realloc(buf,nbytes);
     if (x == NULL)
@@ -402,7 +403,7 @@ void *SysRealloc(void *buf, size_t nbytes)
 
 /**
  ** Free memory block.
- ** This function works like @c free() but checks if the argument is not NULL. Otherwise, an 
+ ** This function works like @c free() but checks if the argument is not NULL. Otherwise, an
  ** appropriate error message is generated.
  ** @param x Pointer to the memory block.
  **/

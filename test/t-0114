@@ -5,7 +5,8 @@
 
 # Initialize
 # ----------
-. ./t.config
+. $srcdir/t.config
+cd t-0114_out
 
 
 # Run the test
@@ -16,8 +17,4 @@ zcp -G ${DATA}/ac.1 >> zcp.log || error "ZCP failed"
 zcp ${DATA}/ac.2 >> zcp.log || error "ZCP failed"
 zcp -f ${DATA}/ac.2 >> zcp.log || error "ZCP failed"
 zcp -G ${DATA}/ac.2 >> zcp.log || error "ZCP failed"
-checksum zcp.log 4399.265798641 || exit 1
-
-# Clean up
-# --------
-rm -f zcp.log p003.zzz
+../checksum zcp.log 4399.265798641 || exit 1
