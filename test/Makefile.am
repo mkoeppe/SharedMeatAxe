@@ -24,7 +24,6 @@ TESTNUMBERS           = t-0100 t-0000 t-0100 t-0100 t-0105 t-0106 t-0107 \
 TESTS                 = zzztest $(TESTNUMBERS)
 
 check-local:
-	echo $(TESTS)
 	@$(MKDIR_P) $(TESTNUMBERS:=_out)
 
 clean-local:
