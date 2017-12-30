@@ -70,7 +70,7 @@ int SysReadLong32(FILE *f, long *buf, int n)
     	{
 	    if (fread(a,1,4,f) != 4) break;
 	    *buf = ((unsigned long)a[0]|((unsigned long)a[1] << 8)|
-		((unsigned long)a[2] << 16)|((long)(char)a[3] << 24));
+		((unsigned long)a[2] << 16)|((long)(signed char)a[3] << 24));
 	    ++buf;
     	}
     }
