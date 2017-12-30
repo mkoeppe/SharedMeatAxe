@@ -7,9 +7,10 @@
 @section intro Introduction
 The SharedMeatAxe is a dynamic (shared) library together with a
 set of programs for working with matrices over finite fields. It is
-a fork of the C MeatAxe, and differs by it by the implementation of
-asymptotically fast matrix multiplication and by providing a dynamic
-(as opposed to static) library.
+a fork of the <a href="http://www.math.rwth-aachen.de/~MTX/">C MeatAxe</a>,
+and differs from it mainly by the implementation of asymptotically fast
+matrix multiplication and by providing a dynamic (as opposed to static)
+library and an autotoolised build system.
 
 MeatAxe's primary purpose is the calculation of modular character tables,
 although it can be used for other purposes, such as investigating
@@ -32,6 +33,32 @@ will be able to work with mixed types, but at present
 ZSP is restricted to matrices only, and ZMU can multiply
 a matrix by a permutation, but not vice versa.
 
+@section intro_install Installation
+
+The source tarball can be found
+<a href="http://users.minet.uni-jena.de/~king/SharedMeatAxe/shared_meataxe-1.0.tar.gz">here</a>,
+and then the installation procedure follows the usual pattern:
+- <tt> tar -xf shared_meataxe-1.0.tar.gz</tt>
+- <tt> cd shared_meataxe-1.0</tt>
+- <tt> ./configure --prefix=/path/to/installation/location</tt>
+- <tt> make</tt>
+- <tt> make install</tt>
+- <tt> make check</tt><br>
+  (optional, but recommended)
+- <tt> make doc</tt><br>
+  (if Doxygen is installed and you want to build the documentation)
+
+See the INSTALL file in the tarball for more details.
+
+@section intro_plat Supported platforms
+The SharedMeatAxe uses autotools and should thus run on most UNIX
+platforms including Linux, NetBSD, Ultrix, Solaris, HP-UX.
+
+Users of the SharedMeatAxe on a non-UNIX platform should be aware that their
+operating system may impose some additional restrictions on the programs.
+For example, the length and syntax of file names may be more restricted
+as in UNIX, and CPU time information may not be available or incorrect.
+
 @section intro_c Remarks on the C implementation
 Most of the programs (including their documentation) in this package
 are based on the FORTRAN code written by Richard A. Parker.
@@ -46,15 +73,6 @@ simplicity and power are in contention, power is selected. Nevertheless,
 I have tried to make the programs as straightforward and user-friendly
 as possible. Moreover, the source code is freely available, so be free
 to change any parts you are annoyed with.
-
-@section intro_plat Supported platforms
-The SharedMeatAxe uses autotools and should thus run on most UNIX
-platforms including Linux, NetBSD, Ultrix, Solaris, HP-UX.
-
-Users of the SharedMeatAxe on a non-UNIX platform should be aware that their
-operating system may impose some additional restrictions on the programs.
-For example, the length and syntax of file names may be more restricted
-as in UNIX, and CPU time information may not be available or incorrect.
 
 @section intro_doc Some notes on the documentation
 
@@ -353,7 +371,7 @@ This documentation is intended to provide the information you need to write your
 programs or to modify existing ones. Since the software is changing continuously the documentation
 is necessarily incomplete and not everywhere correct. So, even with this manual, you should be
 prepared to look in the source code, which is always the ultimate reference. Starting with release
-2.3 I have tried to merge documentation and source code, which should help to keep the
+2.3 the documentation is part of the source code, which should help to keep the
 documentation more up-to-date.
 
 Internally, the MeatAxe is built in several layers where each layer uses
@@ -400,7 +418,8 @@ layer.
 - @ref wgen
 
 Throughout this documentation, layers 1 to 3 are referred to as the
-"MeatAxe library". Indeed, these layers are implemented as a static library.
+"MeatAxe library". Indeed, these layers are implemented as a dynamic
+library (in SharedMeatAxe) resp. as a static library (in MeatAxe).
 
 \par The program layer
 The top layer includes the MeatAxe programs and shell scripts like
