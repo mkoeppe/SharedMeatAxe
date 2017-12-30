@@ -52,6 +52,7 @@ SUMMARY
 =======
 $PACKAGE_NAME version $PACKAGE_VERSION
 Prefix.........: $prefix
+Is big endian..: $WORDS_BIGENDIAN
 C Compiler.....: $CC $CFLAGS $CPPFLAGS
 Linker.........: $LD $LDFLAGS $LIBS
 Doxygen........: ${DX_ENV:-NONE}

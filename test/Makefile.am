@@ -24,9 +24,13 @@ TESTNUMBERS           = t-0100 t-0000 t-0100 t-0100 t-0105 t-0106 t-0107 \
 TESTS                 = zzztest $(TESTNUMBERS)
 
 check-local:
-	@$(MKDIR_P) $(TESTNUMBERS:=_out)
+	for dir in $(TESTNUMBERS); do \
+		$(MKDIR_P) $${dir}_out; \
+	done
 
 clean-local:
 	rm -rf p*.zzz
-	rm -rf $(TESTNUMBERS:=_out)
+	for dir in $(TESTNUMBERS); do \
+		rm -rf $${dir}_out; \
+	done
 	rm -rf check.*
