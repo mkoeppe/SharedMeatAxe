@@ -17,24 +17,11 @@ zzztest_SOURCES       = zzztest.c c-args.c c-charpol.c c-ffmat.c c-fileio.c \
 
 # -----> The test suite
 
-TESTNUMBERS           = t-0100 t-0000 t-0100 t-0100 t-0105 t-0106 t-0107 \
+TESTS                 = t-0100 t-0000 t-0100 t-0100 t-0105 t-0106 t-0107 \
 	t-0108 t-0109 t-0110 t-0111 t-0112 t-0113 t-0114 t-0115 t-0116 t-0117 \
-	t-0118 t-0200 t-0201 t-0210 t-0211 t-0212 t-0213 t-0214 t-0215
-
-TESTS                 = zzztest $(TESTNUMBERS)
-
-check-local: mk.dir
-	rm -f mk.dir
-
-mk.dir:
-	for dir in $(TESTNUMBERS); do \
-		$(MKDIR_P) $${dir}_out; \
-	done
-	touch mk.dir
+	t-0118 t-0200 t-0201 t-0210 t-0211 t-0212 t-0213 t-0214 t-0215 zzztest
 
 clean-local:
 	rm -rf p*.zzz
-	for dir in $(TESTNUMBERS); do \
-		rm -rf $${dir}_out; \
-	done
+	rm -rf t-*_out
 	rm -rf check.*

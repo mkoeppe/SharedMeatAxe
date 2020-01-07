@@ -6,7 +6,10 @@
 # Initialize
 # ----------
 . $srcdir/t.config
-cd t-0215_out
+DIR=t-0215_out
+rm -rf $DIR
+mkdir $DIR
+cd $DIR
 
 # Run the test
 # ------------
