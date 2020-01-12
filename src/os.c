@@ -23,7 +23,7 @@
    These sybols can be defined:
 
    OS_NO_CPU_TIME .......... no CPU times are available
-   OS_TIMES_AND_SYSCONF	.... use times() and sysconf() instead of getrusage()
+   OS_TIMES_AND_SYSCONF .... use times() and sysconf() instead of getrusage()
    OS_NO_ITIMER ............ no interval timers
    -------------------------------------------------------------------------- */
 
@@ -65,7 +65,7 @@
    ------------------------------------------------------------------ */
 
 #if defined(OS_NO_CPU_TIME)
-time_t zinittime = 0;		/**< Start time of this process. */
+time_t zinittime = 0;       /**< Start time of this process. */
 #endif
 
 
@@ -118,7 +118,7 @@ long SysTimeUsed(void)
     struct tms t;
     static long clk_tck = 0;
     if (clk_tck == 0)
-	clk_tck = sysconf(_SC_CLK_TCK);
+    clk_tck = sysconf(_SC_CLK_TCK);
     times(&t);
     return ((long)((t.tms_utime + t.tms_stime) * 10 / clk_tck ));
 
@@ -221,12 +221,12 @@ FILE *SysFopen(const char *name, int mode)
     int m;
     FILE *f;
 
-    m = mode & 0x0F;			/* Append, read or create? */
-    if ((mode & FM_TEXT) == 0) m += 3;	/* Binary mode */
+    m = mode & 0x0F;            /* Append, read or create? */
+    if ((mode & FM_TEXT) == 0) m += 3;  /* Binary mode */
     if (m < 1 || m > 6 || (mode & 0x0F) == 0)
     {
-	MTX_ERROR1("Invalid file mode %d",mode);
-	return NULL;
+    MTX_ERROR1("Invalid file mode %d",mode);
+    return NULL;
     }
 
     /* Search library directory
@@ -248,11 +248,11 @@ FILE *SysFopen(const char *name, int mode)
         f = fopen(name,fmodes[m]);
     }
     if (f != NULL)
-	return f;
+    return f;
     /* Error handling
        -------------- */
     if (f == NULL && (mode & FM_NOERROR) == 0)
-		MTX_ERROR1("%s: %S",name);
+        MTX_ERROR1("%s: %S",name);
     return f;
 }
 
@@ -270,9 +270,9 @@ FILE *SysFopen(const char *name, int mode)
 int SysFseek(FILE *file, long pos)
 {
     if (pos < 0)
-	return fseek(file,(long) 0,SEEK_END);
+    return fseek(file,(long) 0,SEEK_END);
     else
-	return fseek(file,pos,SEEK_SET);
+    return fseek(file,pos,SEEK_SET);
 }
 
 
@@ -281,15 +281,15 @@ int SysFseek(FILE *file, long pos)
  ** Remove a file
  ** This function deletes a file. On a UNIX system, SysRemoveFile() just calls remove().
  ** If the file to be deleted does not exist or cannot be removed for some other reason,
- ** run-time error error is generated.
+ ** run-time error is generated and -1 is returned.
  **/
 
 int SysRemoveFile(const char *name)
 {
     if (remove(name) != 0)
     {
-	MTX_ERROR1("Cannot remove file '%s'",name);
-	return -1;
+    MTX_ERROR1("Cannot remove file '%s'",name);
+    return -1;
     }
     return 0;
 }
@@ -309,8 +309,8 @@ int SysRemoveDirectory(const char *name)
 {
     if (rmdir(name) != 0)
     {
-	MTX_ERROR1("Cannot remove directory '%s'",name);
-	return -1;
+    MTX_ERROR1("Cannot remove directory '%s'",name);
+    return -1;
     }
     return 0;
 }
@@ -336,8 +336,8 @@ int SysCreateDirectory(const char *name)
     if (mkdir(name,0755) != 0)
 #endif
     {
-	MTX_ERROR1("Cannot create directory '%s'",name);
-	return -1;
+    MTX_ERROR1("Cannot create directory '%s'",name);
+    return -1;
     }
     return 0;
 }
@@ -372,10 +372,10 @@ void *SysMalloc(size_t nbytes)
     void *x;
 
     if (nbytes == 0)
-	nbytes = 1;
+    nbytes = 1;
     x = malloc(nbytes);
     if (x == NULL)
-	MTX_ERROR1("Cannot allocate %l bytes: %S",(long int) nbytes);
+    MTX_ERROR1("Cannot allocate %l bytes: %S",(long int) nbytes);
     return x;
 }
 
@@ -393,10 +393,10 @@ void *SysRealloc(void *buf, size_t nbytes)
 {
     void *x;
     if (nbytes == 0)
-	nbytes = 1;
+    nbytes = 1;
     x = realloc(buf,nbytes);
     if (x == NULL)
-	MTX_ERROR1("Cannot reallocate %l bytes: %S",(long) nbytes);
+    MTX_ERROR1("Cannot reallocate %l bytes: %S",(long) nbytes);
     return x;
 }
 
@@ -411,9 +411,9 @@ void *SysRealloc(void *buf, size_t nbytes)
 void SysFree(void *x)
 {
     if (x == NULL)
-	MTX_ERROR("Attempt to free() NULL pointer");
+    MTX_ERROR("Attempt to free() NULL pointer");
     else
-	free(x);
+    free(x);
 }
 
 

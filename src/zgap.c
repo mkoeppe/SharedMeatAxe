@@ -28,32 +28,32 @@ const char *FfToGap(FEL f)
 {
     static char buffer[40];
 
-    if (FfChar == FfOrder)	/* Prime field */
+    if (FfChar == FfOrder)  /* Prime field */
     {
-	FEL f2 = FF_ZERO;
-   	int k = 0;
-    	while (f2 != f)
-    	{  
-	    f2 = FfAdd(f2,FfGen);
-	    ++k;
-	}
-	sprintf(buffer,"%d*Z(%d)",k,FfOrder);
+    FEL f2 = FF_ZERO;
+    int k = 0;
+        while (f2 != f)
+        {
+        f2 = FfAdd(f2,FfGen);
+        ++k;
     }
-    else		/* Other field */
+    sprintf(buffer,"%d*Z(%d)",k,FfOrder);
+    }
+    else        /* Other field */
     {
-	if (f == FF_ZERO)
-	    sprintf(buffer,"0*Z(%d)",FfOrder);
-	else
-	{
-	    FEL f2 = FfGen;
-	    int k = 1;
-	    while (f2 != f)
-	    {   
-		f2 = FfMul(f2,FfGen);
-		++k;
-	    }
-	    sprintf(buffer,"Z(%d)^%d",FfOrder,k);
-	}
+    if (f == FF_ZERO)
+        sprintf(buffer,"0*Z(%d)",FfOrder);
+    else
+    {
+        FEL f2 = FfGen;
+        int k = 1;
+        while (f2 != f)
+        {
+        f2 = FfMul(f2,FfGen);
+        ++k;
+        }
+        sprintf(buffer,"Z(%d)^%d",FfOrder,k);
+    }
     }
     return buffer;
 }

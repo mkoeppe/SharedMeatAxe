@@ -34,8 +34,6 @@ MTX_DEFINE_FILE_INFO
  ** - Otherwise, the relation is determined by the return value of FfCmpRow() on the first row
  **   that is not equal in both matrices.
  **
- ** In case an error occurs, the return value is -1. But note that a return value of -1 does
- ** not necessarily mean that an error has occurred.
  ** @param a First matrix.
  ** @param b Second matrix.
  ** @return 0 if the matrices are equal, nonzero otherwise (see description), -2 on error.
@@ -49,18 +47,18 @@ int MatCompare(const Matrix_t *a, const Matrix_t *b)
        ------------------ */
     if (!MatIsValid(a) || !MatIsValid(b))
     {
-	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return -2;
+    MTX_ERROR1("%E",MTX_ERR_BADARG);
+    return -2;
     }
 
     /* Compare fields and dimensions
        ----------------------------- */
     if ((i = a->Field - b->Field) != 0)
-	return i;
+    return i;
     if ((i = a->Noc - b->Noc) != 0)
-	return i;
+    return i;
     if ((i = a->Nor - b->Nor) != 0)
-	return i;
+    return i;
 
     /* Compare the entries row by row. We do not use memcmp on the
        whole matrix because we must ignore padding bytes.
@@ -69,11 +67,11 @@ int MatCompare(const Matrix_t *a, const Matrix_t *b)
     FfSetNoc(a->Noc);
     for (i = 0; i < a->Nor; ++i)
     {
-	PTR pa = MatGetPtr(a,i);
-	PTR pb = MatGetPtr(b,i);
-	int diff = FfCmpRows(pa,pb);
-	if (diff != 0)
-	    return diff;
+    PTR pa = MatGetPtr(a,i);
+    PTR pb = MatGetPtr(b,i);
+    int diff = FfCmpRows(pa,pb);
+    if (diff != 0)
+        return diff;
     }
 
     /* The matrices are equal!

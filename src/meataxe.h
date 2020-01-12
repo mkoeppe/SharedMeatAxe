@@ -23,40 +23,40 @@
   * @{
   **/
 
-#define FM_READ	    0x01	/**< File mode: read */
-#define FM_CREATE   0x02	/**< File mode: write */
-#define FM_APPEND   0x03	/**< File mode: append */
-#define FM_TEXT	    0x10
-#define FM_LIB	    0x20
+#define FM_READ     0x01    /**< File mode: read */
+#define FM_CREATE   0x02    /**< File mode: write */
+#define FM_APPEND   0x03    /**< File mode: append */
+#define FM_TEXT     0x10
+#define FM_LIB      0x20
 #define FM_NOERROR  0x40
 
 /** @}
   **/
 
-int SysCreateDirectory(const char *name);
+int SysCreateDirectory(const char *name);       // -1 on error
 int SysGetPid();
 void SysInit(void);
-void *SysMalloc(size_t nbytes);
-FILE *SysFopen(const char *name, int mode);
+void *SysMalloc(size_t nbytes);                 // NULL on error
+FILE *SysFopen(const char *name, int mode);    // NULL on error
 void SysFree(void *x);
-int SysFseek(FILE *f,long pos);
-int SysFseekRelative(FILE *file, long distance);
-void *SysRealloc(void *buf, size_t nbytes);
-int SysReadLong32(FILE *f, long *buf, int n);
+int SysFseek(FILE *f,long pos);                 // nonzero on error
+int SysFseekRelative(FILE *file, long distance);// nonzero on error
+void *SysRealloc(void *buf, size_t nbytes);     // NULL on error
+int SysReadLong32(FILE *f, long *buf, int n);   // 1 on error
 #define SysReadLong SysReadLong32
-int SysReadLongX(FILE *f, long *buf, int n);
-int SysRemoveDirectory(const char *name);
-int SysRemoveFile(const char *name);
+int SysReadLongX(FILE *f, long *buf, int n);    // potential error if return value less than n
+int SysRemoveDirectory(const char *name);       // -1 on error
+int SysRemoveFile(const char *name);            // -1 on error
 void SysSetTimeLimit(long nsecs);
 long SysTimeUsed(void);
-int SysWriteLong32(FILE *f, const long *buf, int n);
+int SysWriteLong32(FILE *f, const long *buf, int n); // -1 on error
 #define SysWriteLong SysWriteLong32
 int SysWriteLongX(FILE *f, const long *buf, int n);
 
 #define ALLOC(type) ((type *) SysMalloc(sizeof(type)))
 #define NALLOC(type,n) ((type *) SysMalloc((size_t)(n) * sizeof(type)))
 #define NREALLOC(x,type,n)\
-	((type *) SysRealloc(x,(size_t)(n) * sizeof(type)))
+    ((type *) SysRealloc(x,(size_t)(n) * sizeof(type)))
 #define FREE(x) SysFree(x)
 
 /** @} **/
@@ -75,10 +75,10 @@ int SysWriteLongX(FILE *f, const long *buf, int n);
 
 #if ZZZ==0
 
-typedef unsigned char FEL;		/**< A finite field element */
-typedef FEL *PTR;			/**< A pointer to a row vector */
-#define FF_ZERO ((FEL)0)		/**< The zero field element */
-#define FF_ONE ((FEL)1)			/**< The unit element */
+typedef unsigned char FEL;      /**< A finite field element */
+typedef FEL *PTR;           /**< A pointer to a row vector */
+#define FF_ZERO ((FEL)0)        /**< The zero field element */
+#define FF_ONE ((FEL)1)         /**< The unit element */
 #define ZZZVERSION 6
 
 #elif ZZZ==1
@@ -98,10 +98,10 @@ typedef unsigned short *PTR;
 /* Kernel variables and functions
    ------------------------------ */
 
-extern int FfOrder;		/**< Current field order */
-extern int FfChar;		/**< Current characteristic */
-extern FEL FfGen;		/**< Generator */
-extern int FfNoc;		/**< Current number of columns for row ops */
+extern int FfOrder;     /**< Current field order */
+extern int FfChar;      /**< Current characteristic */
+extern FEL FfGen;       /**< Generator */
+extern int FfNoc;       /**< Current number of columns for row ops */
 extern size_t FfCurrentRowSize;
 extern int FfCurrentRowSizeIo;
 extern int MPB;         /** Number of marks per byte (depends on field order) */
@@ -116,8 +116,8 @@ FEL FfDiv(FEL a, FEL b);
 FEL FfNeg(FEL a);
 FEL FfInv(FEL a);
 
-int FfMakeTables(int field);
-int FfSetField(int field);
+int FfMakeTables(int field);                // 1 on error
+int FfSetField(int field);                  // -1 on error
 int FfSetNoc(int noc);
 
 
@@ -128,14 +128,14 @@ PTR FfAddRowPartial(PTR dest, PTR src, int first, int len);
 PTR FfSubRow(PTR dest, PTR src);
 PTR FfSubRowPartial(PTR dest, PTR src, int first, int len);
 PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len);
-PTR FfAlloc(int nor);
+PTR FfAlloc(int nor);                               // NULL on error
 int FfCmpRows(PTR p1, PTR p2);
 void FfCleanRow(PTR row, PTR matrix, int nor, const int *piv);
 int FfCleanRow2(PTR row, PTR matrix, int nor, const int *piv, PTR row2);
 int FfCleanRowAndRepeat(PTR row, PTR mat, int nor, const int *piv,
     PTR row2, PTR mat2);
 void FfCopyRow(PTR dest, PTR src);
-FEL FfEmbed(FEL a, int subfield);
+FEL FfEmbed(FEL a, int subfield);                   // 255 on error
 FEL FfExtract(PTR row, int col);
 void FfExtractColumn(PTR mat,int nor,int col,PTR result);
 int FfFindPivot(PTR row, FEL *mark);
@@ -144,19 +144,19 @@ FEL FfFromInt(int l);
 PTR FfGetPtr(PTR base, int row);
 void FfInsert(PTR row, int col, FEL mark);
 void FfMulRow(PTR row, FEL mark);
-FILE *FfReadHeader(const char *name, int *fld, int *nor, int *noc);
-int FfReadRows(FILE *f, PTR buf, int n);
-FEL FfRestrict(FEL a, int subfield);
+FILE *FfReadHeader(const char *name, int *fld, int *nor, int *noc);  // NULL on error
+int FfReadRows(FILE *f, PTR buf, int n);        // -1 on error
+FEL FfRestrict(FEL a, int subfield);            // 255 on error
 size_t FfRowSize(int noc);
 FEL FfScalarProduct(PTR a, PTR b);
-int FfSeekRow(FILE *f, int pos);
+int FfSeekRow(FILE *f, int pos);                // -1 on error
 int FfStepPtr(PTR *x);
 void FfSwapRows(PTR dest, PTR src);
 const char *FfToGap(FEL f);
 int FfToInt(FEL f);
 size_t FfTrueRowSize(int noc);
-FILE *FfWriteHeader(const char *name, int fld, int nor, int noc);
-int FfWriteRows(FILE *f, PTR buf, int n);
+FILE *FfWriteHeader(const char *name, int fld, int nor, int noc);   // NULL on error
+int FfWriteRows(FILE *f, PTR buf, int n);       // value different from n on error
 
 
 /* --------------------------------------------------------------------------
@@ -201,7 +201,7 @@ extern FEL mtx_restrict[4][256];
 
 void FfMapRow(PTR row, PTR matrix, int nor, PTR result);
 void FfPermRow(PTR row, const long *perm, PTR result);
-int FfSumAndIntersection(PTR wrk1, int *nor1, int *nor2, PTR wrk2, int *piv);
+int FfSumAndIntersection(PTR wrk1, int *nor1, int *nor2, PTR wrk2, int *piv);   // -1 on error
 
 
 /* ------------------------------------------------------------------
@@ -230,7 +230,7 @@ void MtxCleanupLibrary();
  **/
 
 typedef struct {
-    char *S;	/**< pointer to NUL terminated string */
+    char *S;    /**< pointer to NUL terminated string */
 } String;
 
 String StrAlloc(size_t initial_capacity);
@@ -255,8 +255,8 @@ void StrPrintF(String *s, const char *fmt, ...);
  ** @{
  **/
 
-extern char MtxBinDir[1024];	/**< MeatAxe program directory */
-extern char MtxLibDir[1024];	/**< MeatAxe library directory (for multiplication tables etc.) */
+extern char MtxBinDir[1024];    /**< MeatAxe program directory */
+extern char MtxLibDir[1024];    /**< MeatAxe library directory (for multiplication tables etc.) */
 
 #define APP_MAX_ARGS 50
 
@@ -283,9 +283,9 @@ Here is an example:
 
 typedef struct
 {
-    const char *Name;		/**< Program name. */
-    const char *Description;	/**< One-line description of the program. */
-    const char *Help;		/**< Help text. */
+    const char *Name;       /**< Program name. */
+    const char *Description;    /**< One-line description of the program. */
+    const char *Help;       /**< Help text. */
 } MtxApplicationInfo_t;
 
 
@@ -297,29 +297,29 @@ such as command line arguments, temporary directory names, and more.
 
 typedef struct
 {
-    MtxApplicationInfo_t const *AppInfo;	/**< Program name and description. */
-    int OrigArgC;				/**< Original argc from main(). */
-    const char **OrigArgV;			/**< Original argv from main(). */
-    int ArgC;					/**< Number of arguments. */
-    const char **ArgV;				/**< Arguments. */
-    int OptEnd;					/**< Used internally. */
-    unsigned long IsDone[APP_MAX_ARGS];		/**< Used internally. */
-    const char *OptArg;				/**< Used internally. */
-    int OptInd;					/**< Used internally. */
-    char TempDirName[200];			/**< Directory fr temporary files. */
+    MtxApplicationInfo_t const *AppInfo;    /**< Program name and description. */
+    int OrigArgC;               /**< Original argc from main(). */
+    const char **OrigArgV;          /**< Original argv from main(). */
+    int ArgC;                   /**< Number of arguments. */
+    const char **ArgV;              /**< Arguments. */
+    int OptEnd;                 /**< Used internally. */
+    unsigned long IsDone[APP_MAX_ARGS];     /**< Used internally. */
+    const char *OptArg;             /**< Used internally. */
+    int OptInd;                 /**< Used internally. */
+    char TempDirName[200];          /**< Directory fr temporary files. */
 } MtxApplication_t;
 
 
 MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char **argv);
-int AppFree(MtxApplication_t *a);
+int AppFree(MtxApplication_t *a);                                       // -1 on error
 int AppGetOption(MtxApplication_t *app, const char *spec);
 int AppGetCountedOption(MtxApplication_t *app, const char *spec);
 const char *AppGetTextOption(MtxApplication_t *app, const char *spec,
     const char *dflt);
 int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt,
     int min, int max);
-int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc);
-const char *AppCreateTempDir(MtxApplication_t *app);
+int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc); // -1 on error
+const char *AppCreateTempDir(MtxApplication_t *app);                    // NULL on error
 
 #define MTX_COMMON_OPTIONS_SYNTAX \
     "[<Options>]"
@@ -338,21 +338,21 @@ const char *AppCreateTempDir(MtxApplication_t *app);
 /* ------------------------------------------------------------------
    Messages and error handling
    ------------------------------------------------------------------ */
-				/* Error message codes (%E arguments) */
-#define MTX_ERR_NOMEM	    1	/**< Not enough memory */
-#define MTX_ERR_GAME_OVER   2	/**< Time limit exceeded */
-#define MTX_ERR_DIV0	    8	/**< Division by 0 or singular Matrix */
-#define MTX_ERR_FILEFMT	    24	/**< Bad format */
-#define MTX_ERR_BADARG	    31	/**< Bad argument */
-#define MTX_ERR_RANGE	    33	/**< Out of range */
-#define MTX_ERR_NOTECH	    34	/**< Matrix not in chelon form */
-#define MTX_ERR_NOTSQUARE   35	/**< Matrix not square */
-#define MTX_ERR_INCOMPAT    36	/**< Arguments are incompatible */
-#define MTX_ERR_BADUSAGE    41	/**< Bad command line */
-#define MTX_ERR_OPTION	    42	/**< Bad usage of option */
-#define MTX_ERR_NARGS	    43	/**< Bad number of arguments */
-#define MTX_ERR_NOTMATRIX   51	/**< Not a matrix */
-#define MTX_ERR_NOTPERM	    53	/**< Not a permutation */
+                /* Error message codes (%E arguments) */
+#define MTX_ERR_NOMEM       1   /**< Not enough memory */
+#define MTX_ERR_GAME_OVER   2   /**< Time limit exceeded */
+#define MTX_ERR_DIV0        8   /**< Division by 0 or singular Matrix */
+#define MTX_ERR_FILEFMT     24  /**< Bad format */
+#define MTX_ERR_BADARG      31  /**< Bad argument */
+#define MTX_ERR_RANGE       33  /**< Out of range */
+#define MTX_ERR_NOTECH      34  /**< Matrix not in chelon form */
+#define MTX_ERR_NOTSQUARE   35  /**< Matrix not square */
+#define MTX_ERR_INCOMPAT    36  /**< Arguments are incompatible */
+#define MTX_ERR_BADUSAGE    41  /**< Bad command line */
+#define MTX_ERR_OPTION      42  /**< Bad usage of option */
+#define MTX_ERR_NARGS       43  /**< Bad number of arguments */
+#define MTX_ERR_NOTMATRIX   51  /**< Not a matrix */
+#define MTX_ERR_NOTPERM     53  /**< Not a permutation */
 
 
 /**
@@ -362,8 +362,8 @@ const char *AppCreateTempDir(MtxApplication_t *app);
  **/
 typedef struct
 {
-	const char *Name;		/**< Path to the file */
-	const char *BaseName;	/**< Base name of the file */
+    const char *Name;       /**< Path to the file */
+    const char *BaseName;   /**< Base name of the file */
 }
 MtxFileInfo_t;
 
@@ -375,9 +375,9 @@ MtxFileInfo_t;
  **/
 typedef struct
 {
-	const MtxFileInfo_t *FileInfo;	/**< File that is raising the error */
-	int LineNo;						/**< Line in which the error is raised */
-	const char *Text;				/**< Error message */
+    const MtxFileInfo_t *FileInfo;  /**< File that is raising the error */
+    int LineNo;                     /**< Line in which the error is raised */
+    const char *Text;               /**< Error message */
 }
 MtxErrorRecord_t;
 
@@ -467,34 +467,36 @@ long lcm(long a, long b);
 **/
 typedef struct
 {
-    FILE *File;		/**< The stream we're using */
-    char *LineBuf;	/**< Buffers one 'line' */
-    char *GetPtr;	/**< Current input position */
-    int LineBufSize;	/**< Current buffer size */
-    int OutPos;		/**< Number of chars in current line (writing only) */
-    int LineNo;		/**< Current line number (reading and writing) */
+    FILE *File;     /**< The stream we're using */
+    char *LineBuf;  /**< Buffers one 'line' */
+    char *GetPtr;   /**< Current input position */
+    int LineBufSize;    /**< Current buffer size */
+    int OutPos;     /**< Number of chars in current line (writing only) */
+    int LineNo;     /**< Current line number (reading and writing) */
 } StfData;
 
-int StfClose(StfData *f);
-StfData *StfOpen(const char *name, int mode);
+int StfClose(StfData *f);                           // non-zero on error
+StfData *StfOpen(const char *name, int mode);      // NULL on error
 
+// NO ERROR HANDLING
 int StfPut(StfData *f, const char *text);
 int StfPutInt(StfData *f, int value);
 int StfPutString(StfData *f, const char *text);
 int StfPutVector(StfData *f, int size, const int *value);
-int StfBeginEntry(StfData *f, const char *name);
-int StfEndEntry(StfData *f);
-int StfWriteValue(StfData *f, const char *name, const char *value);
-int StfWriteInt(StfData *f, const char *name, int value);
-int StfWriteString(StfData *f, const char *name, const char *value);
-int StfWriteVector(StfData *f, const char *name, int size, const int *value);
 
-int StfReadLine(StfData *f);
-const char *StfGetName(StfData *f);
-int StfGetInt(StfData *f, int *buf);
-int StfGetString(StfData *f, char *buf, size_t bufsize);
+int StfBeginEntry(StfData *f, const char *name);       // -1 on error
+int StfEndEntry(StfData *f);                            // -1 on error
+int StfWriteValue(StfData *f, const char *name, const char *value); // -1 on error
+int StfWriteInt(StfData *f, const char *name, int value);            // -1 on error
+int StfWriteString(StfData *f, const char *name, const char *value);// -1 on error
+int StfWriteVector(StfData *f, const char *name, int size, const int *value); // -1 on error
+
+int StfReadLine(StfData *f);            // -1 on error
+const char *StfGetName(StfData *f);     // NULL on error
+int StfGetInt(StfData *f, int *buf);    // -1 on error
+int StfGetString(StfData *f, char *buf, size_t bufsize);    // -1 on error
 int StfMatch(StfData *f, const char *pattern);
-int StfGetVector(StfData *f, int *bufsize, int *buf);
+int StfGetVector(StfData *f, int *bufsize, int *buf);       // -1 on error
 
 /**
  ** @}
@@ -509,22 +511,22 @@ The MtxFile_t structure represents a MeatAxe data file.
 ***/
 typedef struct
 {
-    unsigned long Magic;	/**< Used internally. */
-    int Field;			/**< Field order or type id. */
-    int Nor;			/**< Number of rows. */
-    int Noc;			/**< Number of columns. */
-    FILE *File;			/**< File to read frmo/write to. */
-    char *Name;			/**< File name. */
+    unsigned long Magic;    /**< Used internally. */
+    int Field;          /**< Field order or type id. */
+    int Nor;            /**< Number of rows. */
+    int Noc;            /**< Number of columns. */
+    FILE *File;         /**< File to read frmo/write to. */
+    char *Name;         /**< File name. */
 } MtxFile_t;
 
 int MfIsValid(const MtxFile_t *file);
-MtxFile_t *MfOpen(const char *name);
-MtxFile_t *MfCreate(const char *name, int field, int nor, int noc);
+MtxFile_t *MfOpen(const char *name);    // NULL on error.
+MtxFile_t *MfCreate(const char *name, int field, int nor, int noc); // NULL on error.
 int MfClose(MtxFile_t *file);
-int MfReadLong(MtxFile_t *f, long *buf, int nrows);
-int MfReadRows(MtxFile_t *f, PTR buf, int nrows);
-int MfWriteLong(MtxFile_t *f, const long *buf, int count);
-int MfWriteRows(MtxFile_t *f, PTR buf, int nrows);
+int MfReadLong(MtxFile_t *f, long *buf, int nrows);     // a return value different from nrows indicates error
+int MfReadRows(MtxFile_t *f, PTR buf, int nrows);       // a return value different from nrows indicates error
+int MfWriteLong(MtxFile_t *f, const long *buf, int count);  // a return value different from nrows indicates error
+int MfWriteRows(MtxFile_t *f, PTR buf, int nrows);      // a return value different from nrows indicates error
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -532,19 +534,20 @@ int MfWriteRows(MtxFile_t *f, PTR buf, int nrows);
 typedef struct
 {
     unsigned long Magic;/**< Used internally. */
-    int Field;		/**< Field order. */
-    int Nor;		/**< Number of rows. */
-    int Noc;		/**< Number of columns. */
-    PTR Data;		/**< Data, organized as array of rows. */
-    size_t RowSize;	/**< Size (in bytes) of one row. */
-    int *PivotTable;	/**< Pivot table (if matrix is in echelon form) . */
+    int Field;      /**< Field order. */
+    int Nor;        /**< Number of rows. */
+    int Noc;        /**< Number of columns. */
+    PTR Data;       /**< Data, organized as array of rows. */
+    size_t RowSize; /**< Size (in bytes) of one row. */
+    int *PivotTable;    /**< Pivot table (if matrix is in echelon form) . */
 } Matrix_t;
 
+// The following returns NULL or -1 on error, unless stated differently
 Matrix_t *MatAdd(Matrix_t *dest, const Matrix_t *src);
 Matrix_t *MatAddMul(Matrix_t *dest, const Matrix_t *src, FEL coeff);
 Matrix_t *MatAlloc(int field, int nor, int noc);
 int MatClean(Matrix_t *mat, const Matrix_t *sub);
-int MatCompare(const Matrix_t *a, const Matrix_t *b);
+int MatCompare(const Matrix_t *a, const Matrix_t *b);           // -2 on error
 int MatCopyRegion(Matrix_t *dest, int destrow, int destcol,
     const Matrix_t *src, int row1, int col1, int nrows, int ncols);
 Matrix_t *MatCut(const Matrix_t *src, int row1, int col1, int nrows, int ncols);
@@ -555,7 +558,7 @@ int MatFree(Matrix_t *mat);
 PTR MatGetPtr(const Matrix_t *mat, int row);
 Matrix_t *MatId(int fl, int nor);
 Matrix_t *MatInverse(const Matrix_t *src);
-int MatIsValid(const Matrix_t *m);
+int MatIsValid(const Matrix_t *m);          // no error value
 Matrix_t *MatLoad(const char *fn);
 Matrix_t *MatMul(Matrix_t *dest, const Matrix_t *src);
 Matrix_t *MatMulScalar(Matrix_t *dest, FEL coeff);
@@ -572,7 +575,7 @@ Matrix_t *MatPower(const Matrix_t *mat, long n);
 void MatPrint(const char *name, const Matrix_t *m);
 Matrix_t *MatRead(FILE *f);
 int MatSave(const Matrix_t *mat, const char *fn);
-FEL MatTrace(const Matrix_t *mat);
+FEL MatTrace(const Matrix_t *mat);              // 255 on error
 Matrix_t *MatTransposed(const Matrix_t *src);
 int MatWrite(const Matrix_t *mat, FILE *f);
 
@@ -610,20 +613,20 @@ const GrExtractionTable_t *GrGetExtractionTable(int fl,int grrows);
 typedef struct
 {
     unsigned long Magic; /**< Used internally */
-    int Field;			/**< Field size */
-    int Nor;			/**< Number of rows */
-    int Noc;			/**< Number of columns */
-    int GrRows;			/**< Grease level (# of rows, 0=no grease) */
-    int GrBlockSize;	/**< Vectors per block (= Field^GrRows) */
-    int NumVecs;		/**< Total number of vectors in @a PrecalcData */
-    PTR PrecalcData;	/**< Precalculated data */
-    const GrExtractionTable_t *ExtrTab;		/**< Extraction table */
-    int MPB;			/**< Number of marks per byte */
+    int Field;          /**< Field size */
+    int Nor;            /**< Number of rows */
+    int Noc;            /**< Number of columns */
+    int GrRows;         /**< Grease level (# of rows, 0=no grease) */
+    int GrBlockSize;    /**< Vectors per block (= Field^GrRows) */
+    int NumVecs;        /**< Total number of vectors in @a PrecalcData */
+    PTR PrecalcData;    /**< Precalculated data */
+    const GrExtractionTable_t *ExtrTab;     /**< Extraction table */
+    int MPB;            /**< Number of marks per byte */
 } GreasedMatrix_t;
 
 void GrMapRow(PTR v,GreasedMatrix_t *M, PTR w);
-GreasedMatrix_t *GrMatAlloc(const Matrix_t *m, int gr_rows);
-int GrMatFree(GreasedMatrix_t *mat);
+GreasedMatrix_t *GrMatAlloc(const Matrix_t *m, int gr_rows);        // NULL on error
+int GrMatFree(GreasedMatrix_t *mat);                                 // -1 on error
 int GrMatIsValid(const GreasedMatrix_t *mat);
 
 /**
@@ -644,17 +647,17 @@ int GrMatIsValid(const GreasedMatrix_t *mat);
 typedef struct
 {
     unsigned long Magic;  /**< Used internally. */
-    int Degree;		  /**< Degree of the permutation. */
-    long *Data;		  /**< Images of 0,1,2,... */
+    int Degree;       /**< Degree of the permutation. */
+    long *Data;       /**< Images of 0,1,2,... */
 } Perm_t;
 
-
+// NULL or -1 on error, unless stated otherwise
 Perm_t *PermAlloc(int deg);
-int PermCompare(const Perm_t *a, const Perm_t *b);
+int PermCompare(const Perm_t *a, const Perm_t *b);      // -2 on error
 Perm_t *PermDup(const Perm_t *src);
 int PermFree(Perm_t *p);
 Perm_t *PermInverse(const Perm_t *src);
-int PermIsValid(const Perm_t *p);
+int PermIsValid(const Perm_t *p);       // It does return -1 on error, instead of just checking
 Perm_t *PermLoad(const char *fn);
 Perm_t *PermMul(Perm_t *dest, const Perm_t *src);
 int PermOrder(const Perm_t *perm);
@@ -679,25 +682,25 @@ void Perm_ConvertOld(long *data, int len);
 typedef struct
 {
     unsigned long Magic;/**< Used internally. */
-    int Field;		/**< Field order. */
-    int Degree;		/**< Degree of the polynomial. */
-    FEL *Data;		/**< Coefficients. Degree+1 values, starting with the
-			     constant term. */
-    int BufSize;	/**< Used internally for memory management. */
+    int Field;      /**< Field order. */
+    int Degree;     /**< Degree of the polynomial. */
+    FEL *Data;      /**< Coefficients. Degree+1 values, starting with the
+                 constant term. */
+    int BufSize;    /**< Used internally for memory management. */
 }
 Poly_t;
 
-
+// NULL or -1 on error, unless stated otherwise
 Poly_t *PolAdd(Poly_t *dest, const Poly_t *src);
 Poly_t *PolAlloc(int fl, int n);
-int PolCompare(const Poly_t *a, const Poly_t *b);
+int PolCompare(const Poly_t *a, const Poly_t *b);       // -2 on error
 Poly_t *PolDerive(Poly_t *pol);
 Poly_t *PolDivMod(Poly_t *a, const Poly_t *b);
 Poly_t *PolDup(const Poly_t *p);
 int PolFree(Poly_t *p);
 Poly_t *PolGcd(const Poly_t *a, const Poly_t *b);
 int PolGcdEx(const Poly_t *a, const Poly_t *b, Poly_t **result);
-int PolIsValid(const Poly_t *p);
+int PolIsValid(const Poly_t *p);        // 0 on error
 Poly_t *PolMod(Poly_t *a, const Poly_t *b);
 void Pol_Normalize(Poly_t *p);
 Poly_t *PolLoad(const char *fn);
@@ -716,15 +719,16 @@ int PolWrite(const Poly_t *p, FILE *f);
 typedef struct
 {
     unsigned long Magic;/**< Used internally. */
-    int NFactors;	/**< Number of different irreducible factors. */
-    int BufSize;	/**< Used internally for memory management. */
-    Poly_t **Factor;	/**< List of irreducible factors. */
-    int *Mult;		/**< Multiplicity of each factor. */
+    int NFactors;   /**< Number of different irreducible factors. */
+    int BufSize;    /**< Used internally for memory management. */
+    Poly_t **Factor;    /**< List of irreducible factors. */
+    int *Mult;      /**< Multiplicity of each factor. */
 } FPoly_t;
 
+// NULL or -1 on error, unless stated otherwise
 FPoly_t *FpAlloc();
 int FpFree(FPoly_t *x);
-int FpIsValid(const FPoly_t *p);
+int FpIsValid(const FPoly_t *p);    // 0 on error
 FPoly_t *FpMul(FPoly_t *dest, const FPoly_t *src);
 FPoly_t *FpMulP(FPoly_t *dest, const Poly_t *src, int pwr);
 int FpPrint(const char *name, const FPoly_t *p);
@@ -734,17 +738,18 @@ int FpPrint(const char *name, const FPoly_t *p);
 typedef struct
 {
     unsigned long Magic;  /**< Used internally. */
-    int Size;		  /**< Number of bits. */
-    int BufSize;	  /**< Used internally for memory management. */
+    int Size;         /**< Number of bits. */
+    int BufSize;      /**< Used internally for memory management. */
     long Data[1];         /**< The bits. The least significant bit
-			       comes first.*/
-} BitString_t;		  /**< A bit string. */
+                   comes first.*/
+} BitString_t;        /**< A bit string. */
 
+// NULL or -1 on error
 BitString_t *BsAlloc(int size);
 int BsAnd(BitString_t *dest, const BitString_t *src);
 int BsClear(BitString_t *bs, int i);
 int BsClearAll(BitString_t *bs);
-int BsCompare(const BitString_t *a, const BitString_t *b);
+int BsCompare(const BitString_t *a, const BitString_t *b);  // no error value
 BitString_t *BsCopy(BitString_t *dest, const BitString_t *src);
 BitString_t *BsDup(const BitString_t *src);
 int BsFree(BitString_t *bs);
@@ -775,20 +780,20 @@ int BsWrite(BitString_t *bs, FILE *f);
 
 typedef struct
 {
-    unsigned long Magic;	/**< Used internally. */
-    int Size;			/**< Number of elements. */
-    int BufSize;		/**< Used internally for memory management. */
-    long *Data;			/**< The elements in ascending order. */
+    unsigned long Magic;    /**< Used internally. */
+    int Size;           /**< Number of elements. */
+    int BufSize;        /**< Used internally for memory management. */
+    long *Data;         /**< The elements in ascending order. */
 } Set_t;
 
-
+// NULL or -1 on error, unless stated otherwise
 Set_t *SetAlloc();
 int SetContains(const Set_t *set, long elem);
 Set_t *SetDup(const Set_t *s);
 int SetFree(Set_t *x);
 int SetInsert(Set_t *set, long elem);
-int SetIsValid(const Set_t *s);
-int SetPrint(char *name, const Set_t *s);
+int SetIsValid(const Set_t *s);     // 0 on error
+//~ int SetPrint(char *name, const Set_t *s);
 
 
 /* ------------------------------------------------------------------
@@ -798,14 +803,15 @@ int SetPrint(char *name, const Set_t *s);
 typedef struct
 {
     unsigned long Magic;
-    int Nor;	/**< Number of rows. */
-    int Noc;	/**< Number of colums. */
-    long *Data;	/**< Marks (row by row). */
+    int Nor;    /**< Number of rows. */
+    int Noc;    /**< Number of colums. */
+    long *Data; /**< Marks (row by row). */
 } IntMatrix_t;
 
+// NULL or -1 on error, unless stated otherwise
 IntMatrix_t *ImatAlloc(int nor, int noc);
 int ImatFree(IntMatrix_t *mat);
-int ImatIsValid(const IntMatrix_t *m);
+int ImatIsValid(const IntMatrix_t *m);  // 0 on error
 IntMatrix_t *ImatLoad(const char *fn);
 IntMatrix_t *ImatRead(FILE *f);
 int ImatSave(const IntMatrix_t *mat, const char *file_name);
@@ -816,15 +822,15 @@ int ImatWrite(const IntMatrix_t *mat, FILE *f);
    Polymorphic objects
    -------------------------------------------------------------------------- */
 
-void *XDup(void *a);
+void *XDup(void *a);                    // NULL on error
 int XIsCompatible(void *a, void *b);
 void XFree(void *a);
-void *XInverse(void *a);
-void *XLoad(const char *fn);
-void XMul(void *a, void *b);
-long XOrder(void *a);
-void *XPower(void *a, int n);
-int XSave(void *a, const char *fn);
+void *XInverse(void *a);                // NULL on error
+void *XLoad(const char *fn);            // NULL on error
+void XMul(void *a, void *b);            // Does not do error handling, but is only used in zro.c once
+long XOrder(void *a);                   // -1 on error
+void *XPower(void *a, int n);           // NULL on error
+int XSave(void *a, const char *fn);     // -1 on error
 
 
 
@@ -858,11 +864,12 @@ typedef struct {
     MatrixSetElement_t *List;
 } MatrixSet_t;
 
+// NULL or -1 on error, unless stated otherwise
 MatrixSet_t *MsAlloc();
 int MsClean(const MatrixSet_t *set, Matrix_t *mat);
 int MsCleanAndAppend(MatrixSet_t *set, Matrix_t *mat);
 int MsFree(MatrixSet_t *set);
-int MsIsValid(const MatrixSet_t *set);
+int MsIsValid(const MatrixSet_t *set);      // 0 on error
 
 
 
@@ -879,10 +886,11 @@ typedef struct
 
 #define MR_COPY_GENERATORS  0x0001
 
+// NULL or -1 on error, unless stated otherwise
 int MrAddGenerator(MatRep_t *rep, Matrix_t *gen, int flags);
 MatRep_t *MrAlloc(int ngen, Matrix_t **gen, int flags);
 int MrChangeBasis(MatRep_t *rep, const Matrix_t *trans);
-int MrIsValid(const MatRep_t *rep);
+int MrIsValid(const MatRep_t *rep);     // 0 on error
 int MrFree(MatRep_t *rep);
 MatRep_t *MrLoad(const char *basename, int ngen);
 int MrSave(const MatRep_t *rep, const char *basename);
@@ -896,19 +904,19 @@ MatRep_t *MrTransposed(const MatRep_t *rep);
 
 typedef struct
 {
-    const MatRep_t *Rep;	/**< The representation. **/
-    Matrix_t *Basis[8];		/**< Products of the generators **/
-    int N2[8];			/**< Coefficients **/
-    int *Description;		/**< Symbolic description of a word **/
+    const MatRep_t *Rep;    /**< The representation. **/
+    Matrix_t *Basis[8];     /**< Products of the generators **/
+    int N2[8];          /**< Coefficients **/
+    int *Description;       /**< Symbolic description of a word **/
 } WgData_t;
 
-
+// NULL or -1 on error, unless stated otherwise
 WgData_t *WgAlloc(const MatRep_t *rep);
-int *WgDescribeWord(WgData_t *b, long n);
+int *WgDescribeWord(WgData_t *b, long n);       // no error value
 int WgFree(WgData_t *b);
 Matrix_t *WgMakeWord(WgData_t *b, long n);
 void WgMakeFingerPrint(WgData_t *b, int fp[6]);
-const char *WgSymbolicName(WgData_t *b, long n);
+const char *WgSymbolicName(WgData_t *b, long n); // no error value
 
 
 
@@ -918,16 +926,17 @@ const char *WgSymbolicName(WgData_t *b, long n);
    Spin-up, Split, Quotients, etc.
    ------------------------------------------------------------------ */
 
-#define SF_FIRST	0x0001	/* Try only the first seed vector */
-#define SF_EACH		0x0002	/* Try each seed vector */
-#define SF_MAKE		0x0004	/* Try all 1-dimensional subspaces */
-#define SF_SUB		0x0010	/* Try until finding a proper subspace */
-#define SF_CYCLIC	0x0020	/* Try until finding a cyclic vector */
-#define SF_COMBINE	0x0040	/* Combine the spans */
-#define SF_SEED_MASK	0x000F
-#define SF_MODE_MASK	0x00F0
-#define SF_STD		0x0100	/* Spin up 'canonically' */
+#define SF_FIRST    0x0001  /* Try only the first seed vector */
+#define SF_EACH     0x0002  /* Try each seed vector */
+#define SF_MAKE     0x0004  /* Try all 1-dimensional subspaces */
+#define SF_SUB      0x0010  /* Try until finding a proper subspace */
+#define SF_CYCLIC   0x0020  /* Try until finding a cyclic vector */
+#define SF_COMBINE  0x0040  /* Combine the spans */
+#define SF_SEED_MASK    0x000F
+#define SF_MODE_MASK    0x00F0
+#define SF_STD      0x0100  /* Spin up 'canonically' */
 
+// NULL on error
 Matrix_t *QProjection(const Matrix_t *subspace, const Matrix_t *vectors);
 Matrix_t *QAction(const Matrix_t *sub, const Matrix_t *gen);
 Matrix_t *SAction(const Matrix_t *sub, const Matrix_t *gen);
@@ -939,13 +948,14 @@ typedef struct
     int Result;
 } SpinUpInfo_t;
 
+// -1 or NULL on error
 int SpinUpInfoInit(SpinUpInfo_t *info);
 Matrix_t *SpinUp(const Matrix_t *seed, const MatRep_t *rep, int flags,
     IntMatrix_t **script, SpinUpInfo_t *info);
 Matrix_t *SpinUpWithScript(const Matrix_t *seed, const MatRep_t *rep,
     const IntMatrix_t *script);
 int Split(Matrix_t *subspace, const MatRep_t *rep,
-	  MatRep_t **sub, MatRep_t **quot);
+      MatRep_t **sub, MatRep_t **quot);
 
 int ConvertSpinUpScript(IntMatrix_t *script);
 
@@ -957,7 +967,7 @@ Matrix_t *SpinUpWithPermutations(const Matrix_t *seed, int ngen,
    Seed vector generator
    ------------------------------------------------------------------ */
 
-long MakeSeedVector(const Matrix_t *basis, long lastno, PTR vec);
+long MakeSeedVector(const Matrix_t *basis, long lastno, PTR vec); // -1 on error
 
 
 
@@ -965,6 +975,7 @@ long MakeSeedVector(const Matrix_t *basis, long lastno, PTR vec);
    Miscellaneous algorithms
    ------------------------------------------------------------------ */
 
+// NULL or -1 on error
 Matrix_t *MatInsert_(Matrix_t *mat, const Poly_t *pol);
 Matrix_t *MatInsert(const Matrix_t *mat, const Poly_t *pol);
 int IsSubspace(const Matrix_t *sub, const Matrix_t *space, int ngen);
@@ -983,7 +994,7 @@ int StablePower_(Matrix_t *mat, int *pwr, Matrix_t **ker);
    Polynomial factorization (Berlekamp algorithm)
    ------------------------------------------------------------------ */
 
-FPoly_t *Factorization(const Poly_t *pol);
+FPoly_t *Factorization(const Poly_t *pol); // NULL on error
 
 
 
@@ -992,10 +1003,10 @@ FPoly_t *Factorization(const Poly_t *pol);
    ------------------------------------------------------------------ */
 
 extern long CharPolSeed;
-Poly_t *CharPolFactor(const Matrix_t *mat);
+Poly_t *CharPolFactor(const Matrix_t *mat);     // POTENTIAL error on return value NULL
 FPoly_t *CharPol(const Matrix_t *mat);
 Poly_t *MinPolFactor(Matrix_t *mat);
-FPoly_t *MinPol(Matrix_t *mat);
+FPoly_t *MinPol(Matrix_t *mat);                 // POTENTIAL error on return value NULL
 
 
 
@@ -1007,39 +1018,40 @@ FPoly_t *MinPol(Matrix_t *mat);
  ** @{
  **/
 
-#define MAXGEN 20	/* Max. number of generators */
-#define LAT_MAXCF 200	/* Max. number of composition factors */
-#define MAXCYCL 30000	/* Max. number of cyclic submodules */
-#define MAXDOTL 90000	/* Max. number of dotted lines */
-#define MAXNSUB 20000	/* Max. number of submodules */
+#define MAXGEN 20   /* Max. number of generators */
+#define LAT_MAXCF 200   /* Max. number of composition factors */
+#define MAXCYCL 30000   /* Max. number of cyclic submodules */
+#define MAXDOTL 90000   /* Max. number of dotted lines */
+#define MAXNSUB 20000   /* Max. number of submodules */
 #define LAT_MAXBASENAME 100
 
 typedef struct
 {
     long dim, num, mult;
-    long idword;		/**< Identifying word */
+    long idword;        /**< Identifying word */
     Poly_t *idpol;
-    long peakword;		/**< Peak word */
+    long peakword;      /**< Peak word */
     Poly_t *peakpol;
-    long nmount;		/**< Number of mountains */
-    long ndotl;			/**< Number of dotted lines */
-    long spl;			/**< Degree of splitting field */
+    long nmount;        /**< Number of mountains */
+    long ndotl;         /**< Number of dotted lines */
+    long spl;           /**< Degree of splitting field */
 }
 CfInfo;
 
 typedef struct
 {
-    char BaseName[LAT_MAXBASENAME];	/**< Base name */
-    int Field;				/**< Field order */
-    int NGen;				/**< Number of generators */
-    int NCf;				/**< Number of irred. constituents */
-    CfInfo Cf[LAT_MAXCF];		/**< Data for irred. constituents */
-    int NSocles;			/**< Loewy length */
-    int *Socle;				/**< Mult. of constituents in socles */
-    int NHeads;				/**< Number of radical layers */
-    int *Head;				/**< Mult. of constituents in Heads */
+    char BaseName[LAT_MAXBASENAME]; /**< Base name */
+    int Field;              /**< Field order */
+    int NGen;               /**< Number of generators */
+    int NCf;                /**< Number of irred. constituents */
+    CfInfo Cf[LAT_MAXCF];       /**< Data for irred. constituents */
+    int NSocles;            /**< Loewy length */
+    int *Socle;             /**< Mult. of constituents in socles */
+    int NHeads;             /**< Number of radical layers */
+    int *Head;              /**< Mult. of constituents in Heads */
 } Lat_Info;
 
+// -1 or NULL on error
 int Lat_ReadInfo(Lat_Info *li, const char *basename);
 int Lat_WriteInfo(const Lat_Info *li);
 const char *Lat_CfName(const Lat_Info *li, int cf);
@@ -1047,11 +1059,11 @@ int Lat_AddHead(Lat_Info *li, int *mult);
 int Lat_AddSocle(Lat_Info *li, int *mult);
 
 
-#define LAT_RG_INVERT		0x0001	/* Invert generators */
-#define LAT_RG_TRANSPOSE	0x0002	/* Transpose generators */
-#define LAT_RG_STD		0x0004	/* Use standard form */
+#define LAT_RG_INVERT       0x0001  /* Invert generators */
+#define LAT_RG_TRANSPOSE    0x0002  /* Transpose generators */
+#define LAT_RG_STD      0x0004  /* Use standard form */
 
-MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags);
+MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags);  // NULL on error
 
 /**
  ** @}
@@ -1072,15 +1084,15 @@ MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags);
 
 typedef struct
 {
-    char NameM[LAT_MAXBASENAME];	/**< Name of right factor */
-    char NameN[LAT_MAXBASENAME];	/**< Name of left factor */
-    int Dim;				/**< Dimension of condensed module */
-    int NCf;				/**< Number of relevant constituents */
-    int CfIndex[2][LAT_MAXCF];		/**< Constituent number */
+    char NameM[LAT_MAXBASENAME];    /**< Name of right factor */
+    char NameN[LAT_MAXBASENAME];    /**< Name of left factor */
+    int Dim;                /**< Dimension of condensed module */
+    int NCf;                /**< Number of relevant constituents */
+    int CfIndex[2][LAT_MAXCF];      /**< Constituent number */
 } TkData_t;
 
-int TK_ReadInfo(TkData_t *tki, const char *name);
-int TK_WriteInfo(TkData_t *tki, const char *name);
+int TK_ReadInfo(TkData_t *tki, const char *name);       // -1 on error
+int TK_WriteInfo(TkData_t *tki, const char *name);      // -1 on error
 
 
 
@@ -1095,8 +1107,8 @@ int TK_WriteInfo(TkData_t *tki, const char *name);
    Return codes
    ------------------------------------------------------------------ */
 
-#define	EXIT_OK		0	/* Exit code: normal end */
-#define EXIT_ERR	1	/*            error */
+#define EXIT_OK     0   /* Exit code: normal end */
+#define EXIT_ERR    1   /*            error */
 
 
 
@@ -1122,10 +1134,10 @@ Matrix_t *HomogeneousPart(MatRep_t *m, MatRep_t *s, Matrix_t *npw,
  **/
 typedef struct
 {
-    double PosX, PosY;		/* Position [0..1] */
-    unsigned long UserData;	/* User-defined attributes */
-    int Layer;			/* Layer number */
-    double Score;		/* Used in optimization */
+    double PosX, PosY;      /* Position [0..1] */
+    unsigned long UserData; /* User-defined attributes */
+    int Layer;          /* Layer number */
+    double Score;       /* Used in optimization */
     int ScoreCount;
 } LdNode_t;
 
@@ -1136,8 +1148,8 @@ typedef struct
 {
     int NNodes;
     LdNode_t *Nodes;
-    int *IsSub;		/* Incidence relation, <NNodes> * <NNodes> entries */
-    int *LayerNo;	/* Layer numbers */
+    int *IsSub;     /* Incidence relation, <NNodes> * <NNodes> entries */
+    int *LayerNo;   /* Layer numbers */
     int NLayers;
 } LdLattice_t;
 
@@ -1149,9 +1161,9 @@ int LdAddIncidence(LdLattice_t *lat, int sub, int sup);
 int LdSetPositions(LdLattice_t *l);
 
 int ChangeBasis(const Matrix_t *M, int ngen, const Matrix_t *gen[],
-	Matrix_t *newgen[]);
+    Matrix_t *newgen[]);
 
 
-#endif	/* !defined(_MEATAXE_H_) */
+#endif  /* !defined(_MEATAXE_H_) */
 
 

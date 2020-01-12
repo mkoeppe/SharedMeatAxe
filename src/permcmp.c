@@ -29,11 +29,9 @@ MTX_DEFINE_FILE_INFO
  ** different degrees, the permutations with the smaller degree is smaller.
  ** Otherwise, the result of the comparison is unspecified.
  **
- ** Note that the return value -1 does not necessarily mean that an error
- ** occurred.
  ** @param a Pointer to the first permutation.
  ** @param b Pointer to the second permutation.
- ** @return 0, if the matrices are equal, a nonzero value otherwise, -1 on error.
+ ** @return 0, if the matrices are equal, a nonzero value otherwise, -2 on error.
  **/
 
 int PermCompare(const Perm_t *a, const Perm_t *b)
@@ -44,22 +42,22 @@ int PermCompare(const Perm_t *a, const Perm_t *b)
        ------------------ */
     if (!PermIsValid(a) || !PermIsValid(b))
     {
-	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return -1;
+    MTX_ERROR1("%E",MTX_ERR_BADARG);
+    return -2;
     }
 
     /* Compare degrees
        --------------- */
     if ((i = a->Degree - b->Degree) != 0)
-	return i;
+    return i;
 
     /* Compare the entries
        ------------------- */
     i = memcmp(a->Data,b->Data,sizeof(long) * a->Degree);
     if (i < 0)
-	return -1;
+    return -1;
     else if (i > 0)
-	return 1;
+    return 1;
     return 0;
 }
 

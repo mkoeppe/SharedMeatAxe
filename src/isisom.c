@@ -27,43 +27,43 @@ static int CheckArgs(int ngen, Matrix_t  **gen1, const CfInfo *info1,
     for (j = 0; j < ngen; ++j)
     {
         if (!MatIsValid(gen1[j]) || !MatIsValid(gen2[j]))
-	    return -1;
-	if (gen1[j]->Nor != gen1[j]->Noc)
-	{
-	    MTX_ERROR1("gen1[%d]: Matrix not square",j);
-	    return -1;
-	}
-	if (gen2[j]->Nor != gen2[j]->Noc)
-	{
-	    MTX_ERROR1("gen2[%d]: Matrix not square",j);
-	    return -1;
-	}
-	if (gen1[j]->Field != gen1[0]->Field || gen1[j]->Nor != gen1[0]->Nor)
-	{
-	    MTX_ERROR1("gen1[%d]: Incompatible matrix",j);
-	    return -1;
-	}
-	if (gen2[j]->Field != gen1[0]->Field)
-	{
-	    MTX_ERROR1("gen2[%d]: Incompatible matrix",j);
-	    return -1;
-	}
+        return -1;
+    if (gen1[j]->Nor != gen1[j]->Noc)
+    {
+        MTX_ERROR1("gen1[%d]: Matrix not square",j);
+        return -1;
+    }
+    if (gen2[j]->Nor != gen2[j]->Noc)
+    {
+        MTX_ERROR1("gen2[%d]: Matrix not square",j);
+        return -1;
+    }
+    if (gen1[j]->Field != gen1[0]->Field || gen1[j]->Nor != gen1[0]->Nor)
+    {
+        MTX_ERROR1("gen1[%d]: Incompatible matrix",j);
+        return -1;
+    }
+    if (gen2[j]->Field != gen1[0]->Field)
+    {
+        MTX_ERROR1("gen2[%d]: Incompatible matrix",j);
+        return -1;
+    }
     }
 
     if (info1->dim != gen1[0]->Nor)
     {
-	MTX_ERROR("Inconsistent cfinfo data");
-	return -1;
+    MTX_ERROR("Inconsistent cfinfo data");
+    return -1;
     }
     if (use_pw && info1->peakword == 0)
     {
-	MTX_ERROR("No peak word available");
-	return -1;
+    MTX_ERROR("No peak word available");
+    return -1;
     }
     if (!use_pw && info1->idword == 0)
     {
-	MTX_ERROR("No id word available");
-	return -1;
+    MTX_ERROR("No id word available");
+    return -1;
     }
     return 0;
 }
@@ -82,7 +82,7 @@ static int CheckArgs(int ngen, Matrix_t  **gen1, const CfInfo *info1,
  ** @param trans
     Buffer for basis transformation matrix, or |NULL|.
  ** @param use_pw
-    If different from zero, use peak word instead of the identifying word 
+    If different from zero, use peak word instead of the identifying word
     (see below).
  ** @return
     1 if the representations are isomorphic, 0 if they are not isomorphic, and
@@ -92,20 +92,20 @@ static int CheckArgs(int ngen, Matrix_t  **gen1, const CfInfo *info1,
     |rep1| and |rep2| must be two matrix representations over the same field,
     and with the same number of generators. Furthermore,
     to compare the representations, the function needs an identifying word
-    for the first representation, i.e., the fields |info1->idword|, 
-    |info1->idpol| and |info1->spl| must be set, and the generators in 
+    for the first representation, i.e., the fields |info1->idword|,
+    |info1->idpol| and |info1->spl| must be set, and the generators in
     |rep1| must be in standard basis with respect to the identifying word.
     If |use_pw| is nonzero, the peak word is used instead of the idword.
-    In this case, |rep1| must of course be in standard basis with respect 
+    In this case, |rep1| must of course be in standard basis with respect
     to the peak word.
 
     If the representations are isomorphic, and |trans| is not |NULL|, the
     basis transformation which makes the second representation identical
-    to the first is stored into |*trans|. To be more precise, if $g_i$ is 
+    to the first is stored into |*trans|. To be more precise, if $g_i$ is
     the representation of the i-th generator in representation |rep1|,
-    $h_i$ in representation |rep2|, and $T$ the 
+    $h_i$ in representation |rep2|, and $T$ the
     matrix returned in |trans|, then $Th_i T^{-1}=g_i$.
- ** @see 
+ ** @see
  **/
 
 int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
@@ -118,12 +118,12 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
     int result;
 
     if (CheckArgs(rep1->NGen,rep1->Gen,info1,rep2->Gen,use_pw) != 0)
-	return -1;
- 
+    return -1;
+
     /* Check if the dimensions are equal
        --------------------------------- */
     if (rep1->Gen[0]->Nor != rep2->Gen[0]->Nor)
-	return 0;
+    return 0;
 
     /* Make the idword on representation 2
        ----------------------------------- */
@@ -134,9 +134,9 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
     WgFree(wg);
     seed = MatNullSpace__(m);
     if (seed->Nor != info1->spl)
-    {	
-	MatFree(seed);
-	return 0;
+    {
+    MatFree(seed);
+    return 0;
     }
 
     /* Make the standard basis
@@ -145,8 +145,8 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
     MatFree(seed);
     if (b->Nor != b->Noc)
     {
-	MatFree(b);
-	return 0;
+    MatFree(b);
+    return 0;
     }
 
     /* Compare generators
@@ -156,21 +156,23 @@ int IsIsomorphic(const MatRep_t *rep1, const CfInfo *info1,
      * by testing whether b*rep2_j == rep1_j*b
      * */
     g1 = MatAlloc(b->Field, b->Nor, b->Noc);
+    if (!g1) return -1;
     g2 = MatAlloc(b->Field, b->Nor, b->Noc);
+    if (!g2) { MatFree(g1); return -1; }
     size_t memsize = FfCurrentRowSize*b->Nor;
     for (j = 0, result = 0; result == 0 && j < rep2->NGen; ++j)
     {
-	MatMulStrassen(g2, b, rep2->Gen[j]);
-	MatMulStrassen(g1, rep1->Gen[j], b);
-	if (MatCompare(g1, g2) != 0)
-	    {   result = 1;
+    MatMulStrassen(g2, b, rep2->Gen[j]);
+    MatMulStrassen(g1, rep1->Gen[j], b);
+    if (MatCompare(g1, g2) != 0)
+        {   result = 1;
             break;
         }
-	memset(g1->Data, FF_ZERO, memsize);
+    memset(g1->Data, FF_ZERO, memsize);
     memset(g2->Data, FF_ZERO, memsize);
     }
 
-    /* Clean up 
+    /* Clean up
        -------- */
     if (trans != NULL && result == 0)
         *trans = b;

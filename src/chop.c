@@ -17,8 +17,8 @@
    Some constants
    -------------------------------------------------------------------------- */
 
-#define MAXTRIES 10000	    /* Number of tries before FindIdWord() fails */
-#define MAXFP	6	    /* Fingerprint size */
+#define MAXTRIES 10000      /* Number of tries before FindIdWord() fails */
+#define MAXFP   6       /* Fingerprint size */
 
 MTX_DEFINE_FILE_INFO
 
@@ -32,20 +32,20 @@ MTX_DEFINE_FILE_INFO
 typedef struct nodestruct
 {
     struct nodestruct *sub, *quot, *parent;
-    int dim, num;		/* Dimension and number */
-    MatRep_t *Rep;		/* Generators */
-    MatRep_t *TrRep;		/* Transposed generators */
-    long mult;			/* Multiplicity */
-    long spl;			/* Degree of splitting field */
-    long idword;		/* Word used for std basis */
-    Poly_t *idpol;		/* Polynomial "  "    "    */
-    Poly_t *f1, *f2;		/* characteristic Polynomial c=f1*f2*/
-    int fprint[MAXFP];		/* Fingerprint */
+    int dim, num;       /* Dimension and number */
+    MatRep_t *Rep;      /* Generators */
+    MatRep_t *TrRep;        /* Transposed generators */
+    long mult;          /* Multiplicity */
+    long spl;           /* Degree of splitting field */
+    long idword;        /* Word used for std basis */
+    Poly_t *idpol;      /* Polynomial "  "    "    */
+    Poly_t *f1, *f2;        /* characteristic Polynomial c=f1*f2*/
+    int fprint[MAXFP];      /* Fingerprint */
     Set_t *badwords;
-    Matrix_t *nsp, *nsptr;	/* Null space */
-    Matrix_t *subsp;		/* Subspace */
-    long ggt;			/* g.c.d. of nullities */
-    WgData_t *wg;		/* Used by the word generator */
+    Matrix_t *nsp, *nsptr;  /* Null space */
+    Matrix_t *subsp;        /* Subspace */
+    long ggt;           /* g.c.d. of nullities */
+    WgData_t *wg;       /* Used by the word generator */
     long wnum;
     Matrix_t *word;
 } node_t;
@@ -62,17 +62,17 @@ static int Chop(node_t *n);
    Global variables
    -------------------------------------------------------------------------- */
 
-node_t *root;		    /* Root node of the constituent tree */
-long opt_deglimit = -1;	    /* Max. degree of irred. polynomials */
-long opt_nullimit;	    /* Max nullity for exhaustive vector search */
+node_t *root;           /* Root node of the constituent tree */
+long opt_deglimit = -1;     /* Max. degree of irred. polynomials */
+long opt_nullimit;      /* Max nullity for exhaustive vector search */
 node_t *irred[LAT_MAXCF];   /* List of irred. constituents */
 long firstword = 1;
-int opt_G = 0;		    /* GAP output */
-int opt_i = 0;		    /* -i: read an existing .cfinfo file */
-Set_t *goodwords;	    /* List of `good' words */
-Lat_Info LI;		    /* Data for .cfinfo */
+int opt_G = 0;          /* GAP output */
+int opt_i = 0;          /* -i: read an existing .cfinfo file */
+Set_t *goodwords;       /* List of `good' words */
+Lat_Info LI;            /* Data for .cfinfo */
 
-static long stat_svsplit = 0;	/* Statistics */
+static long stat_svsplit = 0;   /* Statistics */
 static long stat_cpirred = 0;
 static long stat_nssplit = 0;
 static long stat_dlsplit = 0;
@@ -130,8 +130,8 @@ static node_t *CreateNode(MatRep_t *rep, node_t *parent)
     n->wg = WgAlloc(n->Rep);
     if (n->wg == NULL)
     {
-	MTX_ERROR("WgAlloc() failed");
-	return NULL;
+    MTX_ERROR("WgAlloc() failed");
+    return NULL;
     }
     n->wnum = -1;
     return n;
@@ -156,13 +156,13 @@ static void CleanUpNode(node_t *n, int complete)
 {
     if (complete && n->Rep != NULL)
     {
-	MrFree(n->Rep);
-	n->Rep = NULL;
+    MrFree(n->Rep);
+    n->Rep = NULL;
     }
     if (n->TrRep != NULL)
     {
-	MrFree(n->TrRep);
-	n->TrRep = NULL;
+    MrFree(n->TrRep);
+    n->TrRep = NULL;
     }
     MATFREE(n->subsp);
     if (n->wg != NULL) { WgFree(n->wg); n->wg = NULL; }
@@ -224,30 +224,30 @@ static int CreateRoot()
 
     if (opt_i)
     {
-	/* Try to get the number of generators from the cfinfo file.
-	   --------------------------------------------------------- */
-	sprintf(fn,"%s.cfinfo",LI.BaseName);
-	f = SysFopen(fn,FM_NOERROR|FM_READ);
-	if (f != NULL)
-	{
-	    Lat_Info info;
-    	    fclose(f);
-	    Lat_ReadInfo(&info,LI.BaseName);
-	    LI.NGen = info.NGen;
-	    if (info.NGen > MAXGEN)
-		MTX_ERROR1("Too many generators (max. %d -- "
-		    "configured in meataxe.h)",MAXGEN);
-	    MESSAGE(1,("Set number of generators = %d from %s\n",info.NGen,fn));
-	}
+    /* Try to get the number of generators from the cfinfo file.
+       --------------------------------------------------------- */
+    sprintf(fn,"%s.cfinfo",LI.BaseName);
+    f = SysFopen(fn,FM_NOERROR|FM_READ);
+    if (f != NULL)
+    {
+        Lat_Info info;
+            fclose(f);
+        Lat_ReadInfo(&info,LI.BaseName);
+        LI.NGen = info.NGen;
+        if (info.NGen > MAXGEN)
+        MTX_ERROR1("Too many generators (max. %d -- "
+            "configured in meataxe.h)",MAXGEN);
+        MESSAGE(1,("Set number of generators = %d from %s\n",info.NGen,fn));
+    }
     }
 
     rep = MrLoad(LI.BaseName,LI.NGen);
     LI.Field = FfOrder;
     if (rep == NULL)
-	return -1;
+    return -1;
     root = CreateNode(rep,NULL);
     if (root == NULL)
-	return -1;
+    return -1;
     return 0;
 }
 
@@ -261,9 +261,9 @@ static int IsBadWord(long w,node_t *n)
 
 {
     if (n == NULL)
-	return 0;
+    return 0;
     if (n->badwords != NULL && SetContains(n->badwords,w))
-	return 1;
+    return 1;
     return IsBadWord(w,n->parent);
 }
 
@@ -276,39 +276,39 @@ static int IsBadWord(long w,node_t *n)
 static void PrintCompositionSeries(node_t *n)
 
 {
-    static int count = 0;	/* Characters written in one line */
+    static int count = 0;   /* Characters written in one line */
     int i;
 
     if (n == NULL)
     {
-	MTX_ERROR1("n=NULL: %E",MTX_ERR_BADARG);
-	return;
+    MTX_ERROR1("n=NULL: %E",MTX_ERR_BADARG);
+    return;
     }
-    if (n->sub == NULL)		/* Irreducible */
+    if (n->sub == NULL)     /* Irreducible */
     {
-	if (count >= 20)
-	{
-	    printf("\n");
-	    count = 0;
-	}
-	for (i = 0; LI.Cf[i].dim != n->dim || LI.Cf[i].num != n->num; ++i);
-	if (opt_G)
-	    printf(count == 0 ? ",%d" : " %d",i+1);
-	else
-	    printf("%s ",Lat_CfName(&LI,i));
-	++count;
+    if (count >= 20)
+    {
+        printf("\n");
+        count = 0;
+    }
+    for (i = 0; LI.Cf[i].dim != n->dim || LI.Cf[i].num != n->num; ++i);
+    if (opt_G)
+        printf(count == 0 ? ",%d" : " %d",i+1);
+    else
+        printf("%s ",Lat_CfName(&LI,i));
+    ++count;
     }
     else
     {
-	PrintCompositionSeries(n->sub);
-	PrintCompositionSeries(n->quot);
+    PrintCompositionSeries(n->sub);
+    PrintCompositionSeries(n->quot);
     }
 }
 
 
 /* ------------------------------------------------------------------
    WriteResult() - Write some information to stdout and create the
-	.cfinfo file.
+    .cfinfo file.
    ------------------------------------------------------------------ */
 
 static void WriteResult(node_t *root)
@@ -317,19 +317,19 @@ static void WriteResult(node_t *root)
     int i, k;
 
     MESSAGE(0,("\n\nChopping completed: %d different composition"
-	" factors\n",LI.NCf));
+    " factors\n",LI.NCf));
 
     /* Write the cfinfo file
        --------------------- */
     MESSAGE(0,("Writing %s.cfinfo\n",LI.BaseName));
     for (i = 0; i < LI.NCf; ++i)
     {
-    	LI.Cf[i].dim = irred[i]->dim;
-	LI.Cf[i].num = irred[i]->num;
-	LI.Cf[i].mult = irred[i]->mult;
-	LI.Cf[i].spl = irred[i]->spl;
-	LI.Cf[i].idword = irred[i]->idword;
-	LI.Cf[i].idpol = irred[i]->idpol;
+        LI.Cf[i].dim = irred[i]->dim;
+    LI.Cf[i].num = irred[i]->num;
+    LI.Cf[i].mult = irred[i]->mult;
+    LI.Cf[i].spl = irred[i]->spl;
+    LI.Cf[i].idword = irred[i]->idword;
+    LI.Cf[i].idpol = irred[i]->idpol;
     }
     Lat_WriteInfo(&LI);
 
@@ -338,54 +338,54 @@ static void WriteResult(node_t *root)
        ------------------------- */
     if (opt_G)
     {
-	printf("MeatAxe.CompositionFactors := [\n");
-    	for (i = 0; i < LI.NCf; ++i)
-    	{
-	    printf("  [ \"%s\", %ld, %ld ]",Lat_CfName(&LI,i),
-	      irred[i]->mult,irred[i]->spl);
-	    if (i < LI.NCf-1) printf(",");
-	    printf("\n");
-	}
-	printf("\n];\n");
+    printf("MeatAxe.CompositionFactors := [\n");
+        for (i = 0; i < LI.NCf; ++i)
+        {
+        printf("  [ \"%s\", %ld, %ld ]",Lat_CfName(&LI,i),
+          irred[i]->mult,irred[i]->spl);
+        if (i < LI.NCf-1) printf(",");
+        printf("\n");
+    }
+    printf("\n];\n");
     }
     else if (MSG0)
     {
-    	printf("\nName   Mult  SF  Fingerprint\n");
-    	for (i = 0; i < LI.NCf; ++i)
-    	{
-	    printf("%-6s %4ld  %2ld  ",Lat_CfName(&LI,i),
-	      irred[i]->mult,irred[i]->spl);
-	    for (k = 0; k < MAXFP; ++k)
-		printf("%d%s",irred[i]->fprint[k],k==MAXFP-1?"\n":",");
-	}
+        printf("\nName   Mult  SF  Fingerprint\n");
+        for (i = 0; i < LI.NCf; ++i)
+        {
+        printf("%-6s %4ld  %2ld  ",Lat_CfName(&LI,i),
+          irred[i]->mult,irred[i]->spl);
+        for (k = 0; k < MAXFP; ++k)
+        printf("%d%s",irred[i]->fprint[k],k==MAXFP-1?"\n":",");
+    }
     }
 
     /* Write the composition series
        ---------------------------- */
     if (opt_G)
     {
-	printf("MeatAxe.CompositionSeries := [\n");
-    	PrintCompositionSeries(root);
-	printf("];\n");
+    printf("MeatAxe.CompositionSeries := [\n");
+        PrintCompositionSeries(root);
+    printf("];\n");
     }
     else if (MSG0)
     {
-	printf("\nAscending composition series:\n");
-    	PrintCompositionSeries(root);
-	printf("\n");
+    printf("\nAscending composition series:\n");
+        PrintCompositionSeries(root);
+    printf("\n");
     }
 
     /* Write statistics
        ---------------- */
     if (MSG2)
     {
-	printf("\nStatistics\n----------\n");
-	printf("Saved vectors split: %4ld\n",stat_svsplit);
-	printf("c(x) irreducible:    %4ld\n",stat_cpirred);
-	printf("Normal split:        %4ld\n",stat_nssplit);
-	printf("Dual split:          %4ld\n",stat_dlsplit);
-	printf("Exceptional split:   %4ld\n",stat_exsplit);
-	printf("Irreducible:         %4ld\n",stat_irred);
+    printf("\nStatistics\n----------\n");
+    printf("Saved vectors split: %4ld\n",stat_svsplit);
+    printf("c(x) irreducible:    %4ld\n",stat_cpirred);
+    printf("Normal split:        %4ld\n",stat_nssplit);
+    printf("Dual split:          %4ld\n",stat_dlsplit);
+    printf("Exceptional split:   %4ld\n",stat_exsplit);
+    printf("Irreducible:         %4ld\n",stat_irred);
     }
 }
 
@@ -413,7 +413,7 @@ static void splitnode(node_t *n, int tr)
     /* Split the module
        ---------------- */
     MESSAGE(0,("Split: Subspace=%d, Quotient=%d\n",
-	n->subsp->Nor,n->dim - n->subsp->Nor));
+    n->subsp->Nor,n->dim - n->subsp->Nor));
     Split(n->subsp,tr ? n->TrRep : n->Rep,&sub,&quot);
 
     /* If it was a dual split, subspace and quotient have been
@@ -422,17 +422,17 @@ static void splitnode(node_t *n, int tr)
        ---------------------------------------------------------- */
     if (tr)
     {
-	int i;
-	Matrix_t *x, *y;
-	for (i = 0; i < LI.NGen; ++i)
-	{
-	    x = MatTransposed(sub->Gen[i]);
-	    MatFree(sub->Gen[i]);
-	    y = MatTransposed(quot->Gen[i]);
-	    MatFree(quot->Gen[i]);
-	    sub->Gen[i] = y;
-	    quot->Gen[i] = x;
-	}
+    int i;
+    Matrix_t *x, *y;
+    for (i = 0; i < LI.NGen; ++i)
+    {
+        x = MatTransposed(sub->Gen[i]);
+        MatFree(sub->Gen[i]);
+        y = MatTransposed(quot->Gen[i]);
+        MatFree(quot->Gen[i]);
+        sub->Gen[i] = y;
+        quot->Gen[i] = x;
+    }
     }
 
     /* Make new nodes for subspace and quotient
@@ -443,7 +443,7 @@ static void splitnode(node_t *n, int tr)
     /* Project saved vectors on the quotient
        ------------------------------------- */
     if (!tr && n->nsp != NULL)
-	n->quot->nsp = QProjection(n->subsp,n->nsp);
+    n->quot->nsp = QProjection(n->subsp,n->nsp);
 
     /* Clean up
        -------- */
@@ -458,8 +458,8 @@ static void splitnode(node_t *n, int tr)
 
 /* ------------------------------------------------------------------
    extendbasis() - Find a vector in 'space' which is not in the
-	(linear) span of 'basis'. 'basis' must be linearly
-	independent.
+    (linear) span of 'basis'. 'basis' must be linearly
+    independent.
    ------------------------------------------------------------------ */
 
 static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
@@ -485,15 +485,15 @@ static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
        ---------------- */
     for (i = 0, x = tmp; i < dimb; FfStepPtr(&x), ++i)
     {
-	piv = FfFindPivot(x,&f);
-	if (piv == -1)
-	    MTX_ERROR("extendbasis(): zero vector in basis");
-	y = x;
-	for (j = i+1; j < dimb+dims; ++j)
-	{
-	    FfStepPtr(&y);
-	    FfAddMulRow(y,x,FfSub(FF_ZERO,FfDiv(FfExtract(y,piv),f)));
-	}
+    piv = FfFindPivot(x,&f);
+    if (piv == -1)
+        MTX_ERROR("extendbasis(): zero vector in basis");
+    y = x;
+    for (j = i+1; j < dimb+dims; ++j)
+    {
+        FfStepPtr(&y);
+        FfAddMulRow(y,x,FfSub(FF_ZERO,FfDiv(FfExtract(y,piv),f)));
+    }
     }
 
 
@@ -505,8 +505,8 @@ static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
     free(tmp);
     if (j > dims)
     {
-	MTX_ERROR("extendbasis() failed");
-	return NULL;
+    MTX_ERROR("extendbasis() failed");
+    return NULL;
     }
     return MatCutRows(space,j,1);
 }
@@ -521,15 +521,15 @@ static Matrix_t *extendbasis(Matrix_t *basis, Matrix_t *space)
    Returns 1 if [E:F]=dim(V) or zero otherwise.
    ------------------------------------------------------------------ */
 
-#define MAXENDO 10	/* Max. dimension of endomorphism ring */
+#define MAXENDO 10  /* Max. dimension of endomorphism ring */
 
 
 static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
 
 {
-    Matrix_t *sb1, *sb2;	/* Standard bases */
-    Matrix_t *g1[MAXGEN];	/* Generators in standard basis sb1 */
-    Matrix_t *g2[MAXGEN];	/* Generators in standard basis sb2 */
+    Matrix_t *sb1, *sb2;    /* Standard bases */
+    Matrix_t *g1[MAXGEN];   /* Generators in standard basis sb1 */
+    Matrix_t *g2[MAXGEN];   /* Generators in standard basis sb2 */
     MatRep_t *endo;
     int i, result = 0;
 
@@ -541,59 +541,59 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
     ChangeBasis(sb1,LI.NGen,(const Matrix_t **)rep->Gen,g1);
     endo = MrAlloc(0,NULL,0);
 
-    sb2 = NULL;	/* Mark as unused */
+    sb2 = NULL; /* Mark as unused */
     while (1)
     {
-	Matrix_t *v2, *subsp;
+    Matrix_t *v2, *subsp;
 
-	/* Spin up v1 under all endomorphisms found so far. If this
-	   yields the whole null-space, we know that the endomorphism
-	   ring has at least dimension dim(nsp).
-	   ---------------------------------------------------------- */
+    /* Spin up v1 under all endomorphisms found so far. If this
+       yields the whole null-space, we know that the endomorphism
+       ring has at least dimension dim(nsp).
+       ---------------------------------------------------------- */
         MESSAGE(3,("1st spin-up: nendo=%d\n",endo->NGen));
-	subsp = SpinUp(nsp,endo,SF_FIRST|SF_SUB,NULL,NULL);
-	MTX_VERIFY(subsp != NULL);
-	if (subsp->Nor == nsp->Nor)
-	{
-	    MatFree(subsp);
-	    result = 1;	/* Successfull! */
-	    break;
-	}
+    subsp = SpinUp(nsp,endo,SF_FIRST|SF_SUB,NULL,NULL);
+    MTX_VERIFY(subsp != NULL);
+    if (subsp->Nor == nsp->Nor)
+    {
+        MatFree(subsp);
+        result = 1; /* Successfull! */
+        break;
+    }
 
-	/* Take a vector which is not in span(v1)
-	   and make again the standard basis.
-	   --------------------------------------- */
+    /* Take a vector which is not in span(v1)
+       and make again the standard basis.
+       --------------------------------------- */
         MESSAGE(3,("1st spin-up not successful\n"));
-	if (sb2 != NULL)	/* Clean up first */
-	{
-	    int j;
-	    MatFree(sb2);
-	    for (j = 0; j < LI.NGen; ++j)
-		MatFree(g2[j]);
-	}
-	v2 = extendbasis(subsp,nsp);	/* Get vector */
-	MatFree(subsp);
-	sb2 = SpinUp(v2,rep,SF_FIRST|SF_CYCLIC|SF_STD,NULL,NULL);
-	MTX_VERIFY(sb2 != NULL && sb2->Nor == sb2->Noc);
-	MatFree(v2);
-	ChangeBasis(sb2,rep->NGen,(const Matrix_t **)rep->Gen,g2);
+    if (sb2 != NULL)    /* Clean up first */
+    {
+        int j;
+        MatFree(sb2);
+        for (j = 0; j < LI.NGen; ++j)
+        MatFree(g2[j]);
+    }
+    v2 = extendbasis(subsp,nsp);    /* Get vector */
+    MatFree(subsp);
+    sb2 = SpinUp(v2,rep,SF_FIRST|SF_CYCLIC|SF_STD,NULL,NULL);
+    MTX_VERIFY(sb2 != NULL && sb2->Nor == sb2->Noc);
+    MatFree(v2);
+    ChangeBasis(sb2,rep->NGen,(const Matrix_t **)rep->Gen,g2);
 
-	/* Compare the two representations. If they are different,
-	   we know that the splitting field degree must be smaller
-	   than dim(nsp).
-	   -------------------------------------------------------- */
-	result = 1;
-	for (i = 0; result != 0 && i < LI.NGen; ++i)
-	{
-	    if (MatCompare(g1[i],g2[i]) != 0)
-	        result = 0;
-	}
-	if (result == 0) break;	/* Not successfull */
+    /* Compare the two representations. If they are different,
+       we know that the splitting field degree must be smaller
+       than dim(nsp).
+       -------------------------------------------------------- */
+    result = 1;
+    for (i = 0; result != 0 && i < LI.NGen; ++i)
+    {
+        if (MatCompare(g1[i],g2[i]) != 0)
+            result = 0;
+    }
+    if (result == 0) break; /* Not successfull */
 
-	/* They are identical, i.e., we have found an endomorphism.
-	   Put it into the list and try the next vector.
-	   -------------------------------------------------------- */
-	MrAddGenerator(endo,MatMul(MatInverse(sb2),sb1),0);
+    /* They are identical, i.e., we have found an endomorphism.
+       Put it into the list and try the next vector.
+       -------------------------------------------------------- */
+    MrAddGenerator(endo,MatMul(MatInverse(sb2),sb1),0);
     }
 
     /* Clean up
@@ -602,7 +602,7 @@ static int checkspl(const MatRep_t *rep, Matrix_t *nsp)
     for (i = 0; i < LI.NGen; ++i) MatFree(g1[i]);
     if (sb2 != NULL)
     {
-	MatFree(sb2);
+    MatFree(sb2);
         for (i = 0; i < LI.NGen; ++i) MatFree(g2[i]);
     }
     MrFree(endo);
@@ -640,42 +640,42 @@ static int FindIdWord(node_t *n)
     MESSAGE(1,("Searching idword, dim=%d\n",n->dim));
     for (i = 1; count <= MAXTRIES; ++i)
     {
-	if (IsBadWord(i,n))
-	    continue;
+    if (IsBadWord(i,n))
+        continue;
 
-	/* Make the word and its characteristic polynomial
-	   ----------------------------------------------- */
-	MESSAGE(2,("  Word %ld  gcd=%ld\n",i,n->ggt));
-	MakeWord(n,i);
-	if (cpol != NULL) FpFree(cpol);
-	cpol = CharPol(n->word);
-	if (MSG3) FpPrint("  c(x)",cpol);
-	for (k = 0; k < (int) cpol->NFactors; ++k)
-	    n->ggt = gcd(n->ggt,cpol->Mult[k] * cpol->Factor[k]->Degree);
+    /* Make the word and its characteristic polynomial
+       ----------------------------------------------- */
+    MESSAGE(2,("  Word %ld  gcd=%ld\n",i,n->ggt));
+    MakeWord(n,i);
+    if (cpol != NULL) FpFree(cpol);
+    cpol = CharPol(n->word);
+    if (MSG3) FpPrint("  c(x)",cpol);
+    for (k = 0; k < (int) cpol->NFactors; ++k)
+        n->ggt = gcd(n->ggt,cpol->Mult[k] * cpol->Factor[k]->Degree);
 
-	/* Try all factors of c(x) with degree<=gcd
-	   ---------------------------------------- */
-	for (k = 0; k < (int) cpol->NFactors; ++k)
-	{
-	    if (cpol->Factor[k]->Degree > n->ggt)
-		continue;
-	    ++count;
-	    if (MSG3) PolPrint("  factor",cpol->Factor[k]);
-	    InsertWord(n,cpol->Factor[k]);
-	    MESSAGE(3,("  nsp=%d",n->nsp->Nor));
-	    n->ggt = gcd(n->ggt,n->nsp->Nor);
-	    if (n->nsp->Nor > n->ggt)
-		continue;
+    /* Try all factors of c(x) with degree<=gcd
+       ---------------------------------------- */
+    for (k = 0; k < (int) cpol->NFactors; ++k)
+    {
+        if (cpol->Factor[k]->Degree > n->ggt)
+        continue;
+        ++count;
+        if (MSG3) PolPrint("  factor",cpol->Factor[k]);
+        InsertWord(n,cpol->Factor[k]);
+        MESSAGE(3,("  nsp=%d",n->nsp->Nor));
+        n->ggt = gcd(n->ggt,n->nsp->Nor);
+        if (n->nsp->Nor > n->ggt)
+        continue;
 
-	    if (checkspl(n->Rep,n->nsp))
-	    {
-		MESSAGE(2,("  idword = %ld\n",i));
-		n->idword = i;
-		SetInsert(goodwords,i);
-		n->idpol = PolDup(cpol->Factor[k]);
-		return 0;
-	    }
-	}
+        if (checkspl(n->Rep,n->nsp))
+        {
+        MESSAGE(2,("  idword = %ld\n",i));
+        n->idword = i;
+        SetInsert(goodwords,i);
+        n->idpol = PolDup(cpol->Factor[k]);
+        return 0;
+        }
+    }
     }
 
     /* Failed...
@@ -690,9 +690,9 @@ static int FindIdWord(node_t *n)
 
 /* ------------------------------------------------------------------
    newirred() - Check if a given irreducible module is already
-	contained in the list of composition factors. If yes, return
-	the index. If not, insert the new irreducible and return its
-	index.
+    contained in the list of composition factors. If yes, return
+    the index. If not, insert the new irreducible and return its
+    index.
    ------------------------------------------------------------------ */
 
 static void newirred(node_t *n)
@@ -706,30 +706,30 @@ static void newirred(node_t *n)
     WgMakeFingerPrint(n->wg,n->fprint);
     for (i = 0; i < LI.NCf && n->dim >= irred[i]->dim; ++i)
     {
-	/* Compare dimensions and fingerprints
-	   ----------------------------------- */
-	if (n->dim != irred[i]->dim ||
-	    memcmp(n->fprint,irred[i]->fprint,sizeof(n->fprint)))
-	    continue;
+    /* Compare dimensions and fingerprints
+       ----------------------------------- */
+    if (n->dim != irred[i]->dim ||
+        memcmp(n->fprint,irred[i]->fprint,sizeof(n->fprint)))
+        continue;
 
-	if (IsIsomorphic(irred[i]->Rep,LI.Cf + i,n->Rep,NULL,0))
-	{
-	    ++irred[i]->mult;
-	    n->num = irred[i]->num;
-	    MESSAGE(0,("Irreducible (%s)\n",Lat_CfName(&LI,i)));
-	    CleanUpNode(n,0);
-	    return;
-	}
+    if (IsIsomorphic(irred[i]->Rep,LI.Cf + i,n->Rep,NULL,0))
+    {
+        ++irred[i]->mult;
+        n->num = irred[i]->num;
+        MESSAGE(0,("Irreducible (%s)\n",Lat_CfName(&LI,i)));
+        CleanUpNode(n,0);
+        return;
+    }
     }
 
     /* It's a new irreducible!
        ----------------------- */
     if (LI.NCf >= LAT_MAXCF)
-	MTX_ERROR("TOO MANY CONSTITUENTS");
+    MTX_ERROR("TOO MANY CONSTITUENTS");
     for (k = LI.NCf-1; k >= i; --k)
     {
-	irred[k+1] = irred[k];
-	LI.Cf[k+1] = LI.Cf[k];
+    irred[k+1] = irred[k];
+    LI.Cf[k+1] = LI.Cf[k];
     }
     irred[i] = n;
     ++LI.NCf;
@@ -737,9 +737,9 @@ static void newirred(node_t *n)
     /* Set the fields
        -------------- */
     if (i == 0 || irred[i]->dim != irred[i-1]->dim)
-	irred[i]->num = 0;
+    irred[i]->num = 0;
     else
-	irred[i]->num = irred[i-1]->num + 1;
+    irred[i]->num = irred[i-1]->num + 1;
     irred[i]->mult = 1;
     LI.Cf[i].dim = irred[i]->dim;  /* cfname() needs this */
     LI.Cf[i].num = irred[i]->num;
@@ -749,13 +749,13 @@ static void newirred(node_t *n)
        ----------------------------------- */
     MATFREE(n->nsp);
     if (n->idword == -1)
-	FindIdWord(n);
+    FindIdWord(n);
     else
     {
-	Matrix_t *m;
-    	n->word = WgMakeWord(n->wg,n->idword);
-    	m = MatInsert(n->word,irred[i]->idpol);
-    	n->nsp = MatNullSpace__(m);
+    Matrix_t *m;
+        n->word = WgMakeWord(n->wg,n->idword);
+        m = MatInsert(n->word,irred[i]->idpol);
+        n->nsp = MatNullSpace__(m);
     }
     LI.Cf[i].idword = n->idword;
     LI.Cf[i].idpol = n->idpol;
@@ -768,12 +768,12 @@ static void newirred(node_t *n)
     /* Write out the generators
        ------------------------ */
     if (irred[i]->spl > 1)
-	MESSAGE(1,("Splitting field has degree %ld\n",irred[i]->spl));
+    MESSAGE(1,("Splitting field has degree %ld\n",irred[i]->spl));
     for (k = 0; k < LI.NGen; ++k)
     {
-	char fn[200];
-	sprintf(fn,"%s%s.%d",LI.BaseName,Lat_CfName(&LI,i),k+1);
-   	MatSave(irred[i]->Rep->Gen[k],fn);
+    char fn[200];
+    sprintf(fn,"%s%s.%d",LI.BaseName,Lat_CfName(&LI,i),k+1);
+    MatSave(irred[i]->Rep->Gen[k],fn);
     }
     CleanUpNode(n,0);
 }
@@ -792,20 +792,20 @@ static int SplitWithSavedVectors(node_t *n)
     Matrix_t *span;
 
     if (n->nsp == NULL || n->nsp->Nor == 0)
-	return 0;
+    return 0;
     MESSAGE(1,("Trying saved vectors..."));
 
     if (n->subsp != NULL)
-	MatFree(n->subsp);
+    MatFree(n->subsp);
     n->subsp = NULL;
     span = SpinUp(n->nsp,n->Rep,SF_EACH|SF_SUB,NULL,NULL);
     if (span->Nor > 0 && span->Nor < span->Noc)
     {
-	n->subsp = span;
-	MESSAGE(1,("success\n"));
-	++stat_svsplit;
-	splitnode(n,0);
-	return 1;
+    n->subsp = span;
+    MESSAGE(1,("success\n"));
+    ++stat_svsplit;
+    splitnode(n,0);
+    return 1;
     }
 
     MatFree(span);
@@ -817,6 +817,7 @@ static int SplitWithSavedVectors(node_t *n)
 /* --------------------------------------------------------------------------
    polymap() - Calculate the image of a single vector -- or a set
    of vectors -- under p(A).
+   Return NULL on error.
    -------------------------------------------------------------------------- */
 
 Matrix_t *polymap(Matrix_t *v, Matrix_t *m, Poly_t *p)
@@ -826,19 +827,21 @@ Matrix_t *polymap(Matrix_t *v, Matrix_t *m, Poly_t *p)
     int i;
 
     result = MatAlloc(v->Field,v->Nor,v->Noc);
+    if (!result) return NULL;
     tmp = MatDup(v);
+    if (!tmp) return NULL;
     for (i = 0; i <= p->Degree; ++i)
     {
-	FEL f = p->Data[i];
-	PTR x = result->Data, y = tmp->Data;
-	long i;
-	for (i = v->Nor; i > 0; --i)
-	{
-	    FfAddMulRow(x,y,f);
-	    FfStepPtr(&x);
-	    FfStepPtr(&y);
-	}
-	MatMul(tmp,m);
+    FEL f = p->Data[i];
+    PTR x = result->Data, y = tmp->Data;
+    long i;
+    for (i = v->Nor; i > 0; --i)
+    {
+        FfAddMulRow(x,y,f);
+        FfStepPtr(&x);
+        FfStepPtr(&y);
+    }
+    MatMul(tmp,m);
     }
     MatFree(tmp);
     return result;
@@ -851,6 +854,7 @@ Matrix_t *polymap(Matrix_t *v, Matrix_t *m, Poly_t *p)
    make_kern() - Calculate a vector in the null-space of p(A). p(x)
    is assumed to be a factor of f1(x), i.e., p(x) must occur in the
    first cyclic subspace.
+   Return 1 on error an 0 on success.
    -------------------------------------------------------------------------- */
 
 static void make_kern(node_t *n, Poly_t *p)
@@ -865,12 +869,14 @@ static void make_kern(node_t *n, Poly_t *p)
     PolFree(f);
 
     if (n->nsp != NULL)
-	MatFree(n->nsp);
+    MatFree(n->nsp);
     seed = MatAlloc(FfOrder,1,n->dim);
+    if (!seed) return 1;
     FfInsert(seed->Data,CharPolSeed,FF_ONE);
     n->nsp = polymap(seed,n->word,cof);
     MatFree(seed);
     PolFree(cof);
+    return 0;
 }
 
 
@@ -879,7 +885,7 @@ static void make_kern(node_t *n, Poly_t *p)
    consider only the first cyclic subspace, so make_trkern() may not
    find a vector.
 
-   Returns 0 if a vector has been found, -1 else.
+   Returns 0 if a vector has been found, 1 on error, -1 else.
    ------------------------------------------------------------------ */
 
 int make_trkern(node_t *n, Poly_t *p)
@@ -892,15 +898,16 @@ int make_trkern(node_t *n, Poly_t *p)
     mt = MatTransposed(n->word);
     pt = CharPolFactor(mt);
     cof = PolDivMod(pt,p);
-    if (pt->Degree == -1)		/* Glueck gehabt! */
+    if (pt->Degree == -1)       /* Glueck gehabt! */
     {
-	Matrix_t *seed = MatAlloc(FfOrder,1,n->dim);
-    	FfInsert(seed->Data,CharPolSeed,FF_ONE);
-    	if (n->nsptr != NULL)
-	    MatFree(n->nsptr);
-    	n->nsptr = polymap(seed,mt,cof);
-	MatFree(seed);
-	result = 0;
+    Matrix_t *seed = MatAlloc(FfOrder,1,n->dim);
+    if (!seed) return 1;
+        FfInsert(seed->Data,CharPolSeed,FF_ONE);
+        if (n->nsptr != NULL)
+        MatFree(n->nsptr);
+        n->nsptr = polymap(seed,mt,cof);
+    MatFree(seed);
+    result = 0;
     }
     PolFree(cof);
     PolFree(pt);
@@ -930,20 +937,20 @@ static FPoly_t *make_f1(node_t *n)
        ------------------------------------------ */
     for (i = 0; i < cpol->NFactors; ++i)
     {
-    	for (k = i+1; k < (int)cpol->NFactors; ++k)
-    	{
-	    long val1 = cpol->Mult[i];
-	    long val2 = cpol->Mult[k];
-	    if (val1 > val2)
-	    {
-	    	Poly_t *p = cpol->Factor[i];
-	    	long e = cpol->Mult[i];
-	    	cpol->Factor[i] = cpol->Factor[k];
-	    	cpol->Mult[i] = cpol->Mult[k];
-	    	cpol->Factor[k] = p;
-	    	cpol->Mult[k] = e;
-	    }
-    	}
+        for (k = i+1; k < (int)cpol->NFactors; ++k)
+        {
+        long val1 = cpol->Mult[i];
+        long val2 = cpol->Mult[k];
+        if (val1 > val2)
+        {
+            Poly_t *p = cpol->Factor[i];
+            long e = cpol->Mult[i];
+            cpol->Factor[i] = cpol->Factor[k];
+            cpol->Mult[i] = cpol->Mult[k];
+            cpol->Factor[k] = p;
+            cpol->Mult[k] = e;
+        }
+        }
     }
     if (MSG3) FpPrint("  f1(x)",cpol);
     return cpol;
@@ -960,23 +967,23 @@ static FPoly_t *make_f1(node_t *n)
      The remaining factors are stored in <f2>.
    --------------------------------------------------------------------------- */
 
-static void make_f2(node_t *n)	/* Make f2 */
+static void make_f2(node_t *n)  /* Make f2 */
 {
     Poly_t *f;
 
     if (n->f2 != NULL)
-	return;
+    return;
     n->f2 = PolAlloc(n->f1->Field,0);
     while ((f = CharPolFactor(NULL)) != NULL)
     {
-	PolMul(n->f2,f);
-	PolFree(f);
+    PolMul(n->f2,f);
+    PolFree(f);
     }
     if (MSG3)
     {
-	FPoly_t *x = Factorization(n->f2);
-	FpPrint("  f2(x)",x);
-	FpFree(x);
+    FPoly_t *x = Factorization(n->f2);
+    FpPrint("  f2(x)",x);
+    FpFree(x);
     }
 }
 
@@ -998,14 +1005,14 @@ static int SplitWithNsp(node_t *n)
     sub = SpinUp(n->nsp,n->Rep,SF_FIRST|SF_SUB,NULL,NULL);
     if (sub->Nor > 0 && sub->Nor < sub->Noc)
     {
-	/* Module was split.
-	   ----------------- */
-	MESSAGE(3,("Success\n"));
-	n->subsp = sub;
-	++stat_nssplit;
-	SetInsert(goodwords,n->wnum);
-	splitnode(n,0);
-	return 1;
+    /* Module was split.
+       ----------------- */
+    MESSAGE(3,("Success\n"));
+    n->subsp = sub;
+    ++stat_nssplit;
+    SetInsert(goodwords,n->wnum);
+    splitnode(n,0);
+    return 1;
     }
     MatFree(sub);
     MESSAGE(3,("Failed\n"));
@@ -1024,18 +1031,18 @@ static int PolMultiplicity(const Poly_t *factor, const Poly_t *pol)
     int done = 0;
     while (!done)
     {
-	Poly_t *q = PolDivMod(f2,factor);
-	if (f2->Degree == -1)
-	{
-	    ++mult;
-	    PolFree(f2);
-	    f2 = q;
-	}
-	else
-	{
-	    PolFree(q);
-	    done = 1;
-	}
+    Poly_t *q = PolDivMod(f2,factor);
+    if (f2->Degree == -1)
+    {
+        ++mult;
+        PolFree(f2);
+        f2 = q;
+    }
+    else
+    {
+        PolFree(q);
+        done = 1;
+    }
     }
     return mult;
 }
@@ -1060,15 +1067,15 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
        ------------- */
     make_kern(n,pol);
     if (SplitWithNsp(n))
-	return 1;
+    return 1;
 
     /* Now find out if we can prove irreducibility with Norton's
        criterion. We need that the factor we just tried occurs
        with multiplicity 1 in the characteristic polynomial, c(x).
        ----------------------------------------------------------- */
     if (n->f2 == NULL)
-	make_f2(n);
-    mult = PolMultiplicity(pol,n->f2) + vfh;	/* Multiplicity in c(x) */
+    make_f2(n);
+    mult = PolMultiplicity(pol,n->f2) + vfh;    /* Multiplicity in c(x) */
 
     /* If the multiplicity is not one, we can still prove irreducibility,
        but we must spin up every vector in the null-space of p(A). We do
@@ -1076,55 +1083,55 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
        ------------------------------------------------------------------ */
     if (mult > 1)
     {
-	if (mult * pol->Degree > opt_nullimit)
-	{
-	    chkirred = 0;
-	    MESSAGE(3,("Cannot check for irreducibility, null-space=%d\n",
-		mult * pol->Degree));
-	}
-	else
-	{
-	    /* Spin up all vectors */
-	    MatFree(n->nsp);
-	    n->nsp = MatNullSpace__(MatInsert(n->word,pol));
-	    MATFREE(n->subsp);
-	    MESSAGE(3,("2nd spin-up, null-space = %d\n",n->nsp->Nor));
-	    sub = SpinUp(n->nsp,n->Rep,SF_MAKE|SF_SUB,NULL,NULL);
-	    if (sub->Nor > 0 && sub->Nor < sub->Noc)
-	    {
-		/* Module was split */
-		n->subsp = sub;
-		++stat_nssplit;
-		SetInsert(goodwords,n->wnum);
-		splitnode(n,0);
-		return 1;
-	    }
-	}
+    if (mult * pol->Degree > opt_nullimit)
+    {
+        chkirred = 0;
+        MESSAGE(3,("Cannot check for irreducibility, null-space=%d\n",
+        mult * pol->Degree));
+    }
+    else
+    {
+        /* Spin up all vectors */
+        MatFree(n->nsp);
+        n->nsp = MatNullSpace__(MatInsert(n->word,pol));
+        MATFREE(n->subsp);
+        MESSAGE(3,("2nd spin-up, null-space = %d\n",n->nsp->Nor));
+        sub = SpinUp(n->nsp,n->Rep,SF_MAKE|SF_SUB,NULL,NULL);
+        if (sub->Nor > 0 && sub->Nor < sub->Noc)
+        {
+        /* Module was split */
+        n->subsp = sub;
+        ++stat_nssplit;
+        SetInsert(goodwords,n->wnum);
+        splitnode(n,0);
+        return 1;
+        }
+    }
     }
 
     /* Not split, try dual split
        ------------------------- */
     if (make_trkern(n,pol) != 0)
     {
-	MESSAGE(3,("No seed vector found, dual split skipped\n"));
-	return 0;
+    MESSAGE(3,("No seed vector found, dual split skipped\n"));
+    return 0;
     }
     MESSAGE(3,("Try dual split..."));
-    if (n->TrRep == NULL)	/* Transpose generators */
-	n->TrRep = MrTransposed(n->Rep);
+    if (n->TrRep == NULL)   /* Transpose generators */
+    n->TrRep = MrTransposed(n->Rep);
     sub = SpinUp(n->nsptr,n->TrRep,SF_FIRST|SF_SUB,NULL,NULL);
     if (sub->Nor > 0 && sub->Nor < sub->Noc)
     {
-	MESSAGE(3,("Success!\n"));
-	n->subsp = sub;
-	++stat_dlsplit;
-	splitnode(n,1);
-	return 1;
+    MESSAGE(3,("Success!\n"));
+    n->subsp = sub;
+    ++stat_dlsplit;
+    splitnode(n,1);
+    return 1;
     }
     MatFree(sub);
     MESSAGE(3,("Failed\n"));
     if (!chkirred)
-	return 0;
+    return 0;
 
     /* The module is irreducible!
        -------------------------- */
@@ -1146,7 +1153,7 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
      <factor>: Index of the factor to try
 
    Return:
-     1 = success (module was split), 0 = failed
+     1 = success (module was split), 0 = failed, -1 = error
 
    Description:
      This function is called from <try_exceptional()> for each irreducible
@@ -1163,16 +1170,16 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
 
     if (MSG3)
     {
-	printf("Trying factor (");
-	PolPrint(NULL,cpf->Factor[factor]);
-	printf(")^%d\n",cpf->Mult[factor]);
+    printf("Trying factor (");
+    PolPrint(NULL,cpf->Factor[factor]);
+    printf(")^%d\n",cpf->Mult[factor]);
     }
 
     /* Calculate p(x) = maximal power of the irred factor in c(x)
        ---------------------------------------------------------- */
     p = PolDup(cpf->Factor[factor]);
     for (k = 1; k < cpf->Mult[factor]; ++k)
-	PolMul(p,cpf->Factor[factor]);
+    PolMul(p,cpf->Factor[factor]);
 
     /* Calculate the complement q(x) with q(x)p(x)=c(x)
        ------------------------------------------------ */
@@ -1201,6 +1208,7 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
     rndword = n->wnum + MtxRandomInt(42);
     MESSAGE(3,("Choosing random word %ld\n",rndword));
     B = WgMakeWord(n->wg,rndword);
+    if (!B) return -1;
 /* OLD
     MatMul(B,iA);
     MatMul(iA,B);
@@ -1217,14 +1225,38 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
        ----------------------------------------------------- */
     MESSAGE(3,("Choosing random vector\n"));
     v = MatAlloc(B->Field,1,B->Noc);
+    if (!v) return -1;
     for (k = 0; k < v->Noc; ++k)
-	FfInsert(v->Data,k,FfFromInt(MtxRandomInt(FfOrder)));
+    FfInsert(v->Data,k,FfFromInt(MtxRandomInt(FfOrder)));
 
 
     v1 = MatDup(v);
-    MatMul(MatMul(MatMul(MatMul(v,n->word),iA),B),iA);
-    MatMul(MatMul(MatMul(MatMul(v1,iA),B),iA),B);
-    MatAddMul(v,v1,FfNeg(FF_ONE));
+    if (!v1)
+        {
+          MatFree(iA);
+          MatFree(B);
+          return -1;
+        }
+
+    if (!MatMul(MatMul(MatMul(MatMul(v,n->word),iA),B),iA))
+        { MatFree(v1);
+          MatFree(iA);
+          MatFree(B);
+          return -1;
+        }
+    if (!MatMul(MatMul(MatMul(MatMul(v1,iA),B),iA),B))
+        { MatFree(v1);
+          MatFree(iA);
+          MatFree(B);
+          return -1;
+        }
+
+    if (!MatAddMul(v,v1,FfNeg(FF_ONE)))
+        { MatFree(v1);
+          MatFree(iA);
+          MatFree(B);
+          return -1;
+        }
     MatFree(v1);
     MatFree(iA);
 /* OLD
@@ -1236,15 +1268,15 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
        ----------------------------- */
     MESSAGE(3,("Spinning up:"));
     if (n->subsp != NULL)
-	MatFree(n->subsp);
+    MatFree(n->subsp);
     n->subsp = SpinUp(v,n->Rep,SF_FIRST|SF_SUB,NULL,NULL);
     MatFree(v);
     if (n->subsp->Nor > 0 && n->subsp->Nor < n->subsp->Noc)
     {
-	MESSAGE(3,("SUCCESS!\n"));
-	++stat_exsplit;
-    	splitnode(n,0);
-	return 1;
+    MESSAGE(3,("SUCCESS!\n"));
+    ++stat_exsplit;
+        splitnode(n,0);
+    return 1;
     }
     MESSAGE(3,("failed\n"));
     return 0;
@@ -1288,9 +1320,9 @@ static int try_exceptional(node_t *n)
        ------------------------------ */
     for (factor = 0; factor < (int)cpf->NFactors && !success; ++factor)
     {
-	if (cpf->Factor[factor]->Degree < 2)
-	    continue;
-	success = try_ex_factor(n,cp,cpf,factor);
+    if (cpf->Factor[factor]->Degree < 2)
+        continue;
+    success = try_ex_factor(n,cp,cpf,factor);
     }
 
     FpFree(cpf);
@@ -1309,43 +1341,43 @@ static int try_exceptional(node_t *n)
 static int ChopWithWord(node_t *n, long wn, int try_ex)
 
 {
-    long dlimit = opt_deglimit;		/* Limit on degree */
+    long dlimit = opt_deglimit;     /* Limit on degree */
     int pi, done;
     FPoly_t *cpol;
 
     MESSAGE(2,("Next word is %ld (=%s)\n",wn,WgSymbolicName(n->wg,wn)));
-    CharPolSeed = (CharPolSeed + 2) % n->dim;	/* BUG: '+2' for 2.3 compat. */
+    CharPolSeed = (CharPolSeed + 2) % n->dim;   /* BUG: '+2' for 2.3 compat. */
     MakeWord(n,wn);
-    cpol = make_f1(n);		/* Make first part of c(x) */
+    cpol = make_f1(n);      /* Make first part of c(x) */
 
     /* If c(x) is irreducible, then the module is irreducible
        ------------------------------------------------------ */
     if (cpol->Factor[0]->Degree == n->dim)
     {
-	MESSAGE(2,("c(x) is irreducible\n"));
-	newirred(n);
-	++stat_cpirred;
-	SetInsert(goodwords,wn);
-	FpFree(cpol);
-	return 1;
+    MESSAGE(2,("c(x) is irreducible\n"));
+    newirred(n);
+    ++stat_cpirred;
+    SetInsert(goodwords,wn);
+    FpFree(cpol);
+    return 1;
     }
 
     /* Try all factors of c(x)
        ----------------------- */
     for (done = pi = 0; !done && pi < (int) cpol->NFactors; ++pi)
     {
-	if (MSG3) {
-	    printf("Next factor: ");
-	    PolPrint(NULL,cpol->Factor[pi]);
-	    printf("^%d\n",cpol->Mult[pi]);
-	}
-	if (dlimit > 0 && cpol->Factor[pi]->Degree > dlimit)
-	{
-	   MESSAGE(3,("deg > %ld -- discarded\n",dlimit));
-	   continue;
-	}
-	done = try_poly(n,cpol->Factor[pi],cpol->Mult[pi]);
-	MESSAGE(3,("try_poly()=%d\n",done));
+    if (MSG3) {
+        printf("Next factor: ");
+        PolPrint(NULL,cpol->Factor[pi]);
+        printf("^%d\n",cpol->Mult[pi]);
+    }
+    if (dlimit > 0 && cpol->Factor[pi]->Degree > dlimit)
+    {
+       MESSAGE(3,("deg > %ld -- discarded\n",dlimit));
+       continue;
+    }
+    done = try_poly(n,cpol->Factor[pi],cpol->Mult[pi]);
+    MESSAGE(3,("try_poly()=%d\n",done));
 
     }
     FpFree(cpol);
@@ -1373,7 +1405,7 @@ static int IsLinear(node_t *n)
 
 {
     if (n->dim > 1)
-	return 0;
+    return 0;
     MESSAGE(1,("Dimension is one -- irreducible!\n"));
     newirred(n);
     ++stat_irred;
@@ -1394,17 +1426,17 @@ static int Chop(node_t *n)
 
     if (n == NULL)
     {
-	MTX_ERROR1("node=NULL: %E",MTX_ERR_BADARG);
-	return -1;
+    MTX_ERROR1("node=NULL: %E",MTX_ERR_BADARG);
+    return -1;
     }
     MESSAGE(0,("Chop: Dim=%d\n",n->dim));
 
     /* Some special cases first: 1-dimensional, saved vectors.
        ------------------------------------------------------- */
     if (IsLinear(n))
-	return 0;
+    return 0;
     if (SplitWithSavedVectors(n))
-	return 0;
+    return 0;
 
     /* Try words. First, we try all known 'good' words (w=0,-1,-2,...),
        then all words (w=1,2,...). Known 'bad' words are always skipped.
@@ -1412,23 +1444,23 @@ static int Chop(node_t *n)
     MESSAGE(1,("Trying words\n"));
     for (count = 0, w = 0; count < 10000000; ++count)
     {
-	long i;
-	if ((w <= 0) && (int)-w < goodwords->Size)
-	    i = goodwords->Data[(int) -(w--)];
-	else
-	{
-	    if (w <= 0)
-		w = i = firstword;	/* Start with word 1 */
-	    else
-		i = ++w;
-	    if (SetContains(goodwords,w))  /* Do not try again */
-		continue;
-	}
-	if (IsBadWord(i,n))
-	    continue;
-	if (ChopWithWord(n,i,count > 10))
-	    break;
-	SetInsert(n->badwords,i);
+    long i;
+    if ((w <= 0) && (int)-w < goodwords->Size)
+        i = goodwords->Data[(int) -(w--)];
+    else
+    {
+        if (w <= 0)
+        w = i = firstword;  /* Start with word 1 */
+        else
+        i = ++w;
+        if (SetContains(goodwords,w))  /* Do not try again */
+        continue;
+    }
+    if (IsBadWord(i,n))
+        continue;
+    if (ChopWithWord(n,i,count > 10))
+        break;
+    SetInsert(n->badwords,i);
     }
     return 0;
 }
@@ -1441,7 +1473,7 @@ static int Init(int argc, const char **argv)
     goodwords = SetAlloc();
     memset(&LI,0,sizeof(Lat_Info));
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
 
     /* Parse command line.
        ------------------- */
@@ -1452,7 +1484,7 @@ static int Init(int argc, const char **argv)
     opt_deglimit = AppGetIntOption(App,"-d",-1,-1,100);
     opt_nullimit = AppGetIntOption(App,"-n",FfOrder > 10 ? 2 : 3,1,20);
     if (AppGetArguments(App,1,1) != 1)
-	return -1;
+    return -1;
     strcpy(LI.BaseName,App->ArgV[0]);
     return 0;
 }
@@ -1462,7 +1494,7 @@ static void Cleanup()
 
 {
     if (App != NULL)
-	AppFree(App);
+    AppFree(App);
 }
 
 
@@ -1477,8 +1509,8 @@ int main(int argc, const char **argv)
 
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
 
     /* Chop the module
@@ -1486,8 +1518,8 @@ int main(int argc, const char **argv)
     MESSAGE(0,("*** CHOP MODULE ***\n\n"));
     if (CreateRoot() != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
     Chop(root);
 

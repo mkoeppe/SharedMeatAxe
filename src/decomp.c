@@ -46,16 +46,16 @@ MTX_COMMON_OPTIONS_DESCRIPTION
 static MtxApplication_t *App = NULL;
 static const char *ModName = NULL;
 static const char *EndoName = NULL;
-static Lat_Info ModInfo;		/* Data from .cfinfo file */
-static Lat_Info LrrInfo;		/* Data from .cfinfo file */
+static Lat_Info ModInfo;        /* Data from .cfinfo file */
+static Lat_Info LrrInfo;        /* Data from .cfinfo file */
 static int moddim = 0;
 static int enddim = 0;
 static int headdim = 0;
 static int compdim[LAT_MAXCF];
 static char compnm[LAT_MAXCF];
 static Matrix_t *head = NULL;
-static int TransformGenerators = 0;	/* -t: Transform into decomp. basis */
-static int WriteAction = 0;		/* -a: Write action on components */
+static int TransformGenerators = 0; /* -t: Transform into decomp. basis */
+static int WriteAction = 0;     /* -a: Write action on components */
 
 static int ParseArgs()
 
@@ -63,7 +63,7 @@ static int ParseArgs()
     TransformGenerators = AppGetOption(App,"-t");
     WriteAction = AppGetOption(App,"-a");
     if (AppGetArguments(App,2,2) < 0)
-	return -1;
+    return -1;
     ModName = App->ArgV[0];
     EndoName = App->ArgV[1];
     return 0;
@@ -86,19 +86,19 @@ static int ReadFiles()
         return -1;
     moddim = 0;
     for (i = 0; i < ModInfo.NCf; ++i)
-	moddim += ModInfo.Cf[i].dim * ModInfo.Cf[i].mult;
+    moddim += ModInfo.Cf[i].dim * ModInfo.Cf[i].mult;
 
     enddim = headdim = 0;
     for (i = 0; i < LrrInfo.NCf; i++)
     {
-	enddim += LrrInfo.Cf[i].dim * LrrInfo.Cf[i].mult;
-	headdim += LrrInfo.Cf[i].dim * LrrInfo.Cf[i].dim / LrrInfo.Cf[i].spl;
+    enddim += LrrInfo.Cf[i].dim * LrrInfo.Cf[i].mult;
+    headdim += LrrInfo.Cf[i].dim * LrrInfo.Cf[i].dim / LrrInfo.Cf[i].spl;
     }
     if (headdim > enddim || headdim <= 0)
     {
-	MTX_ERROR2("The head (%d) is bigger than the ring itself (%d)!",
-		headdim,enddim);
-	return -1;
+    MTX_ERROR2("The head (%d) is bigger than the ring itself (%d)!",
+        headdim,enddim);
+    return -1;
     }
     MESSAGE(1,("dim(M)=%d, dim(E)=%d, dim(Head)=%d\n",moddim,enddim,headdim));
 
@@ -107,7 +107,7 @@ static int ReadFiles()
     sprintf(fn,"%s.lrr.soc",EndoName);
     MESSAGE(1,("Loading socle basis\n"));
     if ((tmp = MatLoad(fn)) == NULL)
-	return -1;
+    return -1;
     tmp2 = MatInverse(tmp);
     MatFree(tmp);
     tmp = MatTransposed(tmp2);
@@ -160,25 +160,25 @@ static int WriteOutput(Matrix_t *bas)
        ------------------------- */
     if (TransformGenerators || WriteAction)
     {
-	MESSAGE(1,("Transforming the generators\n"));
-	sprintf(name,"%s.std",ModName);
-	rep = MrLoad(name,ModInfo.NGen);
-	if (rep == NULL)
-	{
-	    MTX_ERROR("Cannot load generators");
-	    return 1;
-	}
-	if (MrChangeBasis(rep,bas) != 0)
-	{
-	    MTX_ERROR("Error changing basis");
-	    return 1;
-	}
-	if (TransformGenerators)
-	{
-	    sprintf(name,"%s.dec",ModName);
-	    MESSAGE(1,("Writing transformed generators (%s.1, ...)\n",name));
-	    MrSave(rep,name);
-	}
+    MESSAGE(1,("Transforming the generators\n"));
+    sprintf(name,"%s.std",ModName);
+    rep = MrLoad(name,ModInfo.NGen);
+    if (rep == NULL)
+    {
+        MTX_ERROR("Cannot load generators");
+        return 1;
+    }
+    if (MrChangeBasis(rep,bas) != 0)
+    {
+        MTX_ERROR("Error changing basis");
+        return 1;
+    }
+    if (TransformGenerators)
+    {
+        sprintf(name,"%s.dec",ModName);
+        MESSAGE(1,("Writing transformed generators (%s.1, ...)\n",name));
+        MrSave(rep,name);
+    }
     }
 
 
@@ -186,25 +186,25 @@ static int WriteOutput(Matrix_t *bas)
        ---------------------------------------------------------- */
     if (WriteAction)
     {
-	MESSAGE(1,("Writing the action on the direct summands\n"));
-	for (i = 0; i < rep->NGen; i++)
-	{
-	    int k, block_start = 0;
-	    for (k = 0; k < LrrInfo.NCf; k++)
-	    {
-		int l;
-		for (l = 0; l < LrrInfo.Cf[k].dim / LrrInfo.Cf[k].spl; l++)
-		{
-		    Matrix_t *tmp = MatCut(rep->Gen[i],block_start,block_start,
-			compdim[k],compdim[k]);
-		    block_start += compdim[k];
-		    sprintf(name, "%s.comp%d%c%d.%d", ModName,compdim[k],
-			compnm[k],l+1,i+1);
-		    MatSave(tmp, name);
-		    MatFree(tmp);
-		}
-	    }
-	}
+    MESSAGE(1,("Writing the action on the direct summands\n"));
+    for (i = 0; i < rep->NGen; i++)
+    {
+        int k, block_start = 0;
+        for (k = 0; k < LrrInfo.NCf; k++)
+        {
+        int l;
+        for (l = 0; l < LrrInfo.Cf[k].dim / LrrInfo.Cf[k].spl; l++)
+        {
+            Matrix_t *tmp = MatCut(rep->Gen[i],block_start,block_start,
+            compdim[k],compdim[k]);
+            block_start += compdim[k];
+            sprintf(name, "%s.comp%d%c%d.%d", ModName,compdim[k],
+            compnm[k],l+1,i+1);
+            MatSave(tmp, name);
+            MatFree(tmp);
+        }
+        }
+    }
     }
 
     return 0;
@@ -234,79 +234,84 @@ int main(int argc, const char **argv)
    ------------------------------------------------------- */
 
     bas = MatAlloc(FfOrder,moddim,moddim);
+    if (!bas) return 1;
     headptr = head->Data;
     for (i = 0; i < LrrInfo.NCf; i++)
     {
-	MESSAGE(1,("Next constituent is %s%s\n",LrrInfo.BaseName,
-	    Lat_CfName(&LrrInfo,i)));
-	for (j = 0; j < LrrInfo.Cf[i].dim / LrrInfo.Cf[i].spl; j++)
-	{
-	    num = LrrInfo.Cf[i].dim;
-	    do
-	    {
-		if (partbas != NULL)
-		    MatFree(partbas);
-		partbas = MatAlloc(FfOrder, moddim, moddim);
-		if (num-- == 0)
-		{
-		    MTX_ERROR("na, most mi van?");
-		    return 1;
-		}
-		for (l = 0; l < enddim; l++)
-		{
-		    if ((f = FfExtract(headptr, l)) == FF_ZERO)
-		    	continue;
-		    sprintf(name, "%s.%d", EndoName, l+1);
-		    if ((mat = MatLoad(name)) == NULL)
-			return 1;
-		    MatAddMul(partbas,mat,f);
-		    MatFree(mat);
-		}
-		FfSetNoc(enddim);
-		FfStepPtr(&headptr);
+    MESSAGE(1,("Next constituent is %s%s\n",LrrInfo.BaseName,
+        Lat_CfName(&LrrInfo,i)));
+    for (j = 0; j < LrrInfo.Cf[i].dim / LrrInfo.Cf[i].spl; j++)
+    {
+        num = LrrInfo.Cf[i].dim;
+        do
+        {
+        if (partbas != NULL)
+            MatFree(partbas);
+        partbas = MatAlloc(FfOrder, moddim, moddim);
+        if (!partbas)
+        { MatFree(bas);
+          return 1;
+        }
+        if (num-- == 0)
+        {
+            MTX_ERROR("na, most mi van?");
+            return 1;
+        }
+        for (l = 0; l < enddim; l++)
+        {
+            if ((f = FfExtract(headptr, l)) == FF_ZERO)
+                continue;
+            sprintf(name, "%s.%d", EndoName, l+1);
+            if ((mat = MatLoad(name)) == NULL)
+            return 1;
+            MatAddMul(partbas,mat,f);
+            MatFree(mat);
+        }
+        FfSetNoc(enddim);
+        FfStepPtr(&headptr);
 
-		if (pol != NULL)
-		    FpFree(pol);
-		pol = CharPol(partbas);
-	    }
-	    while (LrrInfo.Cf[i].dim != 1 && pol->NFactors == 1
-		&& pol->Factor[0]->Degree == 1 && pol->Factor[0]->Data[0] == 0
-		&& pol->Factor[0]->Data[1] == 1); /* i.e.,charpol == x^enddim */
-	    FfSetNoc(enddim);
-	    headptr = FfGetPtr(headptr,num);
+        if (pol != NULL)
+            FpFree(pol);
+        pol = CharPol(partbas);
+        }
+        while (LrrInfo.Cf[i].dim != 1 && pol->NFactors == 1
+        && pol->Factor[0]->Degree == 1 && pol->Factor[0]->Data[0] == 0
+        && pol->Factor[0]->Data[1] == 1); /* i.e.,charpol == x^enddim */
+        FfSetNoc(enddim);
+        headptr = FfGetPtr(headptr,num);
 
 
             /* Make the stable kernel.
                ----------------------- */
-	    StablePower_(partbas,NULL,&ker);
-	    compdim[i] = moddim - ker->Nor;
-	    for (l = i - 1; l >= 0 && compdim[i] != compdim[l]; l--)
-		;
-	    if (l >= 0)
-		compnm[i] = (char)(compnm[l] + 1);
-	    else
-		compnm[i] = 'a';
-	    MatFree(ker);
-	    MESSAGE(0,("The %d-th direct summand is: %d%c\n\n", j,
-		compdim[i], compnm[i]));
+        StablePower_(partbas,NULL,&ker);
+        compdim[i] = moddim - ker->Nor;
+        for (l = i - 1; l >= 0 && compdim[i] != compdim[l]; l--)
+        ;
+        if (l >= 0)
+        compnm[i] = (char)(compnm[l] + 1);
+        else
+        compnm[i] = 'a';
+        MatFree(ker);
+        MESSAGE(0,("The %d-th direct summand is: %d%c\n\n", j,
+        compdim[i], compnm[i]));
 
 
-	    /* Append <partbas> to <bas>.
-	       -------------------------- */
-	    MatEchelonize(partbas);
-	    MatCopyRegion(bas,dim,0,partbas,0,0,-1,-1);
-	    dim += partbas->Nor;
-	}
+        /* Append <partbas> to <bas>.
+           -------------------------- */
+        MatEchelonize(partbas);
+        MatCopyRegion(bas,dim,0,partbas,0,0,-1,-1);
+        dim += partbas->Nor;
+    }
     }
     MatFree(partbas);
 
     if (dim != moddim)
     {
-	MTX_ERROR("es most mi van?");
-	for (i = 0; i < LrrInfo.NCf; i++)
-    	    printf("%d  ", compdim[i]);
-    	printf("\n");
-	return 1;
+    MTX_ERROR("es most mi van?");
+    for (i = 0; i < LrrInfo.NCf; i++)
+            printf("%d  ", compdim[i]);
+        printf("\n");
+    return 1;
     }
 
 

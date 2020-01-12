@@ -43,8 +43,8 @@ static void safe_strcpy(char *d, const char *s, size_t len)
 {
     (void) Mtx_ThisFile;
     if (len > 0) {
-	if (s) memcpy(d,s,len);
-	d[len] = 0;
+    if (s) memcpy(d,s,len);
+    d[len] = 0;
     }
 }
 
@@ -74,7 +74,7 @@ static void addref(char *s)
 {
     size_t * const r = REP(s);
     if (r[0] > 0)
-	++r[0];
+    ++r[0];
 }
 */
 
@@ -83,17 +83,17 @@ static void addref(char *s)
 
 static void excl(char **s, unsigned cap)
 {
-    if (REF(*s) != 1) {				/* Kopie erzeugen? */
-	if (cap < LEN(*s)) cap = LEN(*s);
-	char * const old_s = *s;
-	*s = mkrep(*s,LEN(*s),cap);
-	delref(old_s);
+    if (REF(*s) != 1) {             /* Kopie erzeugen? */
+    if (cap < LEN(*s)) cap = LEN(*s);
+    char * const old_s = *s;
+    *s = mkrep(*s,LEN(*s),cap);
+    delref(old_s);
     }
-    else if (cap > CAP(*s)) {			/* Vergrößern? */
-	size_t *rep = REP(*s);
-	rep = (size_t *) SysRealloc(rep,3 * sizeof(size_t) + cap + 1);
-	rep[1] = cap;
-	*s = TXT(rep);
+    else if (cap > CAP(*s)) {           /* Vergrößern? */
+    size_t *rep = REP(*s);
+    rep = (size_t *) SysRealloc(rep,3 * sizeof(size_t) + cap + 1);
+    rep[1] = cap;
+    *s = TXT(rep);
     }
 }
 
@@ -142,13 +142,13 @@ static void append(String *s, const char *src, size_t len)
     MTX_ASSERT(s->S != 0);
     size_t const my_len = LEN(s->S);
     if (src >= s->S && src <= s->S + my_len) {
-	/* Note: excl() may reallocate the buffer, adjust src accordingly. */
-	size_t const n = src - s->S;
-	excl(&s->S,my_len + len);
-	src = s->S + n;
+    /* Note: excl() may reallocate the buffer, adjust src accordingly. */
+    size_t const n = src - s->S;
+    excl(&s->S,my_len + len);
+    src = s->S + n;
     }
     else
-	excl(&s->S,my_len + len);
+    excl(&s->S,my_len + len);
 
     if (s->S != TXT(EMPTY)) {
        safe_strcpy(s->S + my_len,src,len);
@@ -186,9 +186,9 @@ void StrVAppendF(String *s, const char *fmt, va_list args)
     reserve(&s->S,strlen(fmt) + 32);
     int n = vsnprintf(s->S + LEN(s->S),AVL(s->S) + 1,fmt,args);
     if (n < 0)
-	return;
+    return;
     if ((size_t) n > AVL(s->S)) {
-	reserve(&s->S,n);
+    reserve(&s->S,n);
         vsnprintf(s->S + LEN(s->S),n + 1,fmt,saved_args);
     }
     size_t const new_len = LEN(s->S) + n;
@@ -230,9 +230,9 @@ void StrVPrintF(String *s, const char *fmt, va_list args)
     reserve(&s->S, strlen(fmt) + 32);
     int n = vsnprintf(s->S,CAP(s->S) + 1,fmt,args);
     if (n < 0)
-	return;
+    return;
     if ((size_t) n > CAP(s->S)) {
-	reserve(&s->S, n - LEN(s->S));
+    reserve(&s->S, n - LEN(s->S));
         vsnprintf(s->S,n + 1,fmt,saved_args);
     }
     LEN(s->S) = n;
@@ -313,7 +313,7 @@ void Str::swap(Str &other)
 void Str::clear()
 {
    if (REF(s_) == 1) {
-      LEN(s_) = 0;	// Puffer behalten, wird eventuell gleich wieder gebraucht.
+      LEN(s_) = 0;  // Puffer behalten, wird eventuell gleich wieder gebraucht.
       *s_ = 0;
    } else {
       delref(s_);

@@ -4,9 +4,13 @@
 
 @page changelog Release Notes
 
-@section SM1 SharedMeatAxe Release 1.0, forked off MeatAxe Release 2.4.24
+@section SM1-1 SharedMeatAxe Release 1.1
+@par Jan-2020
+- Thorough error propagation
+- Fix buffer overflows
+@section SM1-0 SharedMeatAxe Release 1.0, forked off MeatAxe Release 2.4.24
 @par Dec-2017
-- Creation of a shared MeatAxe library using autotools
+- Creation of a dynamic MeatAxe library using autotools
 - Fixes for documentation
 @par 25-Sep-2015
 - Propagate errors and actually use the custom error handler, instead of crashing.

@@ -10,7 +10,7 @@
 #include "meataxe.h"
 #include <string.h>
 
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -19,12 +19,12 @@ MTX_DEFINE_FILE_INFO
 
 #define MF_MAGIC 0x229AE77B
 
-   
+
 /**
  ** @defgroup mf File I/O
  ** @{
  **/
-   
+
 
 /** @class MtxFile_t
  ** @brief
@@ -43,13 +43,13 @@ int MfIsValid(const MtxFile_t *file)
 {
     if (file == NULL)
     {
-	MTX_ERROR("NULL file");
-	return 0;
+    MTX_ERROR("NULL file");
+    return 0;
     }
     if (file->Magic != MF_MAGIC)
     {
-	MTX_ERROR("Invalid file");
-	return 0;
+    MTX_ERROR("Invalid file");
+    return 0;
     }
     return 1;
 }
@@ -60,12 +60,12 @@ static MtxFile_t *Mf_Alloc(const char *name)
     MtxFile_t *f;
 
     if ((f = ALLOC(MtxFile_t)) == NULL)
-	return NULL;
+    return NULL;
     memset(f,0,sizeof(*f));
     if ((f->Name = SysMalloc(strlen(name) + 1)) == NULL)
     {
-	SysFree(f);
-	return NULL;
+    SysFree(f);
+    return NULL;
     }
     strcpy(f->Name,name);
     return f;
@@ -75,9 +75,9 @@ static MtxFile_t *Mf_Alloc(const char *name)
 static void Mf_Free(MtxFile_t *f)
 {
     if (f->File != NULL)
-	fclose(f->File);
+    fclose(f->File);
     if (f->Name != NULL)
-	SysFree(f->Name);
+    SysFree(f->Name);
     memset(f,0,sizeof(*f));
     SysFree(f);
 }
@@ -85,6 +85,7 @@ static void Mf_Free(MtxFile_t *f)
 
 /**
  ** Open a File for Reading.
+ ** @return |NULL| on error, or a pointer to the file on success.
  **/
 
 MtxFile_t *MfOpen(const char *name)
@@ -93,20 +94,24 @@ MtxFile_t *MfOpen(const char *name)
     long header[3];
 
     if ((f = Mf_Alloc(name)) == NULL)
-	return NULL;
+    {
+        MTX_ERROR1("%s: Error allocating file",name);
+        return NULL;
+    }
     if ((f->File = SysFopen(name,FM_READ)) == NULL)
     {
-	Mf_Free(f);
-	return NULL;
+    Mf_Free(f);
+    MTX_ERROR1("%s: Error opening file fore reading",name);
+    return NULL;
     }
 
     /* Read the file header.
        --------------------- */
     if (SysReadLong(f->File,header,3) != 3)
     {
-	Mf_Free(f);
-	MTX_ERROR1("%s: Error reading file header",name);
-	return NULL;
+    Mf_Free(f);
+    MTX_ERROR1("%s: Error reading file header",name);
+    return NULL;
     }
     f->Field = (int) header[0];
     f->Nor = (int) header[1];
@@ -115,10 +120,10 @@ MtxFile_t *MfOpen(const char *name)
     /* Check header
        ------------ */
     if (f->Field > 256 || f->Nor < 0 || f->Noc < 0)
-    {	
-	MTX_ERROR1("%s: Invalid header, possibly non-MeatAxe file",name);
-	Mf_Free(f);
-	return NULL;
+    {
+    MTX_ERROR1("%s: Invalid header, possibly non-MeatAxe file",name);
+    Mf_Free(f);
+    return NULL;
     }
 
     f->Magic = MF_MAGIC;
@@ -130,6 +135,7 @@ MtxFile_t *MfOpen(const char *name)
  ** Open a File for Writing.
  ** This functions creates a new file or truncates an existing file. The file is opened
  ** for writing, and a MeatAxe file header is written to the file.
+ ** @return |NULL| on error, or a pointer to the file on success.
  **/
 
 MtxFile_t *MfCreate(const char *name, int field, int nor, int noc)
@@ -138,11 +144,15 @@ MtxFile_t *MfCreate(const char *name, int field, int nor, int noc)
     long header[3];
 
     if ((f = Mf_Alloc(name)) == NULL)
-	return NULL;
+    {
+        MTX_ERROR1("%s: Error allocating file",name);
+        return NULL;
+    }
     if ((f->File = SysFopen(name,FM_CREATE)) == NULL)
     {
-	Mf_Free(f);
-	return NULL;
+    Mf_Free(f);
+    MTX_ERROR1("%s: Error creating file",name);
+    return NULL;
     }
 
     /* Write the file header.
@@ -152,9 +162,9 @@ MtxFile_t *MfCreate(const char *name, int field, int nor, int noc)
     header[2]= f->Noc = noc;
     if (SysWriteLong(f->File,header,3) != 3)
     {
-	MTX_ERROR1("%s: Error writing file header",name);
-	Mf_Free(f);
-	return NULL;
+    MTX_ERROR1("%s: Error writing file header",name);
+    Mf_Free(f);
+    return NULL;
     }
 
     f->Magic = MF_MAGIC;
@@ -165,12 +175,13 @@ MtxFile_t *MfCreate(const char *name, int field, int nor, int noc)
 
 /**
  ** Close a File.
+ ** Return -1 if file is invalid
  **/
 
 int MfClose(MtxFile_t *file)
 {
     if (!MfIsValid(file))
-	return -1;
+    return -1;
     Mf_Free(file);
     return 0;
 }

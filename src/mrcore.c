@@ -10,7 +10,7 @@
 #include "meataxe.h"
 #include <string.h>
 
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -19,13 +19,13 @@ MTX_DEFINE_FILE_INFO
 
 #define MR_MAGIC 0x1bb50442
 
-   
+
 /**
  ** @defgroup mrep Matrix Representations
  ** @{
  **/
 
-   
+
 /**
  ** @class MatRep_t
  ** A matrix representation.
@@ -33,9 +33,9 @@ MTX_DEFINE_FILE_INFO
  ** generators of the algebra.
  **
  ** A matrix representation is created with MrAlloc(). If the generators are
- ** available, they can be passed to MrAlloc(). Generators can also be added 
+ ** available, they can be passed to MrAlloc(). Generators can also be added
  ** to a matrix representation with MrAddGenerator(). In both cases the user
- ** can choose if a copy of the matrices or only a reference to the matrices is 
+ ** can choose if a copy of the matrices or only a reference to the matrices is
  ** stored in the representation. In either case, deleting the representation
  ** with MrFree() will also delete the generators. For example, after the
  ** following code has been executed:
@@ -44,7 +44,7 @@ MTX_DEFINE_FILE_INFO
  ** Rep = MrAlloc(1,&mat,0);
  ** MrFree(Rep);
  ** </pre>
- ** the @c mat pointer is no longer valid, because the matrix representation has 
+ ** the @c mat pointer is no longer valid, because the matrix representation has
  ** been by MrFree(). However, after
  ** <pre>
  ** Matrix_t *mat = MatLoad("matrix");
@@ -61,34 +61,34 @@ static int GensAreValid(int ngen, Matrix_t **gen)
 
     if (ngen < 0)
     {
-	MTX_ERROR1("ngen: %E",MTX_ERR_BADARG);
-	return 0;
+    MTX_ERROR1("ngen: %E",MTX_ERR_BADARG);
+    return 0;
     }
     if (ngen > 0 && gen == NULL)
     {
-	MTX_ERROR1("gen == NULL: %E",MTX_ERR_BADARG);
-	return 0;
+    MTX_ERROR1("gen == NULL: %E",MTX_ERR_BADARG);
+    return 0;
     }
     for (i = 0; i < ngen; ++i)
     {
-	if (!MatIsValid(gen[i]))
-	{
-	    MTX_ERROR1("gen[%d] invalid",i);
-	    return 0;
-	}
-	if (gen[i]->Nor != gen[i]->Noc)
-	{
-	    MTX_ERROR2("gen[%i]: %E",i,MTX_ERR_NOTSQUARE);
-	    return 0;
-	}
-	if (i != 0)
-	{
-	    if (gen[i]->Field != gen[0]->Field || gen[i]->Nor != gen[0]->Nor)
-	    {
-		MTX_ERROR2("gen[0] and gen[%d]: %E",i,MTX_ERR_INCOMPAT);
-		return 0;
-	    }
-	}
+    if (!MatIsValid(gen[i]))
+    {
+        MTX_ERROR1("gen[%d] invalid",i);
+        return 0;
+    }
+    if (gen[i]->Nor != gen[i]->Noc)
+    {
+        MTX_ERROR2("gen[%i]: %E",i,MTX_ERR_NOTSQUARE);
+        return 0;
+    }
+    if (i != 0)
+    {
+        if (gen[i]->Field != gen[0]->Field || gen[i]->Nor != gen[0]->Nor)
+        {
+        MTX_ERROR2("gen[0] and gen[%d]: %E",i,MTX_ERR_INCOMPAT);
+        return 0;
+        }
+    }
     }
     return 1;
 }
@@ -97,11 +97,11 @@ static int GensAreValid(int ngen, Matrix_t **gen)
 /**
  ** Check a Matrix Representation.
  ** This function checks if the argument is a pointer to a valid
- ** matrix representation. If the representation is o.k., the function 
- ** returns 1. Otherwise, an error is signaled and, if the error handler 
+ ** matrix representation. If the representation is o.k., the function
+ ** returns 1. Otherwise, an error is signaled and, if the error handler
  ** does not terminate the program, the function returns 0.
  ** @param rep Pointer to the matrix representation.
- ** @return 1 if @a rep points to a valid matrix representation, 0 otherwise.
+ ** @return 1 if @a rep points to a valid matrix representation, 0 otherwise, setting an error in this case.
  **/
 
 int MrIsValid(const MatRep_t *rep)
@@ -109,18 +109,18 @@ int MrIsValid(const MatRep_t *rep)
 {
     if (rep == NULL)
     {
-	MTX_ERROR("NULL representation");
-	return 0;
+    MTX_ERROR("NULL representation");
+    return 0;
     }
     if (rep->Magic != MR_MAGIC)
     {
-	MTX_ERROR1("Invalid matrix representation (magic=%d)",(int)rep->Magic);
-	return 0;
+    MTX_ERROR1("Invalid matrix representation (magic=%d)",(int)rep->Magic);
+    return 0;
     }
     if (!GensAreValid(rep->NGen,rep->Gen))
     {
-	MTX_ERROR("Invalid generators");
-	return 0;
+    MTX_ERROR("Invalid generators");
+    return 0;
     }
     return 1;
 }
@@ -131,12 +131,12 @@ int MrIsValid(const MatRep_t *rep)
 /**
  ** Create a Matrix Representation.
  ** This function creates a new matrix representation. Matrices representing
- ** the generators must be passed in @a gen. The matrices in @a gen must all be 
+ ** the generators must be passed in @a gen. The matrices in @a gen must all be
  ** square, over the same field, and with the same dimensions. @a flags may
  ** be zero or the special value MR_COPY_GENERATORS. In the latter case,
  ** a local copy of the generators is made, and the matrices in |gen| can
- ** be safely destroyed. If @a flags is 0, only references to the matrices 
- ** are stored in the @a MatRep_t structure. Consequently, the application 
+ ** be safely destroyed. If @a flags is 0, only references to the matrices
+ ** are stored in the @a MatRep_t structure. Consequently, the application
  ** must not modify or destroy the matrices after calling @a MrAlloc(). They
  ** will be destroyed automatically when @a MrFree() is called to destroy the
  ** representation.
@@ -156,8 +156,8 @@ MatRep_t *MrAlloc(int ngen, Matrix_t **gen, int flags)
        --------------- */
     if (!GensAreValid(ngen,gen))
     {
-	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return NULL;
+    MTX_ERROR1("%E",MTX_ERR_BADARG);
+    return NULL;
     }
 
     /* Allocate a new MatRep_t structure
@@ -165,16 +165,16 @@ MatRep_t *MrAlloc(int ngen, Matrix_t **gen, int flags)
     rep = ALLOC(MatRep_t);
     if (rep == NULL)
     {
-	MTX_ERROR("Cannot allocate MatRep_t structure");
-	return NULL;
+    MTX_ERROR("Cannot allocate MatRep_t structure");
+    return NULL;
     }
     memset(rep,0,sizeof(MatRep_t));
     rep->Gen = NALLOC(Matrix_t *,ngen);
     if (rep->Gen == NULL)
     {
-	MTX_ERROR("Cannot allocate generator list");
-	SysFree(rep);
-	return NULL;
+    MTX_ERROR("Cannot allocate generator list");
+    SysFree(rep);
+    return NULL;
     }
 
     /* Copy generators
@@ -182,21 +182,21 @@ MatRep_t *MrAlloc(int ngen, Matrix_t **gen, int flags)
     rep->NGen = ngen;
     for (i = 0; i < ngen; ++i)
     {
-	if (flags & MR_COPY_GENERATORS)
-	{
-	    rep->Gen[i] = MatDup(gen[i]);
-	    if (rep->Gen[i] == NULL)
-	    {
-		MTX_ERROR("Cannot copy generator");
-		while (--i >= 0)
-		    MatFree(rep->Gen[i]);
-		SysFree(rep->Gen);
-		SysFree(rep);
-		return NULL;
-	    }
-	}
-	else
-	    rep->Gen[i] = gen[i];
+    if (flags & MR_COPY_GENERATORS)
+    {
+        rep->Gen[i] = MatDup(gen[i]);
+        if (rep->Gen[i] == NULL)
+        {
+        MTX_ERROR("Cannot copy generator");
+        while (--i >= 0)
+            MatFree(rep->Gen[i]);
+        SysFree(rep->Gen);
+        SysFree(rep);
+        return NULL;
+        }
+    }
+    else
+        rep->Gen[i] = gen[i];
     }
 
     rep->Magic = MR_MAGIC;
@@ -208,11 +208,11 @@ MatRep_t *MrAlloc(int ngen, Matrix_t **gen, int flags)
 
 /**
  ** Delete a Matrix Representation.
- ** This function frees a matrix representation which has beed created by 
- ** MrAlloc(). This implies freeing the internal data buffers as well as 
- ** the MatRep_t structure itself. Note: Even if the representation 
- ** was created without MR_COPY_GENERATORS, the matrices that were passed 
- ** to MrAlloc() are now destroyed. The same applies to matrices added to 
+ ** This function frees a matrix representation which has beed created by
+ ** MrAlloc(). This implies freeing the internal data buffers as well as
+ ** the MatRep_t structure itself. Note: Even if the representation
+ ** was created without MR_COPY_GENERATORS, the matrices that were passed
+ ** to MrAlloc() are now destroyed. The same applies to matrices added to
  ** the representation with MrAddGenerator().
  ** @param rep Pointer to the matrix representation.
  ** @return 0 on success, -1 on error.
@@ -223,8 +223,8 @@ int MrFree(MatRep_t *rep)
     int i;
     if (!MrIsValid(rep))
     {
-	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return -1;
+    MTX_ERROR1("%E",MTX_ERR_BADARG);
+    return -1;
     }
     for (i = 0; i < rep->NGen; ++i)
         MatFree(rep->Gen[i]);

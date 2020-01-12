@@ -36,10 +36,10 @@ a matrix by a permutation, but not vice versa.
 @section intro_install Installation
 
 The source tarball can be found
-<a href="http://users.minet.uni-jena.de/~king/SharedMeatAxe/shared_meataxe-1.0.tar.gz">here</a>,
+<a href="http://users.minet.uni-jena.de/~king/SharedMeatAxe/shared_meataxe-1.1.tar.gz">here</a>,
 and then the installation procedure follows the usual pattern:
-- <tt> tar -xf shared_meataxe-1.0.tar.gz</tt>
-- <tt> cd shared_meataxe-1.0</tt>
+- <tt> tar -xf shared_meataxe-1.1.tar.gz</tt>
+- <tt> cd shared_meataxe-1.1</tt>
 - <tt> ./configure --prefix=/path/to/installation/location</tt>
 - <tt> make</tt>
 - <tt> make install</tt>

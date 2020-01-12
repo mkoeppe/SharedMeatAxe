@@ -9,7 +9,7 @@
 
 #include "meataxe.h"
 
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -25,7 +25,7 @@ MTX_DEFINE_FILE_INFO
  ** Check if a number is in a set.
  ** @param set Pointer to the set.
  ** @param elem Number to check.
- ** @return 1 if the set contains @a elem, 0 if not.
+ ** @return 1 if the set contains @a elem, 0 if not. -1 on error.
  **/
 
 int SetContains(const Set_t *set, long elem)
@@ -33,11 +33,11 @@ int SetContains(const Set_t *set, long elem)
 {
     int i;
     long *l;
- 
+
     if (!SetIsValid(set))
     {
-	MTX_ERROR1("%E",MTX_ERR_BADARG);
-	return -1;
+    MTX_ERROR1("%E",MTX_ERR_BADARG);
+    return -1;
     }
     l = set->Data;
     for (i = set->Size; i > 0 && *l < elem; --i, ++l);

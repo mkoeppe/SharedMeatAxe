@@ -10,7 +10,7 @@
 #include "meataxe.h"
 #include <string.h>
 
-   
+
 /* --------------------------------------------------------------------------
    Local data
    -------------------------------------------------------------------------- */
@@ -40,30 +40,30 @@ static const unsigned long SetMagic = 0xEF452338;
 /**
  ** Check a set.
  ** This function checks if the argument is a valid set. If the set is o.k.,
- ** the function returns 1. 
- ** Otherwise, an error is signaled and, if the error handler does not 
+ ** the function returns 1.
+ ** Otherwise, an error is signaled and, if the error handler does not
  ** terminate the program, the function returns 0.
  ** @param s Pointer to the set.
- ** @return 1 if @a s is a valid set, 0 otherwise.
+ ** @return 1 if @a s is a valid set, 0 otherwise, setting an error in this case.
  **/
 
 int SetIsValid(const Set_t *s)
 {
     if (s == NULL)
     {
-	MTX_ERROR("NULL set");
-	return 0;
+    MTX_ERROR("NULL set");
+    return 0;
     }
     if (s->Magic != SetMagic || s->Size < 0 || s->BufSize < s->Size)
     {
-	MTX_ERROR3("Invalid set (Magic=%d, Size=%d, BufSize=%d)",
-	    (int)s->Magic,s->Size,s->BufSize);
-	return 0;
+    MTX_ERROR3("Invalid set (Magic=%d, Size=%d, BufSize=%d)",
+        (int)s->Magic,s->Size,s->BufSize);
+    return 0;
     }
     if (s->Data == NULL)
     {
-	MTX_ERROR("Data==NULL in set");
-	return 0;
+    MTX_ERROR("Data==NULL in set");
+    return 0;
     }
     return 1;
 }
@@ -73,7 +73,7 @@ int SetIsValid(const Set_t *s)
 
 /**
  ** Create a new set.
- ** This function creates a new, empty set. To destroy a set, 
+ ** This function creates a new, empty set. To destroy a set,
  ** use SetFree(), @em not SysFree().
  ** @return Pointer to the new set or 0 on error.
  **/
@@ -85,17 +85,17 @@ Set_t *SetAlloc()
     x = ALLOC(Set_t);
     if (x == NULL)
     {
- 	MTX_ERROR("Cannot allocate set");
-	return NULL;
+    MTX_ERROR("Cannot allocate set");
+    return NULL;
     }
     x->Size = 0;
     x->BufSize = InitialSize;
     x->Data = NALLOC(long,InitialSize);
     if (x->Data == NULL)
     {
-	SysFree(x);
- 	MTX_ERROR("Cannot allocate set data");
-	return NULL;
+    SysFree(x);
+    MTX_ERROR("Cannot allocate set data");
+    return NULL;
     }
     x->Magic = SetMagic;
     return x;
@@ -106,8 +106,8 @@ Set_t *SetAlloc()
 
 /**
  ** Destroy a set.
- ** This function frees an integer set. The argument must be a Set_t 
- ** structure which has previously been allocated with SetAlloc(). 
+ ** This function frees an integer set. The argument must be a Set_t
+ ** structure which has previously been allocated with SetAlloc().
  ** @param x Pointer to the set.
  ** @return 0 on success, -1 on error.
  **/
@@ -115,7 +115,7 @@ Set_t *SetAlloc()
 int SetFree(Set_t *x)
 {
     if (!SetIsValid(x))
-	return -1;
+    return -1;
     SysFree(x->Data);
     memset(x,0,sizeof(Set_t));
     SysFree(x);
@@ -136,12 +136,12 @@ Set_t *SetDup(const Set_t *s)
     Set_t *x;
 
     if (!SetIsValid(s))
-	return NULL;
+    return NULL;
     x = ALLOC(Set_t);
     if (x == NULL)
     {
- 	MTX_ERROR("Cannot allocate set");
-	return NULL;
+    MTX_ERROR("Cannot allocate set");
+    return NULL;
     }
 
     x->Size = s->Size;
@@ -149,9 +149,9 @@ Set_t *SetDup(const Set_t *s)
     x->Data = NALLOC(long,x->BufSize);
     if (x->Data == NULL)
     {
-	SysFree(x);
- 	MTX_ERROR("Cannot allocate set data");
-	return NULL;
+    SysFree(x);
+    MTX_ERROR("Cannot allocate set data");
+    return NULL;
     }
     memcpy(x->Data,s->Data,sizeof(x->Data[0]) * s->Size);
     x->Magic = SetMagic;

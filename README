@@ -1,5 +1,5 @@
 ********************************************************************************
-SharedMeatAxe Version 1.0                                                 README
+SharedMeatAxe Version 1.1                                               README
 ********************************************************************************
 
 This is a fork of C MeatAxe 2.4.24, a set of programs for computing
@@ -7,15 +7,15 @@ with modular representations. The main features of SharedMeatAxe compared
 with MeatAxe 2.4.24:
 
 - autotoolised build system,
-- dynamic rather than static library (libmtx),
+- shared (dynamic) rather than static library (libmtx),
 - asymptotically fast matrix multiplication (Strassen-Winograd),
 - propagation of error values, so that software using libmtx can catch errors,
 - improved implementation of row reduction,
 - bug fixes related with the location of multiplication tables.
 
-See INSTALL for installing shared_meataxe-1.0.
+See INSTALL for installing shared_meataxe-1.1.
 
-In addition to the dynamic library "libmtx", several executables are provided.
+In addition to the shared library "libmtx", several executables are provided.
 
 See COPYING for licence information.
 

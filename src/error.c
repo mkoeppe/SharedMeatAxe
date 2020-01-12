@@ -34,7 +34,7 @@
  ** terminates the program with an appropriate error message. But code linked
  ** against libmtx.so can of course define a custom error handler.
  **
- ** In SharedMeatAxe 1.0, as opposed to MeatAxe 2.4.24, most higher level
+ ** In SharedMeatAxe, as opposed to MeatAxe, most higher level
  ** functions return a specific value in the case of an error, and they
  ** propagate these error values. It thus makes sense for a MeatAxe
  ** application to define a custom error handler that stores the

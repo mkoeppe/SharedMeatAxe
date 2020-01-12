@@ -1,8 +1,8 @@
 /* ============================= C MeatAxe ==================================
    File:        $Id: kernel-0.c,v 1.1.1.1 2007/09/02 11:06:17 mringe Exp $
    Comment:     Finite field arithmetic and common functions. `Small' version
-		for field orders q <= 256. Originally based on the `hprout.c'
-		written by Klaus Lux.
+        for field orders q <= 256. Originally based on the `hprout.c'
+        written by Klaus Lux.
    --------------------------------------------------------------------------
    (C) Copyright 1998 Michael Ringe, Lehrstuhl D fuer Mathematik,
    RWTH Aachen, Germany  <mringe@math.rwth-aachen.de>
@@ -24,8 +24,8 @@
 MTX_DEFINE_FILE_INFO
 
 typedef unsigned char BYTE;
-int MPB = 0;		/* No. of marks per byte */
-int LPR = 0;		/* Long ints per row */
+int MPB = 0;        /* No. of marks per byte */
+int LPR = 0;        /* Long ints per row */
 
 
 
@@ -37,9 +37,9 @@ int LPR = 0;		/* Long ints per row */
 
 #if defined(_DEBUG)
 #define CHECKRANGE(x,lo,hi) if ((x)<(lo)||(x)>(hi)) {\
-	MtxError(&Mtx_ThisFile,__LINE__,\
-	"ZZZ RANGE CHECK ERROR: %d <= %d <= %d ?\n",\
-	(int)(lo),(int)(x),(int)(hi));}
+    MtxError(&Mtx_ThisFile,__LINE__,\
+    "ZZZ RANGE CHECK ERROR: %d <= %d <= %d ?\n",\
+    (int)(lo),(int)(x),(int)(hi));}
 #else
 #define CHECKRANGE(x,lo,hi)
 #endif
@@ -299,12 +299,12 @@ static FILE *OpenTableFile(int fl)
        -------------------------- */
     sprintf(fn,"p%3.3d.zzz",fl);
     if ((fd = SysFopen(fn,FM_READ|FM_LIB|FM_NOERROR)) != NULL)
-	return fd;
+    return fd;
 
     /* Create the table file.
        ---------------------- */
     if (FfMakeTables(fl) != 0)
-	{
+    {
         MTX_ERROR("Unable to build arithmetic tables");
         return NULL;
     }
@@ -317,6 +317,7 @@ static FILE *OpenTableFile(int fl)
 
 /* -------------------------------------------------------------------------
    ReadTableFile()
+   @return -1 on error
    -------------------------------------------------------------------------- */
 
 static int ReadTableFile(FILE *fd, int field)
@@ -327,24 +328,24 @@ static int ReadTableFile(FILE *fd, int field)
        -------------------------------- */
     if (SysReadLong(fd,hdr,5) != 5)
     {
-	MTX_ERROR1("Cannot read table file header for GF(%d)", field);
-	return -1;
+    MTX_ERROR1("Cannot read table file header for GF(%d)", field);
+    return -1;
     }
     if (hdr[2] != field || hdr[1] < 0 || hdr[1] > field ||
         hdr[0] <= 1 || hdr[2] % hdr[0] != 0 || hdr[3] < 1 || hdr[3] > 8)
     {
-	MTX_ERROR("Table file is corrupted");
-	return -1;
+    MTX_ERROR("Table file is corrupted");
+    return -1;
     }
     FfChar = hdr[0];
     FfGen = (FEL) hdr[1];
     MPB = hdr[3];
     if (hdr[4] != (long) ZZZVERSION)
     {
-	MTX_ERROR2("Bad table file version: expected %d, found %d",
-	    (int)ZZZVERSION,(int)hdr[4]);
-	fclose(fd);
-	return -1;
+    MTX_ERROR2("Bad table file version: expected %d, found %d",
+        (int)ZZZVERSION,(int)hdr[4]);
+    fclose(fd);
+    return -1;
     }
 
     /* Read tables
@@ -363,7 +364,7 @@ static int ReadTableFile(FILE *fd, int field)
        )
     {
         MTX_ERROR("Error reading table file");
-	return -1;
+    return -1;
     }
     FfOrder = field;
     return FfSetNoc(FfOrder);
@@ -389,12 +390,12 @@ int FfSetField(int field)
     int result;
 
     if (field == FfOrder || field < 2)
-	return 0;
+    return 0;
     fd = OpenTableFile(field);
     if (fd == NULL)
     {
-	MTX_ERROR1("Cannot open table file for GF(%d)",(int)field);
-	return -1;
+    MTX_ERROR1("Cannot open table file for GF(%d)",(int)field);
+    return -1;
     }
     result = ReadTableFile(fd,field);
     fclose(fd);
@@ -416,18 +417,18 @@ int FfSetNoc(int noc)
     FfNoc = noc;
     if (noc == 0)
     {
-	LPR = 0;
-	FfCurrentRowSize = 0;
-	FfCurrentRowSizeIo = 0;
+    LPR = 0;
+    FfCurrentRowSize = 0;
+    FfCurrentRowSizeIo = 0;
     }
     else
     {
-	LPR = (noc-1) / (MPB * sizeof(long)) + 1;	/* long's per row */
+    LPR = (noc-1) / (MPB * sizeof(long)) + 1;   /* long's per row */
 #ifdef ASM_MMX
-	if (LPR % 2 != 0)
-	    ++LPR;
+    if (LPR % 2 != 0)
+        ++LPR;
 #endif
-	FfCurrentRowSize = LPR * sizeof(long);
+    FfCurrentRowSize = LPR * sizeof(long);
         FfCurrentRowSizeIo = (noc - 1) / MPB + 1;
     }
     return 0;
@@ -444,7 +445,7 @@ int FfSetNoc(int noc)
 size_t FfRowSize(int noc)
 {
     if (noc == 0)
-	return 0;
+    return 0;
     MTX_ASSERT(noc > 0);
     return ((noc-1) / (MPB * sizeof(long)) + 1) * sizeof(long);
 }
@@ -461,7 +462,7 @@ size_t FfTrueRowSize(int noc)
 
 {
     if (noc == 0)
-	return 0;
+    return 0;
     MTX_ASSERT(noc > 0);
     return (noc-1) / MPB + 1;
 }
@@ -481,10 +482,10 @@ FEL FfEmbed(FEL a, int subfield)
 {   int i;
 
     if (subfield == FfOrder)
-	return a;
+    return a;
     for (i = 0; mtx_embedord[i] != subfield && i < 4; ++i);
     if (i >= 4)
-	{ MTX_ERROR2("Cannot embed GF(%d) into GF(%d)",(int)subfield,(int)FfOrder);
+    { MTX_ERROR2("Cannot embed GF(%d) into GF(%d)",(int)subfield,(int)FfOrder);
       return (FEL)255;
     }
     return mtx_embed[i][a];
@@ -510,12 +511,12 @@ FEL FfRestrict(FEL a, int subfield)
     int i;
 
     if (subfield == FfOrder)
-	return a;
+    return a;
     for (i = 0; mtx_embedord[i] != subfield && i < 4; ++i);
     if (i >= 4)
     {
-	MTX_ERROR2("Cannot restrict GF(%d) to GF(%d)",(int)FfOrder,
-	    (int)subfield);
+    MTX_ERROR2("Cannot restrict GF(%d) to GF(%d)",(int)FfOrder,
+        (int)subfield);
         return (FEL)255;
     }
     return mtx_restrict[i][a];
@@ -528,17 +529,17 @@ static void __inline__ FastXor(void *dest, const void *src)
 {
 __asm__(
 
-	"    pushl %ebx\n"
-	"    pushl %ecx\n"
-	"    pushl %edx\n"
+    "    pushl %ebx\n"
+    "    pushl %ecx\n"
+    "    pushl %edx\n"
 
-	"    movl 8(%ebp),%ecx\n"
+    "    movl 8(%ebp),%ecx\n"
         "    movl 12(%ebp),%ebx\n"
         "    movl LPR,%edx\n"
         "    sarl $1,%edx\n"
         "    je .FASTXOR_1\n"
         "    .align 16\n"
-	".FASTXOR_2:\n"
+    ".FASTXOR_2:\n"
         "    movq (%ebx),%mm0\n"
         "    addl $8,%ebx\n"
         "    pxor (%ecx),%mm0\n"
@@ -546,11 +547,11 @@ __asm__(
         "    addl $8,%ecx\n"
         "    decl %edx\n"
         "    jne .FASTXOR_2\n"
-	".FASTXOR_1:\n"
-	"    popl %edx\n"
-	"    popl %ecx\n"
-	"    popl %ebx\n"
-	);
+    ".FASTXOR_1:\n"
+    "    popl %edx\n"
+    "    popl %ecx\n"
+    "    popl %ebx\n"
+    );
 }
 #endif
 
@@ -577,22 +578,22 @@ PTR FfAddRow(PTR dest, PTR src)
 {
     register int i;
 
-    if (FfChar == 2)	/* characteristic 2 is simple... */
+    if (FfChar == 2)    /* characteristic 2 is simple... */
     {
 #ifdef ASM_MMX
     /* This assumes Intel with 4 bytes per long, but MMX implies Intel anyway.*/
-	__asm__(
-	"    pushl %ebx\n"
-	"    pushl %ecx\n"
-	"    pushl %edx\n"
+    __asm__(
+    "    pushl %ebx\n"
+    "    pushl %ecx\n"
+    "    pushl %edx\n"
 
-	"    movl 8(%ebp),%ecx\n"
+    "    movl 8(%ebp),%ecx\n"
         "    movl 12(%ebp),%ebx\n"
         "    movl LPR,%edx\n"
         "    sarl $1,%edx\n"
         "    je .ADDROW2\n"
         "    .align 16\n"
-	".ADDROW1:\n"
+    ".ADDROW1:\n"
         "    movq (%ebx),%mm0\n"
         "    addl $8,%ebx\n"
         "    pxor (%ecx),%mm0\n"
@@ -600,23 +601,23 @@ PTR FfAddRow(PTR dest, PTR src)
         "    addl $8,%ecx\n"
         "    decl %edx\n"
         "    jne .ADDROW1\n"
-	".ADDROW2:\n"
-	"    popl %edx\n"
-	"    popl %ecx\n"
-	"    popl %ebx\n"
-	);
+    ".ADDROW2:\n"
+    "    popl %edx\n"
+    "    popl %ecx\n"
+    "    popl %ebx\n"
+    );
 #else
-	register long *l1 = (long *) dest;
-	register long *l2 = (long *) src;
-	for (i = LPR; i != 0; --i)
-	{
-	    register long x = *l2++;
-	    if (x != 0) *l1 ^= x;
-	    l1++;
-	}
+    register long *l1 = (long *) dest;
+    register long *l2 = (long *) src;
+    for (i = LPR; i != 0; --i)
+    {
+        register long x = *l2++;
+        if (x != 0) *l1 ^= x;
+        l1++;
+    }
 #endif
     }
-    else		/* any other characteristic */
+    else        /* any other characteristic */
     {
 #ifdef ASM_MMX
         register BYTE *p1 = dest;
@@ -636,14 +637,14 @@ PTR FfAddRow(PTR dest, PTR src)
               p1 += 4;
         }
 #else
-	register BYTE *p1 = dest;
-	register BYTE *p2 = src;
-	for (i = FfCurrentRowSizeIo; i != 0; --i)
-	{
-	    register int x = *p2++;
-	    if (x != 0) *p1 = mtx_tadd[*p1][x];
-	    p1++;
-	}
+    register BYTE *p1 = dest;
+    register BYTE *p2 = src;
+    for (i = FfCurrentRowSizeIo; i != 0; --i)
+    {
+        register int x = *p2++;
+        if (x != 0) *p1 = mtx_tadd[*p1][x];
+        p1++;
+    }
 #endif
     }
     return dest;
@@ -667,48 +668,48 @@ PTR FfAddRowPartial(PTR dest, PTR src, int first, int len)
 {
     register long i;
 
-    if (FfChar == 2)	/* characteristic 2 is simple... */
+    if (FfChar == 2)    /* characteristic 2 is simple... */
 #ifdef ASM_MMX
-	__asm__("\n	movl 8(%ebp),%ecx\n"
-		"	movl 12(%ebp),%ebx\n"
-		"	movl 16(%ebp),%edx\n"
-		"       sall $2,%edx\n"
-		"       addl %edx,%ecx\n"
-		"       addl %edx,%ebx\n"
-		"       movl 20(%ebp),%edx\n"
-		"	sarl $1,%edx\n"
-		"	je .ADDROWPART_1\n"
-		"	.align 16\n"
-		".ADDROWPART_2:\n"
-		"	movq (%ebx),%mm0\n"
-		"	addl $8,%ebx\n"
-		"	pxor (%ecx),%mm0\n"
-		"	movq %mm0,(%ecx)\n"
-		"	addl $8,%ecx\n"
-		"	decl %edx\n"
-		"	jne .ADDROWPART_2\n"
-		".ADDROWPART_1:\n"
-	       );
+    __asm__("\n movl 8(%ebp),%ecx\n"
+        "   movl 12(%ebp),%ebx\n"
+        "   movl 16(%ebp),%edx\n"
+        "       sall $2,%edx\n"
+        "       addl %edx,%ecx\n"
+        "       addl %edx,%ebx\n"
+        "       movl 20(%ebp),%edx\n"
+        "   sarl $1,%edx\n"
+        "   je .ADDROWPART_1\n"
+        "   .align 16\n"
+        ".ADDROWPART_2:\n"
+        "   movq (%ebx),%mm0\n"
+        "   addl $8,%ebx\n"
+        "   pxor (%ecx),%mm0\n"
+        "   movq %mm0,(%ecx)\n"
+        "   addl $8,%ecx\n"
+        "   decl %edx\n"
+        "   jne .ADDROWPART_2\n"
+        ".ADDROWPART_1:\n"
+           );
 #else
-    {	register long *l1 = (long *) dest + first;
-	register long *l2 = (long *) src + first;
-	for (i = len; i != 0; --i)
-	{
-	    register long x = *l2++;
-	    *l1 ^= x;
-	    l1++;
-	}
+    {   register long *l1 = (long *) dest + first;
+    register long *l2 = (long *) src + first;
+    for (i = len; i != 0; --i)
+    {
+        register long x = *l2++;
+        *l1 ^= x;
+        l1++;
+    }
     }
 #endif
-    else		/* any other characteristic */
-    {	register BYTE *p1 = dest + first * sizeof(long);
-	register BYTE *p2 = src + first * sizeof(long);
-	for (i = len*sizeof(long); i != 0; --i)
-	{
-	    register int x = *p2++;
-	    *p1 = mtx_tadd[*p1][x];
-	    p1++;
-	}
+    else        /* any other characteristic */
+    {   register BYTE *p1 = dest + first * sizeof(long);
+    register BYTE *p2 = src + first * sizeof(long);
+    for (i = len*sizeof(long); i != 0; --i)
+    {
+        register int x = *p2++;
+        *p1 = mtx_tadd[*p1][x];
+        p1++;
+    }
     }
     return dest;
 }
@@ -725,22 +726,22 @@ PTR FfSubRow(PTR dest, PTR src)
 {
     register int i;
 
-    if (FfChar == 2)	/* characteristic 2 is simple... */
+    if (FfChar == 2)    /* characteristic 2 is simple... */
     {
 #ifdef ASM_MMX
     /* This assumes Intel with 4 bytes per long, but MMX implies Intel anyway.*/
-	__asm__(
-	"    pushl %ebx\n"
-	"    pushl %ecx\n"
-	"    pushl %edx\n"
+    __asm__(
+    "    pushl %ebx\n"
+    "    pushl %ecx\n"
+    "    pushl %edx\n"
 
-	"    movl 8(%ebp),%ecx\n"
+    "    movl 8(%ebp),%ecx\n"
         "    movl 12(%ebp),%ebx\n"
         "    movl LPR,%edx\n"
         "    sarl $1,%edx\n"
         "    je .SUBROW2\n"
         "    .align 16\n"
-	".SUBROW1:\n"
+    ".SUBROW1:\n"
         "    movq (%ebx),%mm0\n"
         "    addl $8,%ebx\n"
         "    pxor (%ecx),%mm0\n"
@@ -748,23 +749,23 @@ PTR FfSubRow(PTR dest, PTR src)
         "    addl $8,%ecx\n"
         "    decl %edx\n"
         "    jne .SUBROW1\n"
-	".SUBROW2:\n"
-	"    popl %edx\n"
-	"    popl %ecx\n"
-	"    popl %ebx\n"
-	);
+    ".SUBROW2:\n"
+    "    popl %edx\n"
+    "    popl %ecx\n"
+    "    popl %ebx\n"
+    );
 #else
-	register long *l1 = (long *) dest;
-	register long *l2 = (long *) src;
-	for (i = LPR; i != 0; --i)
-	{
-	    register long x = *l2++;
-	    if (x != 0) *l1 ^= x;
-	    l1++;
-	}
+    register long *l1 = (long *) dest;
+    register long *l2 = (long *) src;
+    for (i = LPR; i != 0; --i)
+    {
+        register long x = *l2++;
+        if (x != 0) *l1 ^= x;
+        l1++;
+    }
 #endif
     }
-    else		/* any other characteristic */
+    else        /* any other characteristic */
     {
         FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
 #ifdef ASM_MMX
@@ -815,40 +816,40 @@ PTR FfSubRowPartial(PTR dest, PTR src, int first, int len)
 {
     register long i;
 
-    if (FfChar == 2)	/* characteristic 2 is simple... */
+    if (FfChar == 2)    /* characteristic 2 is simple... */
 #ifdef ASM_MMX
-	__asm__("\n	movl 8(%ebp),%ecx\n"
-		"	movl 12(%ebp),%ebx\n"
-		"	movl 16(%ebp),%edx\n"
-		"       sall $2,%edx\n"
-		"       addl %edx,%ecx\n"
-		"       addl %edx,%ebx\n"
-		"       movl 20(%ebp),%edx\n"
-		"	sarl $1,%edx\n"
-		"	je .SUBROWPART_1\n"
-		"	.align 16\n"
-		".SUBROWPART_2:\n"
-		"	movq (%ebx),%mm0\n"
-		"	addl $8,%ebx\n"
-		"	pxor (%ecx),%mm0\n"
-		"	movq %mm0,(%ecx)\n"
-		"	addl $8,%ecx\n"
-		"	decl %edx\n"
-		"	jne .SUBROWPART_2\n"
-		".SUBROWPART_1:\n"
-	       );
+    __asm__("\n movl 8(%ebp),%ecx\n"
+        "   movl 12(%ebp),%ebx\n"
+        "   movl 16(%ebp),%edx\n"
+        "       sall $2,%edx\n"
+        "       addl %edx,%ecx\n"
+        "       addl %edx,%ebx\n"
+        "       movl 20(%ebp),%edx\n"
+        "   sarl $1,%edx\n"
+        "   je .SUBROWPART_1\n"
+        "   .align 16\n"
+        ".SUBROWPART_2:\n"
+        "   movq (%ebx),%mm0\n"
+        "   addl $8,%ebx\n"
+        "   pxor (%ecx),%mm0\n"
+        "   movq %mm0,(%ecx)\n"
+        "   addl $8,%ecx\n"
+        "   decl %edx\n"
+        "   jne .SUBROWPART_2\n"
+        ".SUBROWPART_1:\n"
+           );
 #else
-    {	register long *l1 = (long *) dest + first;
-	register long *l2 = (long *) src + first;
-	for (i = len; i != 0; --i)
-	{
-	    register long x = *l2++;
-	    *l1 ^= x;
-	    l1++;
-	}
+    {   register long *l1 = (long *) dest + first;
+    register long *l2 = (long *) src + first;
+    for (i = len; i != 0; --i)
+    {
+        register long x = *l2++;
+        *l1 ^= x;
+        l1++;
+    }
     }
 #endif
-    else		/* any other characteristic */
+    else        /* any other characteristic */
     {   FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
         register BYTE *p1 = dest + first * sizeof(long);
         register BYTE *p2 = src + first * sizeof(long);
@@ -878,40 +879,40 @@ PTR FfSubRowPartialReverse(PTR dest, PTR src, int first, int len)
 {
     register long i;
 
-    if (FfChar == 2)	/* characteristic 2 is simple... */
+    if (FfChar == 2)    /* characteristic 2 is simple... */
 #ifdef ASM_MMX
-	__asm__("\n	movl 8(%ebp),%ecx\n"
-		"	movl 12(%ebp),%ebx\n"
-		"	movl 16(%ebp),%edx\n"
-		"       sall $2,%edx\n"
-		"       addl %edx,%ecx\n"
-		"       addl %edx,%ebx\n"
-		"       movl 20(%ebp),%edx\n"
-		"	sarl $1,%edx\n"
-		"	je .SUBROWPART_1\n"
-		"	.align 16\n"
-		".SUBROWPART_2:\n"
-		"	movq (%ebx),%mm0\n"
-		"	addl $8,%ebx\n"
-		"	pxor (%ecx),%mm0\n"
-		"	movq %mm0,(%ecx)\n"
-		"	addl $8,%ecx\n"
-		"	decl %edx\n"
-		"	jne .SUBROWPART_2\n"
-		".SUBROWPART_1:\n"
-	       );
+    __asm__("\n movl 8(%ebp),%ecx\n"
+        "   movl 12(%ebp),%ebx\n"
+        "   movl 16(%ebp),%edx\n"
+        "       sall $2,%edx\n"
+        "       addl %edx,%ecx\n"
+        "       addl %edx,%ebx\n"
+        "       movl 20(%ebp),%edx\n"
+        "   sarl $1,%edx\n"
+        "   je .SUBROWPART_1\n"
+        "   .align 16\n"
+        ".SUBROWPART_2:\n"
+        "   movq (%ebx),%mm0\n"
+        "   addl $8,%ebx\n"
+        "   pxor (%ecx),%mm0\n"
+        "   movq %mm0,(%ecx)\n"
+        "   addl $8,%ecx\n"
+        "   decl %edx\n"
+        "   jne .SUBROWPART_2\n"
+        ".SUBROWPART_1:\n"
+           );
 #else
-    {	register long *l1 = (long *) dest + first;
-	register long *l2 = (long *) src + first;
-	for (i = len; i != 0; --i)
-	{
-	    register long x = *l2++;
-	    *l1 ^= x;
-	    l1++;
-	}
+    {   register long *l1 = (long *) dest + first;
+    register long *l2 = (long *) src + first;
+    for (i = len; i != 0; --i)
+    {
+        register long x = *l2++;
+        *l1 ^= x;
+        l1++;
+    }
     }
 #endif
-    else		/* any other characteristic */
+    else        /* any other characteristic */
     {   FEL *table_inv = mtx_tmult[mtx_taddinv[FF_ONE]];
         register BYTE *p1 = dest + first * sizeof(long);
         register BYTE *p2 = src + first * sizeof(long);
@@ -998,14 +999,14 @@ void FfMulRow(PTR row, FEL mark)
     }
     else if (mark != FF_ONE)
     {
-	multab = mtx_tmult[mark];
-	m = row;
-	for (i = FfCurrentRowSizeIo; i != 0; --i)
-	{
-	    register int x = *m;
-	    if (x != 0) *m = multab[x];
-	    ++m;
-	}
+    multab = mtx_tmult[mark];
+    m = row;
+    for (i = FfCurrentRowSizeIo; i != 0; --i)
+    {
+        register int x = *m;
+        if (x != 0) *m = multab[x];
+        ++m;
+    }
     }
 }
 
@@ -1026,11 +1027,11 @@ void FfAddMulRow(PTR dest, PTR src, FEL f)
 
     CHECKFEL(f);
     if (f == FF_ZERO)
-	return;
+    return;
     if (f == FF_ONE)
     {
-	FfAddRow(dest,src);
-	return;
+    FfAddRow(dest,src);
+    return;
     }
     multab = mtx_tmult[f];
     p1 = dest;
@@ -1100,15 +1101,15 @@ void FfMapRow(PTR row, PTR matrix, int nor, PTR result)
 
 #ifdef DEBUG
     if (result >= row && result < row + FfRowSize(nor))
-	MTX_ERROR("row and result overlap: undefined result!");
+    MTX_ERROR("row and result overlap: undefined result!");
     if (row >= result && row < result + FfCurrentRowSize)
-	MTX_ERROR("row and result overlap: undefined result!");
+    MTX_ERROR("row and result overlap: undefined result!");
 #endif
 
     /* Fill the result with zeroes.
        ---------------------------- */
     for (i = LPR; i > 0; --i)
-	*l++ = 0;
+    *l++ = 0;
 
     if (FfOrder == 2)       /* GF(2) is a special case */
     {
@@ -1117,33 +1118,33 @@ void FfMapRow(PTR row, PTR matrix, int nor, PTR result)
 
         for (i = nor; i > 0; ++r)
         {
-	    register BYTE mask;
-	    if (*r == 0)
-	    {
-		i -= 8;
-		x1 += 8 * LPR;
-		continue;
-	    }
-	    for (mask = 0x80; mask != 0 && i > 0; mask >>= 1, --i)
-	    {
+        register BYTE mask;
+        if (*r == 0)
+        {
+        i -= 8;
+        x1 += 8 * LPR;
+        continue;
+        }
+        for (mask = 0x80; mask != 0 && i > 0; mask >>= 1, --i)
+        {
                 if ((mask & *r) == 0)
-		{
+        {
                     x1 += LPR;  /* Skip that row */
-		    continue;
-		}
+            continue;
+        }
 #ifdef ASM_MMX
 __asm__("    pushl %ebx\n");
 __asm__("    movl %0,%%ebx" : : "g" (x1) );
 __asm__("    pushl %ecx\n"
-	"    pushl %edx\n"
-	"    movl 20(%ebp),%ecx\n"	/* result */
-	);
+    "    pushl %edx\n"
+    "    movl 20(%ebp),%ecx\n"  /* result */
+    );
 __asm__ (
         "    movl LPR,%edx\n"
         "    sarl $1,%edx\n"
         "    je .FASTXOR_1\n"
         "    .align 16\n"
-	".FASTXOR_2:\n"
+    ".FASTXOR_2:\n"
         "    movq (%ebx),%mm0\n"
         "    addl $8,%ebx\n"
         "    pxor (%ecx),%mm0\n"
@@ -1151,20 +1152,20 @@ __asm__ (
         "    addl $8,%ecx\n"
         "    decl %edx\n"
         "    jne .FASTXOR_2\n"
-	".FASTXOR_1:\n"
-	"    popl %edx\n"
-	"    popl %ecx\n");
+    ".FASTXOR_1:\n"
+    "    popl %edx\n"
+    "    popl %ecx\n");
 __asm__("    movl %%ebx,%0" : : "g" (x1) );
 __asm__("    popl %ebx\n"
-	);
+    );
 
 #else
-		{
+        {
                 register long *x2 = (long *)result;
                 register int k;
                 for (k = LPR; k; --k)
                     *x2++ ^= *x1++;
-		}
+        }
 #endif
             }
         }
@@ -1239,17 +1240,17 @@ FEL FfScalarProduct(PTR a, PTR b)
     for (i = FfNoc-1; i >= MPB; i -= MPB)
     {
 
-	register int k;
-	if (*ap != 0 && *bp != 0)
-	{
-	    for (k = 0; k < MPB; ++k)
-		f = FfAdd(f,FfMul(mtx_textract[k][*ap],mtx_textract[k][*bp]));
-	}
-	++ap;
-	++bp;
+    register int k;
+    if (*ap != 0 && *bp != 0)
+    {
+        for (k = 0; k < MPB; ++k)
+        f = FfAdd(f,FfMul(mtx_textract[k][*ap],mtx_textract[k][*bp]));
+    }
+    ++ap;
+    ++bp;
     }
     for (; i >= 0; --i)
-	f = FfAdd(f,FfMul(mtx_textract[i][*ap],mtx_textract[i][*bp]));
+    f = FfAdd(f,FfMul(mtx_textract[i][*ap],mtx_textract[i][*bp]));
 
     return f;
 }
@@ -1289,14 +1290,14 @@ void FfExtractColumn(PTR mat,int nor,int col,PTR result)
 
     for (count = nor; count > 0; --count)
     {
-	a = (BYTE) (a + mtx_tinsert[ind][extab[*x]]);
-	if (++ind == MPB)
-	{
-	    *y++ = a;
-	    a = 0;
-	    ind = 0;
-	}
-	x += FfCurrentRowSize;
+    a = (BYTE) (a + mtx_tinsert[ind][extab[*x]]);
+    if (++ind == MPB)
+    {
+        *y++ = a;
+        a = 0;
+        ind = 0;
+    }
+    x += FfCurrentRowSize;
     }
     if (ind != 0) *y = a;
 }
@@ -1333,10 +1334,10 @@ void FfInsert(PTR row, int col, FEL mark)
 #ifdef DEBUG
     CHECKFEL(mark);
     if (col < 0)
-	MTX_ERROR1("Invalid column index %d",col);
+    MTX_ERROR1("Invalid column index %d",col);
 #ifdef PARANOID
     if (col >= FfNoc)
-	MTX_ERROR2("Invalid column index %d, noc=%d)",col,FfNoc);
+    MTX_ERROR2("Invalid column index %d, noc=%d)",col,FfNoc);
 #endif
 #endif
     *loc = (BYTE) (mtx_tnull[idx][*loc] + mtx_tinsert[idx][mark]);
@@ -1366,10 +1367,10 @@ FEL FfExtract(PTR row, int col)
 {
 #ifdef DEBUG
     if (col < 0)
-	MTX_ERROR1("Invalid column index (%d)",col);
+    MTX_ERROR1("Invalid column index (%d)",col);
 #ifdef PARANOID
     if (col >= FfNoc)
-	MTX_ERROR2("Invalid column index %d, noc=%d",col,FfNoc);
+    MTX_ERROR2("Invalid column index %d, noc=%d",col,FfNoc);
     CHECKFEL(mtx_textract[col % MPB][((BYTE *)row)[col / MPB]]);
 #endif
 #endif
@@ -1397,16 +1398,16 @@ int FfFindPivot(PTR row, FEL *mark)
 
     for (idx = 0; idx < LPR && *l == 0; ++idx, ++l);
     if (idx == LPR)
-	return -1;
+    return -1;
     idx = idx * sizeof(long) * MPB;
     m = (BYTE *)l;
     while (*m == 0)
-    {	++m;
-	idx += MPB;
+    {   ++m;
+    idx += MPB;
     }
     idx += mtx_tffirst[*m][1];
-    if (idx >= FfNoc)		/* Ignore garbage in padding bytes */
-	return -1;
+    if (idx >= FfNoc)       /* Ignore garbage in padding bytes */
+    return -1;
     *mark = mtx_tffirst[*m][0];
     return idx;
 }

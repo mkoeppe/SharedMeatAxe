@@ -26,7 +26,7 @@ MTX_DEFINE_FILE_INFO
 /**
  ** @class CfInfo
  ** Constituent data structure.
- ** The CFInfo data structure contains all information about one 
+ ** The CFInfo data structure contains all information about one
  ** irreducible constituent of a module. Most of this information is
  ** useful only in the context of a Lat_Info structure.
  **
@@ -58,17 +58,17 @@ static void WriteWord(StfData *f, long w, Poly_t *p)
     StfPutInt(f,FfOrder);
     if (p == NULL)
     {
-	StfPut(f,",-1");
+    StfPut(f,",-1");
     }
     else
     {
-	StfPut(f,",");
-	StfPutInt(f,p->Degree);
-	for (i = 0; i <= p->Degree; ++i)
-	{
-	    StfPut(f,",");
-	    StfPutInt(f,FfToInt(p->Data[i]));
-	}
+    StfPut(f,",");
+    StfPutInt(f,p->Degree);
+    for (i = 0; i <= p->Degree; ++i)
+    {
+        StfPut(f,",");
+        StfPutInt(f,FfToInt(p->Data[i]));
+    }
     }
     StfPut(f,"]");
 }
@@ -76,70 +76,70 @@ static void WriteWord(StfData *f, long w, Poly_t *p)
 
 static int ReadWord(StfData *f, long *w, Poly_t **p, char *fn)
 {
-    int fl, deg;  
+    int fl, deg;
     int i;
 
     if (StfMatch(f," ["))
     {
-	MTX_ERROR1("%s: missing '['",fn);
-	return 0;
+    MTX_ERROR1("%s: missing '['",fn);
+    return 0;
     }
     StfGetInt(f,&i);
     *w = i;
-    if (StfMatch(f,",")) 
+    if (StfMatch(f,","))
     {
-	MTX_ERROR1("%s: missing ','",fn);
-	return 0;
+    MTX_ERROR1("%s: missing ','",fn);
+    return 0;
     }
     StfGetInt(f,&fl);
-    if (StfMatch(f,",")) 
+    if (StfMatch(f,","))
     {
-	MTX_ERROR1("%s: missing ','",fn);
-	return 0;
+    MTX_ERROR1("%s: missing ','",fn);
+    return 0;
     }
     StfGetInt(f,&deg);
     if (deg == -1)
-	*p = NULL;
+    *p = NULL;
     else
     {
         *p = PolAlloc(fl,deg);
-    	for (i = 0; i <= deg; ++i)
-    	{
-	    int coeff;
-            if (StfMatch(f,",")) 
-	    {
-		MTX_ERROR1("%s: missing ','",fn);
-		return 0;
-	    }
-	    StfGetInt(f,&coeff);
-	    (*p)->Data[i] = FfFromInt(coeff);
-    	}
+        for (i = 0; i <= deg; ++i)
+        {
+        int coeff;
+            if (StfMatch(f,","))
+        {
+        MTX_ERROR1("%s: missing ','",fn);
+        return 0;
+        }
+        StfGetInt(f,&coeff);
+        (*p)->Data[i] = FfFromInt(coeff);
+        }
     }
-    if (StfMatch(f,"]")) 
+    if (StfMatch(f,"]"))
     {
-	MTX_ERROR1("%s: missing ']'",fn);
-	return 0;
+    MTX_ERROR1("%s: missing ']'",fn);
+    return 0;
     }
     return 1;
 }
 
 
 #define RDVEC(name,fld)\
-	else if (!strcmp(c,name))\
-	{\
-	    if (StfMatch(f," ["))\
-	    { MTX_ERROR("Error in cfinfo file: Missing '['"); return -1; }\
-	    for (i = 0; i < li->NCf; ++i) \
-	    {\
-		int val = 0;\
-		if (i > 0)\
-		    StfMatch(f,",");\
-		StfGetInt(f,&val);\
-		li->Cf[i].fld = val;\
-	    }\
-	    if (StfMatch(f,"]"))\
-	    { MTX_ERROR("Error in cfinfo file: Missing ']'"); return -1; }\
-	}
+    else if (!strcmp(c,name))\
+    {\
+        if (StfMatch(f," ["))\
+        { MTX_ERROR("Error in cfinfo file: Missing '['"); return -1; }\
+        for (i = 0; i < li->NCf; ++i) \
+        {\
+        int val = 0;\
+        if (i > 0)\
+            StfMatch(f,",");\
+        StfGetInt(f,&val);\
+        li->Cf[i].fld = val;\
+        }\
+        if (StfMatch(f,"]"))\
+        { MTX_ERROR("Error in cfinfo file: Missing ']'"); return -1; }\
+    }
 
 /**
  ** Read a Lattice Information File.
@@ -172,127 +172,127 @@ int Lat_ReadInfo(Lat_Info *li, const char *basename)
     sprintf(fn,"%s.cfinfo",basename);
     if ((f = StfOpen(fn,FM_READ)) == NULL)
     {
-	MTX_ERROR1("Cannot open %s",fn);
-	return -1;
+    MTX_ERROR1("Cannot open %s",fn);
+    return -1;
     }
 
     /* Read header
        ----------- */
     if (StfReadLine(f) || strcmp(StfGetName(f),"CFInfo"))
     {
-	MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-	return -1;
+    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+    return -1;
     }
 
     /* Read data
        --------- */
     while (StfReadLine(f) == 0)
     {
-	const char *c = StfGetName(f);
-	if (!strcmp(c,"CFInfo.NCF"))
-	    StfGetInt(f,&li->NCf);
-	else if (!strcmp(c,"CFInfo.ConstituentNames"))
-	    ;	/* Ignore */
-	else if (!strcmp(c,"CFInfo.Field"))
-	{   
-	    StfGetInt(f,&li->Field);
-	    FfSetField(li->Field);
-	}
-	else if (!strcmp(c,"CFInfo.NGen"))
-	    StfGetInt(f,&li->NGen);
-	RDVEC("CFInfo.Dimension",dim)
-	RDVEC("CFInfo.Number",num)
-	RDVEC("CFInfo.Multiplicity",mult)
-	RDVEC("CFInfo.SplittingField",spl)
-	RDVEC("CFInfo.NMountains",nmount)
-	RDVEC("CFInfo.NDottedLines",ndotl)
-	else if (!strcmp(c,"CFInfo.IdWord"))
-	{
-	    if (StfMatch(f," [") != 0) 
-	    {
-		MTX_ERROR1("%s: Missing '['",fn);
-		return -1;
-	    }
-	    for (i = 0; i < li->NCf; ++i)
-	    {
-		if (!ReadWord(f,&(li->Cf[i].idword),&(li->Cf[i].idpol),fn)) return -1;
-		if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
-		{
-		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		    return -1;
-		}
-	    }
-	}
-	else if (!strcmp(c,"CFInfo.PeakWord"))
-	{
-	    if (StfMatch(f," [") != 0) 
-	    {
-		MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		return -1;
-	    }
-	    for (i = 0; i < li->NCf; ++i)
-	    {
-		if (!ReadWord(f,&(li->Cf[i].peakword),&(li->Cf[i].peakpol),fn)) return -1;
-		if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
-		{
-		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		    return -1;
-		}
-	    }
-	}
-	else if (!strcmp(c,"CFInfo.LoewyLength"))   /* for compatibility */
-	    ;	
-	else if (!strcmp(c,"CFInfo.NSocles"))
-	    ;	/* Is set when reading "CFInfo.Socles" */
-	else if (!strcmp(c,"CFInfo.Socles"))
-	{
-	    if (StfMatch(f," [") != 0) 
-	    {
-		MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		return -1;
-	    }
-	    for (i = 0; StfMatch(f,"];"); ++i)
-	    {
-		int mult[LAT_MAXCF];
-		int count = LAT_MAXCF;
-		if (i > 0) StfMatch(f,",");
-		StfGetVector(f,&count,mult);
-		if (count != li->NCf)
-		{
-		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		    return -1;
-		}
-		Lat_AddSocle(li,mult);
-	    }
-	}
-	else if (!strcmp(c,"CFInfo.NHeads"))
-	    ;	/* Is set when reading "CFInfo.Heads" */
-	else if (!strcmp(c,"CFInfo.Heads"))
-	{
-	    if (StfMatch(f," [") != 0) 
-	    {
-		MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		return -1;
-	    }
-	    for (i = 0; StfMatch(f,"];"); ++i)
-	    {
-		int mult[LAT_MAXCF];
-		int count = LAT_MAXCF;
-		if (i > 0) StfMatch(f,",");
-		StfGetVector(f,&count,mult);
-		if (count != li->NCf)
-		{
-		    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-		    return -1;
-		}
-		Lat_AddHead(li,mult);
-	    }
-	}
-	else
-	{
-	    MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
-	    return -1;
-	}
+    const char *c = StfGetName(f);
+    if (!strcmp(c,"CFInfo.NCF"))
+        StfGetInt(f,&li->NCf);
+    else if (!strcmp(c,"CFInfo.ConstituentNames"))
+        ;   /* Ignore */
+    else if (!strcmp(c,"CFInfo.Field"))
+    {
+        StfGetInt(f,&li->Field);
+        FfSetField(li->Field);
+    }
+    else if (!strcmp(c,"CFInfo.NGen"))
+        StfGetInt(f,&li->NGen);
+    RDVEC("CFInfo.Dimension",dim)
+    RDVEC("CFInfo.Number",num)
+    RDVEC("CFInfo.Multiplicity",mult)
+    RDVEC("CFInfo.SplittingField",spl)
+    RDVEC("CFInfo.NMountains",nmount)
+    RDVEC("CFInfo.NDottedLines",ndotl)
+    else if (!strcmp(c,"CFInfo.IdWord"))
+    {
+        if (StfMatch(f," [") != 0)
+        {
+        MTX_ERROR1("%s: Missing '['",fn);
+        return -1;
+        }
+        for (i = 0; i < li->NCf; ++i)
+        {
+        if (!ReadWord(f,&(li->Cf[i].idword),&(li->Cf[i].idpol),fn)) return -1;
+        if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
+        {
+            MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+            return -1;
+        }
+        }
+    }
+    else if (!strcmp(c,"CFInfo.PeakWord"))
+    {
+        if (StfMatch(f," [") != 0)
+        {
+        MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+        return -1;
+        }
+        for (i = 0; i < li->NCf; ++i)
+        {
+        if (!ReadWord(f,&(li->Cf[i].peakword),&(li->Cf[i].peakpol),fn)) return -1;
+        if (StfMatch(f,i < li->NCf - 1 ? "," : "];") != 0)
+        {
+            MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+            return -1;
+        }
+        }
+    }
+    else if (!strcmp(c,"CFInfo.LoewyLength"))   /* for compatibility */
+        ;
+    else if (!strcmp(c,"CFInfo.NSocles"))
+        ;   /* Is set when reading "CFInfo.Socles" */
+    else if (!strcmp(c,"CFInfo.Socles"))
+    {
+        if (StfMatch(f," [") != 0)
+        {
+        MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+        return -1;
+        }
+        for (i = 0; StfMatch(f,"];"); ++i)
+        {
+        int mult[LAT_MAXCF];
+        int count = LAT_MAXCF;
+        if (i > 0) StfMatch(f,",");
+        StfGetVector(f,&count,mult);
+        if (count != li->NCf)
+        {
+            MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+            return -1;
+        }
+        Lat_AddSocle(li,mult);
+        }
+    }
+    else if (!strcmp(c,"CFInfo.NHeads"))
+        ;   /* Is set when reading "CFInfo.Heads" */
+    else if (!strcmp(c,"CFInfo.Heads"))
+    {
+        if (StfMatch(f," [") != 0)
+        {
+        MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+        return -1;
+        }
+        for (i = 0; StfMatch(f,"];"); ++i)
+        {
+        int mult[LAT_MAXCF];
+        int count = LAT_MAXCF;
+        if (i > 0) StfMatch(f,",");
+        StfGetVector(f,&count,mult);
+        if (count != li->NCf)
+        {
+            MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+            return -1;
+        }
+        Lat_AddHead(li,mult);
+        }
+    }
+    else
+    {
+        MTX_ERROR2("%s: %E",fn,MTX_ERR_FILEFMT);
+        return -1;
+    }
     }
     StfClose(f);
     MESSAGE(1,("Read %s: %d composition factors\n",fn,li->NCf));
@@ -326,7 +326,7 @@ int Lat_WriteInfo(const Lat_Info *li)
     strcat(fn,".cfinfo");
     f = StfOpen(fn,FM_CREATE);
     if (f == NULL)
-	return -1;
+    return -1;
 
     /* Write data
        ---------- */
@@ -340,8 +340,8 @@ int Lat_WriteInfo(const Lat_Info *li)
     StfPut(f,"[");
     for (i = 0; i < li->NCf; ++i)
     {
-	StfPutString(f,Lat_CfName(li,i));
-	if (i < li->NCf-1) StfPut(f,",");
+    StfPutString(f,Lat_CfName(li,i));
+    if (i < li->NCf-1) StfPut(f,",");
     }
     StfPut(f,"]");
     StfEndEntry(f);
@@ -363,7 +363,7 @@ int Lat_WriteInfo(const Lat_Info *li)
     for (i = 0; i < li->NCf; ++i)
     {
         WriteWord(f,li->Cf[i].peakword,li->Cf[i].peakpol);
-	if (i < li->NCf-1) StfPut(f,",");
+    if (i < li->NCf-1) StfPut(f,",");
     }
     StfPut(f,"]");
     StfEndEntry(f);
@@ -373,7 +373,7 @@ int Lat_WriteInfo(const Lat_Info *li)
     for (i = 0; i < li->NCf; ++i)
     {
         WriteWord(f,li->Cf[i].idword,li->Cf[i].idpol);
-	if (i < li->NCf-1) StfPut(f,",");
+    if (i < li->NCf-1) StfPut(f,",");
     }
     StfPut(f,"]");
     StfEndEntry(f);
@@ -383,8 +383,8 @@ int Lat_WriteInfo(const Lat_Info *li)
     StfPut(f,"[");
     for (i = 0; i < li->NSocles; ++i)
     {
-	if (i > 0) StfPut(f,",");
-	StfPutVector(f,li->NCf,li->Socle + i * li->NCf);
+    if (i > 0) StfPut(f,",");
+    StfPutVector(f,li->NCf,li->Socle + i * li->NCf);
     }
     StfPut(f,"]");
     StfEndEntry(f);
@@ -394,8 +394,8 @@ int Lat_WriteInfo(const Lat_Info *li)
     StfPut(f,"[");
     for (i = 0; i < li->NHeads; ++i)
     {
-	if (i > 0) StfPut(f,",");
-	StfPutVector(f,li->NCf,li->Head + i * li->NCf);
+    if (i > 0) StfPut(f,",");
+    StfPutVector(f,li->NCf,li->Head + i * li->NCf);
     }
     StfPut(f,"]");
     StfEndEntry(f);
@@ -413,12 +413,12 @@ int Lat_WriteInfo(const Lat_Info *li)
  ** This function returns the name of the @a cf-th constituent of a module.
  ** The constituent name consists of the dimension and an appendix which is
  ** built from the @c num field in the constituent's data structure. Usually
- ** the appendix is a single letter ('a', 'b', ...). If there are more than 
- ** 26 constituents with the same dimension, a two-letter appendix (`aa', 
- ** `ab', etc.) is used. 
+ ** the appendix is a single letter ('a', 'b', ...). If there are more than
+ ** 26 constituents with the same dimension, a two-letter appendix (`aa',
+ ** `ab', etc.) is used.
  **
- ** Note: The return value points to a static buffer which is overwritten 
- ** at each call. The constituent data inside @a li must have been set up 
+ ** Note: The return value points to a static buffer which is overwritten
+ ** at each call. The constituent data inside @a li must have been set up
  ** properly, i.e., the module must have been chopped.
  ** @param li Constituent info structure.
  ** @param cf Index of the constituent.
@@ -427,7 +427,7 @@ int Lat_WriteInfo(const Lat_Info *li)
 
 const char *Lat_CfName(const Lat_Info *li, int cf)
 {
-    static char buf[20];
+    static char buf[30];
     int num, dim;
 
     /* Check arguments
@@ -443,17 +443,17 @@ const char *Lat_CfName(const Lat_Info *li, int cf)
     /* Build the constituent's name
        ---------------------------- */
     if (num < 26)
-	sprintf(buf,"%d%c",dim,(char)num+'a');
+    { if (snprintf(buf,30,"%d%c",dim,(char)num+'a')>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
     else if (num < 26*26)
-	sprintf(buf,"%d%c%c",dim,(char)(num/26-1)+'a',(char)(num%26)+'a');
+    { if (snprintf(buf,"%d%c%c",30,dim,(char)(num/26-1)+'a',(char)(num%26)+'a')>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
     else
-	sprintf(buf,"%dcf%d",dim,num);
+    { if (snprintf(buf,30,"%dcf%d",dim,num)>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
 
     return buf;
 }
 
 
-/** Add a Layer to the Socle Series.
+/** Add a Layer to the Socle Series. Return -1 on error
  **/
 
 int Lat_AddSocle(Lat_Info *li, int *mult)
@@ -462,15 +462,16 @@ int Lat_AddSocle(Lat_Info *li, int *mult)
     int *ptr;
 
     li->Socle = NREALLOC(li->Socle,int,li->NCf * (li->NSocles + 1));
+    if (!li->Socle) return -1;
     ptr = li->Socle + li->NCf * li->NSocles;
     for (i = 0; i < li->NCf; ++i)
-	ptr[i] = mult[i];
+    ptr[i] = mult[i];
     ++li->NSocles;
     return li->NSocles;
 }
 
 
-/** Add a Layer to the Radical Series.
+/** Add a Layer to the Radical Series. Return -1 on error.
  **/
 
 int Lat_AddHead(Lat_Info *li, int *mult)
@@ -479,9 +480,10 @@ int Lat_AddHead(Lat_Info *li, int *mult)
     int *ptr;
 
     li->Head = NREALLOC(li->Head,int,li->NCf * (li->NHeads + 1));
+    if (!li->Head) return -1;
     ptr = li->Head + li->NCf * li->NHeads;
     for (i = 0; i < li->NCf; ++i)
-	ptr[i] = mult[i];
+    ptr[i] = mult[i];
     ++li->NHeads;
     return li->NHeads;
 }
