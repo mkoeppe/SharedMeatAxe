@@ -17,7 +17,7 @@
 #define MaxCharsPerLine 80
 
 
-MTX_DEFINE_FILE_INFO 
+MTX_DEFINE_FILE_INFO
 
 /**
  ** @addtogroup stf
@@ -33,44 +33,49 @@ int StfPut(StfData *f, const char *text)
 {
     int len = strlen(text);
     if (len == 0)
-	return 0;
+    return 0;
 
     if ((f->OutPos + len) > MaxCharsPerLine)
     {
-	fputs("\n\t",f->File);
-	f->OutPos = 8;
-	++f->LineNo;
+    fputs("\n\t",f->File);
+    f->OutPos = 8;
+    ++f->LineNo;
     }
     fputs(text,f->File);
     f->OutPos += len;
     if (text[len-1] == '\n')
     {
-	f->OutPos = 0;
-	++f->LineNo;
+    f->OutPos = 0;
+    ++f->LineNo;
     }
     return 0;
 }
 
 
 /**
- ** Write an Integer.
+ ** Write an Integer. -1 on error, 0 on success
  **/
 
 int StfPutInt(StfData *f, int value)
 {
     char tmp[20];
-    sprintf(tmp,"%d",value);
+    if (snprintf(tmp,20,"%d",value)>=20)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
     return StfPut(f,tmp);
 }
 
 
 /**
- ** Write a String.
+ ** Write a String. -1 on error, 0 on success
  **/
 
 int StfPutString(StfData *f, const char *text)
 {
     char *tmp = NALLOC(char,2 * strlen(text) + 5);
+    if (!tmp) return -1;
     char *c = tmp;
     const char *t = text;
     int result;
@@ -78,19 +83,19 @@ int StfPutString(StfData *f, const char *text)
     *c++ = '"';
     while (*t != 0)
     {
-	switch (*t)
-	{
-	    case '\n': *c++ = '\\'; *c++ = 'n'; break;
-	    case '\r': *c++ = '\\'; *c++ = 'r'; break;
-	    case '\t': *c++ = '\\'; *c++ = 't'; break;
-	    case '\a': *c++ = '\\'; *c++ = 'a'; break;
-	    case '\b': *c++ = '\\'; *c++ = 'b'; break;
-	    case '\f': *c++ = '\\'; *c++ = 'f'; break;
-	    case '"': *c++ = '\\'; *c++ = '"'; break;
-	    default:
-		*c++ = *t;
-	}
-	++t;
+    switch (*t)
+    {
+        case '\n': *c++ = '\\'; *c++ = 'n'; break;
+        case '\r': *c++ = '\\'; *c++ = 'r'; break;
+        case '\t': *c++ = '\\'; *c++ = 't'; break;
+        case '\a': *c++ = '\\'; *c++ = 'a'; break;
+        case '\b': *c++ = '\\'; *c++ = 'b'; break;
+        case '\f': *c++ = '\\'; *c++ = 'f'; break;
+        case '"': *c++ = '\\'; *c++ = '"'; break;
+        default:
+        *c++ = *t;
+    }
+    ++t;
     }
     *c++ = '"';
     *c = 0;
@@ -101,25 +106,22 @@ int StfPutString(StfData *f, const char *text)
 
 
 /**
- ** Write a Vector.
+ ** Write a Vector. -1 on error, 0 on success
  **/
 
 int StfPutVector(StfData *f, int size, const int *value)
 {
     int i;
-    if (value == NULL || size < 0 || size > 100000)
-	return -1;
-    if (f == NULL || f->File == NULL)
-	return -1;
-    StfPut(f,"[");
+    if (value == NULL || size < 0 || size > 100000) return -1;
+    if (f == NULL || f->File == NULL) return -1;
+    if (StfPut(f,"[")) return -1;
     for (i = 0; i < size; ++i)
     {
-	StfPutInt(f,value[i]);
-	if (i < size - 1)
-	    StfPut(f,",");
+        if (StfPutInt(f,value[i])) return -1;
+        if (i < size - 1)
+            { if (StfPut(f,",")) return -1; }
     }
-    StfPut(f,"]");
-    return 0;
+    return StfPut(f,"]");
 }
 
 
@@ -128,8 +130,8 @@ int StfPutVector(StfData *f, int size, const int *value)
 
 /**
  ** Start a New Entry.
- ** This function begins a new entry. Be sure to terminate any incomplete 
- ** entries with StfEndEntry() before you start a new entry. If you don't, 
+ ** This function begins a new entry. Be sure to terminate any incomplete
+ ** entries with StfEndEntry() before you start a new entry. If you don't,
  ** the incomplete entry may be lost, and the data file may become corrupted.
  **
  ** Before you use %StfBeginEntry(), check if you can do the job with one of
@@ -158,11 +160,11 @@ int StfPutVector(StfData *f, int size, const int *value)
 int StfBeginEntry(StfData *f, const char *name)
 {
     if (name == NULL)
-	return -1;
+    return -1;
     if (f == NULL || f->File == NULL)
-	return -1;
+    return -1;
     if (StfPut(f,name) || StfPut(f," := "))
-	return -1;
+    return -1;
     return 0;
 }
 
@@ -179,15 +181,14 @@ int StfBeginEntry(StfData *f, const char *name)
 
 int StfEndEntry(StfData *f)
 {
-    if (f == NULL || f->File == NULL)
-	return -1;
+    if (f == NULL || f->File == NULL) return -1;
     return StfPut(f,";\n");
 }
 
 
 /**
  ** Write a String.
- ** This function writes an arbitrary text to a structured text file. 
+ ** This function writes an arbitrary text to a structured text file.
  ** For example, the statement
  ** @code
  ** StfWriteValue(f,"Note","This is a note");
@@ -206,14 +207,12 @@ int StfEndEntry(StfData *f)
 int StfWriteValue(StfData *f, const char *name, const char *value)
 {
     if (name == NULL || value == NULL)
-	return -1;
+    return -1;
     if (f == NULL || f->File == NULL)
-	return -1;
-    if (StfBeginEntry(f,name) != 0)
-	return -1;
-    StfPut(f,value);
-    StfEndEntry(f);
-    return 0;
+    return -1;
+    if (StfBeginEntry(f,name) != 0) return -1;
+    if (StfPut(f,value)) return -1;
+    return StfEndEntry(f);
 }
 
 
@@ -224,7 +223,7 @@ int StfWriteValue(StfData *f, const char *name, const char *value)
  ** @param name Name of the entry.
  ** @param value String to write.
  ** @return 0 on success, -1 on error.
- ** This function writes an arbitrary string to a structured text file. 
+ ** This function writes an arbitrary string to a structured text file.
  ** For example, the statement
  ** @code
  ** StfWriteValue(f,"Title","This is a test ");
@@ -240,25 +239,23 @@ int StfWriteString(StfData *f, const char *name, const char *value)
 {
     if (name == NULL || value == NULL)
     {
-	MTX_ERROR("name or value invalid");
-	return -1;
+    MTX_ERROR("name or value invalid");
+    return -1;
     }
     if (f == NULL || f->File == NULL)
     {
-	MTX_ERROR("Invalid file");
-	return -1;
+    MTX_ERROR("Invalid file");
+    return -1;
     }
-    if (StfBeginEntry(f,name) != 0)
-	return -1;
-    StfPutString(f,value);
-    StfEndEntry(f);
-    return 0;
+    if (StfBeginEntry(f,name) != 0) return -1;
+    if (StfPutString(f,value)) return -1;
+    return StfEndEntry(f);
 }
 
 
 /**
  ** Write an Integer.
- ** This function writes an integer to a structured text file. For example, 
+ ** This function writes an integer to a structured text file. For example,
  ** the statement
  ** @code
  ** StfWriteInt(f,"Dimension",42);
@@ -276,17 +273,15 @@ int StfWriteString(StfData *f, const char *name, const char *value)
 int StfWriteInt(StfData *f, const char *name, int value)
 {
     if (name == NULL)
-	return -1;
+    return -1;
     if (f == NULL || f->File == NULL)
     {
-	MTX_ERROR1("f: %E",MTX_ERR_BADARG);
-	return -1;
+        MTX_ERROR1("f: %E",MTX_ERR_BADARG);
+        return -1;
     }
-    if (StfBeginEntry(f,name) != 0)
-	return -1;
-    StfPutInt(f,value);
-    StfEndEntry(f);
-    return 0;
+    if (StfBeginEntry(f,name) != 0) return -1;
+    if (StfPutInt(f,value)) return -1;
+    return StfEndEntry(f);
 }
 
 
@@ -313,15 +308,11 @@ int StfWriteInt(StfData *f, const char *name, int value)
 
 int StfWriteVector(StfData *f, const char *name, int size, const int *value)
 {
-    if (name == NULL || value == NULL || size < 0 || size > 100000)
-	return -1;
-    if (f == NULL || f->File == NULL)
-	return -1;
-    if (StfBeginEntry(f,name) != 0)
-	return -1;
-    StfPutVector(f,size,value);
-    StfEndEntry(f);
-    return 0;
+    if (name == NULL || value == NULL || size < 0 || size > 100000) return -1;
+    if (f == NULL || f->File == NULL) return -1;
+    if (StfBeginEntry(f,name) != 0) return -1;
+    if (StfPutVector(f,size,value)) return -1;
+    return StfEndEntry(f);
 }
 
 /**

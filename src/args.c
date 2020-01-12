@@ -99,17 +99,17 @@ MTX_DEFINE_FILE_INFO
  ** @code
  ** int main(int argc, char **argv)
  ** {
- **	MtxApplication_t *app = AppAlloc(argc,argv,&appinfo);
- **	const char *tmpdir = AppCreateTempDir(app);
- **	...
+ ** MtxApplication_t *app = AppAlloc(argc,argv,&appinfo);
+ ** const char *tmpdir = AppCreateTempDir(app);
+ ** ...
  **
- **	sprintf(file_name,"%s/%s",tempdir,"test");
- **	MatSave(mat,fn);
- **	...
- **	SysRemoveFile(fn);
+ ** sprintf(file_name,"%s/%s",tempdir,"test");
+ ** MatSave(mat,fn);
+ ** ...
+ ** SysRemoveFile(fn);
  **
- **	AppFree(app);
- **	return 0;
+ ** AppFree(app);
+ ** return 0;
  ** }
  ** @endcode
  **/
@@ -148,7 +148,7 @@ char MtxLibDir[] = MTXLIB;
 static int CheckForLongOption(MtxApplication_t *app, int i, const char *long_name)
 {
     if (*long_name == 0)
-	return -1;
+    return -1;
     if (strcmp(app->OrigArgV[i]+2,long_name))
         return -1;
     app->IsDone[i] = 0xFFFFFFFF;
@@ -169,9 +169,9 @@ static int CheckForShortOption(MtxApplication_t *app, int i, char short_name, in
             continue;
         if (needs_arg && (k > 0 || tab[k+1] != 0))
         {
-	    MTX_ERROR1("Option '-%c' cannot be combined with other options",
-	    	short_name);
-	    MARK_DONE(app,i);
+        MTX_ERROR1("Option '-%c' cannot be combined with other options",
+            short_name);
+        MARK_DONE(app,i);
             return -1;
         }
         MARK_DONE_1(app,i,k);
@@ -246,7 +246,7 @@ static int FindSpec(MtxApplication_t *app, const char *spec, int needs_arg)
 
 
     for (c = spec; *c != 0 && isspace((unsigned char)*c); ++c)
-    	;
+        ;
     if (*c != '-')
     {
         MTX_ERROR(err_text);
@@ -254,24 +254,24 @@ static int FindSpec(MtxApplication_t *app, const char *spec, int needs_arg)
     }
     if (c[1] != '-')
     {
-    	short_name = c + 1;
-	while (*c != 0 && !isspace((unsigned char)*c))
-	    ++c;
-	while (*c != 0 && isspace((unsigned char)*c))
-	    ++c;
+        short_name = c + 1;
+    while (*c != 0 && !isspace((unsigned char)*c))
+        ++c;
+    while (*c != 0 && isspace((unsigned char)*c))
+        ++c;
     }
     if (*c != 0)
     {
-    	if (c[0] != '-' || c[1] != '-')
-    	{
+        if (c[0] != '-' || c[1] != '-')
+        {
             MTX_ERROR(err_text);
             return -1;
         }
-	long_name = c + 2;
-	while (*c != 0 && !isspace((unsigned char)*c))
-	    ++c;
-	if (*c != 0)
-    	{
+    long_name = c + 2;
+    while (*c != 0 && !isspace((unsigned char)*c))
+        ++c;
+    if (*c != 0)
+        {
             MTX_ERROR(err_text);
             return -1;
         }
@@ -299,13 +299,13 @@ static void PrintHelp(const MtxApplicationInfo_t *ai)
 {
     if (ai == NULL)
     {
-	printf("%s\nNo help text available.\n",PACKAGE_STRING);
+    printf("%s\nNo help text available.\n",PACKAGE_STRING);
     }
     else
     {
-	printf("NAME\n    %s - %s\n    %s\n\n",
-	      ai->Name,ai->Description,PACKAGE_STRING);
-	printf("%s\n",ai->Help);
+    printf("NAME\n    %s - %s\n    %s\n\n",
+          ai->Name,ai->Description,PACKAGE_STRING);
+    printf("%s\n",ai->Help);
     }
 }
 
@@ -343,7 +343,7 @@ MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char 
 
 
     if ((a = ALLOC(MtxApplication_t)) == NULL)
-	return NULL;
+    return NULL;
     memset(a,0,sizeof(*a));
 
     /* Save the command line for later use.
@@ -357,20 +357,20 @@ MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char 
        -------------- */
     for (i = 0; i < a->OrigArgC; ++i)
     {
-	if (!strcmp(a->OrigArgV[i],"--"))
-	{
-	    a->OptEnd = i;
-	    a->IsDone[i] = 0xFFFFFFFF;
-	    break;
-	}
+    if (!strcmp(a->OrigArgV[i],"--"))
+    {
+        a->OptEnd = i;
+        a->IsDone[i] = 0xFFFFFFFF;
+        break;
+    }
     }
 
     /* Process environment variables
        ----------------------------- */
     if ((c = getenv("MTXBIN")) != NULL)
-	strcpy(MtxBinDir,c);
+    strcpy(MtxBinDir,c);
     if ((c = getenv("MTXLIB")) != NULL)
-	strcpy(MtxLibDir,c);
+    strcpy(MtxLibDir,c);
 
     /* Initialize the library
        ---------------------- */
@@ -380,22 +380,22 @@ MtxApplication_t *AppAlloc(MtxApplicationInfo_t const *ai, int argc, const char 
        ----------------- */
     if (AppGetOption(a,"-h --help"))
     {
-	PrintHelp(ai);
-	exit(0);
+    PrintHelp(ai);
+    exit(0);
     }
 
     /* Check for common options
        ------------------------ */
     MtxMessageLevel = AppGetCountedOption(a,"-V --verbose");
     if (AppGetOption(a,"-Q --quiet"))
-	MtxMessageLevel = -1000;
+    MtxMessageLevel = -1000;
     if ((c = AppGetTextOption(a,"-L --mtxlib",NULL)) != NULL)
-	strcpy(MtxLibDir,c);
+    strcpy(MtxLibDir,c);
     if ((c = AppGetTextOption(a,"-B --mtxbin",NULL)) != NULL)
-	strcpy(MtxBinDir,c);
+    strcpy(MtxBinDir,c);
     MtxOpt_UseOldWordGenerator = AppGetOption(a,"--old-word-generator");
     if ((time_limit = AppGetIntOption(a,"-T --lime-limit",0,0,1000000)) > 0)
-	SysSetTimeLimit(time_limit);
+    SysSetTimeLimit(time_limit);
 
     return a;
 }
@@ -418,10 +418,10 @@ int AppFree(MtxApplication_t *a)
     /* Remove the temporary directory.
        ------------------------------- */
     if (a->TempDirName[0] != 0)
-	SysRemoveDirectory(a->TempDirName);
+    SysRemoveDirectory(a->TempDirName);
 
     MESSAGE(1,("%s: %ld.%ld seconds\n",a->AppInfo != NULL ?
-	a->AppInfo->Name : "meataxe",t/10,t%10));
+    a->AppInfo->Name : "meataxe",t/10,t%10));
     MtxCleanupLibrary();
     SysFree(a);
     return 0;
@@ -496,7 +496,7 @@ int AppGetCountedOption(MtxApplication_t *app, const char *spec)
     int count = 0;
 
     while (FindSpec(app,spec,0) == 0)
-	++count;
+    ++count;
     return count;
 }
 
@@ -530,12 +530,12 @@ const char *AppGetTextOption(MtxApplication_t *app, const char *spec, const char
 static int IsInteger(const char *c)
 {
     if (*c == '-')
-	++c;
+    ++c;
     if (!isdigit(*c))
-	return 0;
+    return 0;
     do ++c; while (isdigit(*c));
     if (*c != 0)
-	return 0;
+    return 0;
     return 1;
 }
 
@@ -573,18 +573,18 @@ int AppGetIntOption(MtxApplication_t *app, const char *spec, int dflt,
 
     txt = AppGetTextOption(app,spec,NULL);
     if (txt == NULL)
-	return dflt;
+    return dflt;
     if (!IsInteger(txt))
     {
-	MTX_ERROR1("Invalid number after '%s'",app->OrigArgV[app->OptInd]);
-	return dflt;
+    MTX_ERROR1("Invalid number after '%s'",app->OrigArgV[app->OptInd]);
+    return dflt;
     }
     i = atoi(txt);
     if (min <= max && (i < min || i > max))
     {
-	MTX_ERROR3("Value after '%s' is out of range (%d..%d)",
-	    app->OrigArgV[app->OptInd],min,max);
-	return dflt;
+    MTX_ERROR3("Value after '%s' is out of range (%d..%d)",
+        app->OrigArgV[app->OptInd],min,max);
+    return dflt;
     }
     return i;
 }
@@ -597,34 +597,34 @@ static int CheckDone(MtxApplication_t *app, int i)
     const char *c = app->OrigArgV[i];
 
     if (app->IsDone[i] == 0xFFFFFFFF)
-    	return 0;
+        return 0;
     if (*c != '-')
-    	return 1;		/* 1 = Ende der Optionen */
+        return 1;       /* 1 = Ende der Optionen */
     if (c[1] == '-')
     {
-    	if (app->IsDone[i] != 0xFFFFFFFF)
-	{
-	    MTX_ERROR1("Unknown option '%s', try --help",c);
-	    return -1;		/* -1 = Nicht ausgewertete Option */
-	}
+        if (app->IsDone[i] != 0xFFFFFFFF)
+    {
+        MTX_ERROR1("Unknown option '%s', try --help",c);
+        return -1;      /* -1 = Nicht ausgewertete Option */
+    }
     }
     else
     {
-    	int k;
-	++c;
-	for (k = 0; c[k] != 0; ++k)
-	{
-	    if (!IS_DONE_1(app,i,k))
-	    {
-		char tmp[2];
-		tmp[0] = c[k];
-		tmp[1] = 0;
-		MTX_ERROR1("Unknown option '-%s', try --help",tmp);
-		return -1;		/* -1 = Nicht ausgewertete Option */
-	    }
-	}
+        int k;
+    ++c;
+    for (k = 0; c[k] != 0; ++k)
+    {
+        if (!IS_DONE_1(app,i,k))
+        {
+        char tmp[2];
+        tmp[0] = c[k];
+        tmp[1] = 0;
+        MTX_ERROR1("Unknown option '-%s', try --help",tmp);
+        return -1;      /* -1 = Nicht ausgewertete Option */
+        }
     }
-    return 0;			/* 0 = Ok */
+    }
+    return 0;           /* 0 = Ok */
 }
 
 
@@ -653,17 +653,17 @@ int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc)
        ---------------------------------------------- */
     for (i = 0; i < app->OptEnd; ++i)
     {
-    	int rc = CheckDone(app,i);
-	if (rc < 0)
-	    return -1;
-	if (rc == 1)
-	    break;
+        int rc = CheckDone(app,i);
+    if (rc < 0)
+        return -1;
+    if (rc == 1)
+        break;
     }
 
     /* '--' ueberspringen, falls vorhanden.
        ------------------------------------ */
     if (i == app->OptEnd && app->OptEnd < app->OrigArgC)
-    	++i;
+        ++i;
 
     app->ArgC = app->OrigArgC - i;
     app->ArgV = app->OrigArgV + i;
@@ -672,20 +672,20 @@ int AppGetArguments(MtxApplication_t *app, int min_argc, int max_argc)
        ----------------------------------- */
     for (++i; i < app->OrigArgC; ++i)
     {
-	if (app->IsDone[i] != 0)
-	{
-	    MTX_ERROR1("Option '%s' following non-optional argument",
-		app->OrigArgV[i]);
-	    return -1;
-	}
+    if (app->IsDone[i] != 0)
+    {
+        MTX_ERROR1("Option '%s' following non-optional argument",
+        app->OrigArgV[i]);
+        return -1;
+    }
     }
 
     /* Pruefe die Anzahl der Argumente.
        -------------------------------- */
     if (app->ArgC < min_argc || app->ArgC > max_argc)
     {
-	MTX_ERROR("Invalid number of arguments, try --help");
-	return -1;
+    MTX_ERROR("Invalid number of arguments, try --help");
+    return -1;
     }
     return app->ArgC;
 }
@@ -714,16 +714,20 @@ const char *AppCreateTempDir(MtxApplication_t *app)
     /* Check if we have already created a temporary directory.
        ------------------------------------------------------- */
     if (app->TempDirName[0] != 0)
-	return app->TempDirName;
+    return app->TempDirName;
 
     /* Make the directory.
        ------------------- */
-    sprintf(app->TempDirName,"mtxtmp.%5.5d",SysGetPid());
+    if (snprintf(app->TempDirName, APP_TMP_DIR_LEN, "mtxtmp.%5.5d",SysGetPid()) >= APP_TMP_DIR_LEN)
+    {
+        MTX_ERROR("Buffer overflow");
+        return NULL;
+    }
     if (SysCreateDirectory(app->TempDirName) != 0)
     {
-	MTX_ERROR("Cannot create temporary directory");
-	app->TempDirName[0] = 0;
-	return NULL;
+    MTX_ERROR("Cannot create temporary directory");
+    app->TempDirName[0] = 0;
+    return NULL;
     }
 
     return app->TempDirName;

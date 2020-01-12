@@ -38,12 +38,12 @@ typedef struct
     int Gen;
 } Entry_t;
 
-static Entry_t *Elms = NULL;			/* The element list */
-static int NElms = 0;				/* Number of elements */
-static int MaxNElms = 0;			/* Size of the list */
-static const char *Name = NULL;			/* Name of the representation */
-static MatRep_t *Rep = NULL;			/* The representation */
-static int NoOutput = 0;			/* -n: No output file */
+static Entry_t *Elms = NULL;            /* The element list */
+static int NElms = 0;               /* Number of elements */
+static int MaxNElms = 0;            /* Size of the list */
+static const char *Name = NULL;         /* Name of the representation */
+static MatRep_t *Rep = NULL;            /* The representation */
+static int NoOutput = 0;            /* -n: No output file */
 
 static MtxApplicationInfo_t AppInfo = {
 "mktree", "Enumerate group elements",
@@ -75,7 +75,7 @@ static MtxApplication_t *App = NULL;
 
    Description:
      This function checks if a given matrix, is already contained in our
-	 element list, <Elms>.
+     element list, <Elms>.
 
    Arguments:
      <mat>: The matrix to be checked.
@@ -93,8 +93,8 @@ static int IsInList(Matrix_t *mat)
 
     for (i = 0; i < NElms; i++)
     {
-	if (MatCompare(mat,Elms[i].Matrix) == 0)
-	    return 1;
+    if (MatCompare(mat,Elms[i].Matrix) == 0)
+        return 1;
     }
     return 0;
 }
@@ -105,11 +105,11 @@ static int IsInList(Matrix_t *mat)
 
    Description:
      This function initializes all global variables and processes command
-	 line options and arguments.
+     line options and arguments.
 
    Arguments:
      <argc>: Number of arguments
-	 <argv>: Argument list.
+     <argv>: Argument list.
    -------------------------------------------------------------------------- */
 
 static int Init(int argc, const char **argv)
@@ -118,7 +118,7 @@ static int Init(int argc, const char **argv)
     int ngen;
 
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
 
     /* Command line options.
        --------------------- */
@@ -128,22 +128,22 @@ static int Init(int argc, const char **argv)
     /* Arguments.
        ---------- */
     if (AppGetArguments(App,1,1) < 0)
-	return -1;
+    return -1;
     Name = App->ArgV[0];
 
     /* Load the generators.
        -------------------- */
     Rep = MrLoad(Name,ngen);
     if (Rep == NULL)
-	return -1;
+    return -1;
 
     /* Initialize the element list.
        ---------------------------- */
     MaxNElms = Rep->NGen + 10;
     if ((Elms = NALLOC(Entry_t,MaxNElms)) == NULL)
     {
-	MTX_ERROR("Cannot allocate lement list");
-	return -1;
+    MTX_ERROR("Cannot allocate lement list");
+    return -1;
     }
     NElms = 0;
 
@@ -161,10 +161,10 @@ static int Init(int argc, const char **argv)
      This function adds one element to the element tree.
 
    Arguments:
-	 <mat>: The new element.
-	 <src>: Index of element <mat> was calculated from-
-	 <gen>: Number of generator (1,2,3,...) used to calculate <mat> from
-		<elem[src]>.
+     <mat>: The new element.
+     <src>: Index of element <mat> was calculated from-
+     <gen>: Number of generator (1,2,3,...) used to calculate <mat> from
+        <elem[src]>.
 
    Remarks:
      Both <src> and <gen> start counting with 1, not 0!
@@ -177,15 +177,15 @@ static int AddToList(Matrix_t *mat, int src, int gen)
        ------------------------------ */
     if (NElms >= MaxNElms)
     {
-	int newmax = MaxNElms + 100;
-	Entry_t *newlist = NREALLOC(Elms,Entry_t,newmax);
-	if (newlist == NULL)
-	{
-	    MTX_ERROR1("Cannot extend element list, req size=%d",newmax);
-	    return -1;
-	}
-	Elms = newlist;
-	MaxNElms = newmax;
+    int newmax = MaxNElms + 100;
+    Entry_t *newlist = NREALLOC(Elms,Entry_t,newmax);
+    if (newlist == NULL)
+    {
+        MTX_ERROR1("Cannot extend element list, req size=%d",newmax);
+        return -1;
+    }
+    Elms = newlist;
+    MaxNElms = newmax;
     }
     Elms[NElms].Matrix = mat;
     Elms[NElms].Source = src;
@@ -202,63 +202,66 @@ static int MakeTree()
     int src;
 
     if (AddToList(MatId(FfOrder,FfNoc),-1,-1) != 0)
-	return -1;
+    return -1;
 
     /* Calculate all elements
        ---------------------- */
     for (src = 0; src < NElms; ++src)
     {
-	int g;
-	for (g = 0; g < Rep->NGen; ++g)
-	{
-	    /* Calculate next element
-	       ---------------------- */
-	    Matrix_t *newelem = MatAlloc(Elms[src].Matrix->Field, Elms[src].Matrix->Nor, Rep->Gen[g]->Noc);
-	    MatMulStrassen(newelem, Elms[src].Matrix, Rep->Gen[g]);
+    int g;
+    for (g = 0; g < Rep->NGen; ++g)
+    {
+        /* Calculate next element
+           ---------------------- */
+        Matrix_t *newelem = MatAlloc(Elms[src].Matrix->Field, Elms[src].Matrix->Nor, Rep->Gen[g]->Noc);
+        MatMulStrassen(newelem, Elms[src].Matrix, Rep->Gen[g]);
 
-	    /* If it is new, add to tree, else discard
-	       --------------------------------------- */
-	    if (IsInList(newelem))
-	    {
-		MatFree(newelem);
-		if (src == 0)
-		    MESSAGE(0,("Warning: generator %d is redundant\n",g+1));
-	    }
-	    else
-	    {
-	    	MESSAGE(2,("%d x %d = %d\n",src,g,NElms));
-		if (AddToList(newelem,src,g) != 0)
-		{
-		    rc = -1;
-		    break;
-		}
-		if (NElms % 50 == 0)
-		    MESSAGE(0,("%d elements\n",NElms));
-	    }
-	}
+        /* If it is new, add to tree, else discard
+           --------------------------------------- */
+        if (IsInList(newelem))
+        {
+        MatFree(newelem);
+        if (src == 0)
+            MESSAGE(0,("Warning: generator %d is redundant\n",g+1));
+        }
+        else
+        {
+            MESSAGE(2,("%d x %d = %d\n",src,g,NElms));
+        if (AddToList(newelem,src,g) != 0)
+        {
+            rc = -1;
+            break;
+        }
+        if (NElms % 50 == 0)
+            MESSAGE(0,("%d elements\n",NElms));
+        }
+    }
     }
     MESSAGE(0,("Done. The group has %d elements.\n",NElms));
     return rc;
 }
 
-static void WriteOutput()
-
+// 1 on error, 0 on success
+static int WriteOutput()
 {
     char fn[200];
     IntMatrix_t *mat;
     int i;
 
-    sprintf(fn,"%s.elt",Name);
+    if (snprintf(fn,200,"%s.elt",Name)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
     MESSAGE(1,("Writing %s\n",fn));
     mat = ImatAlloc(NElms,2);
-    if (mat == NULL)
-	return;
+    if (mat == NULL) return 1;
     for (i = 0; i < NElms; ++i)
     {
-	mat->Data[2*i] = Elms[i].Source;
-	mat->Data[2*i + 1] = Elms[i].Gen;
+    mat->Data[2*i] = Elms[i].Source;
+    mat->Data[2*i + 1] = Elms[i].Gen;
     }
-    ImatSave(mat,fn);
+    if (ImatSave(mat,fn)) return 1;
     ImatFree(mat);
 }
 
@@ -282,14 +285,14 @@ int main(int argc, const char **argv)
 
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
 
     if (MakeTree() != 0)
-	rc = 1;
+    rc = 1;
     if (rc == 0 && !NoOutput)
-	WriteOutput();
+    if (WriteOutput()) return 1;
 
     Cleanup();
     return rc;

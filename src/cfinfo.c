@@ -169,7 +169,11 @@ int Lat_ReadInfo(Lat_Info *li, const char *basename)
 
     /* Open the file
        ------------- */
-    sprintf(fn,"%s.cfinfo",basename);
+    if (snprintf(fn,LAT_MAXBASENAME + 20,"%s.cfinfo",basename)>=LAT_MAXBASENAME + 20)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
     if ((f = StfOpen(fn,FM_READ)) == NULL)
     {
     MTX_ERROR1("Cannot open %s",fn);
@@ -445,7 +449,7 @@ const char *Lat_CfName(const Lat_Info *li, int cf)
     if (num < 26)
     { if (snprintf(buf,30,"%d%c",dim,(char)num+'a')>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
     else if (num < 26*26)
-    { if (snprintf(buf,"%d%c%c",30,dim,(char)(num/26-1)+'a',(char)(num%26)+'a')>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
+    { if (snprintf(buf,30,"%d%c%c",dim,(char)(num/26-1)+'a',(char)(num%26)+'a')>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
     else
     { if (snprintf(buf,30,"%dcf%d",dim,num)>=30) { MTX_ERROR("Buffer overflow"); return NULL; }}
 

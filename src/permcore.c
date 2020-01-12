@@ -71,16 +71,14 @@ int PermIsValid(const Perm_t *p)
     deg = p->Degree;
     if (p->Magic != PERM_MAGIC || deg < 0 || p->Data == NULL)
     {
-        MTX_ERROR2("Invalid permutation (magic=%d, deg=%d)",
-        p->Magic,deg);
+        MTX_ERROR2("Invalid permutation (magic=%d, deg=%d)", p->Magic,deg);
         return 0;
     }
     for (i = p->Degree, x = p->Data; i > 0; --i, ++x)
     {
         if (*x < 0 || *x >= deg)
         {
-            MTX_ERROR2("Invalid value %d in permutation (deg = %d)",
-            (int) *x,deg);
+            MTX_ERROR2("Invalid value %d in permutation (deg = %d)", (int) *x,deg);
             return 0;
         }
     }

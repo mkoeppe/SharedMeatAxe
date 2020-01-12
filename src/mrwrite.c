@@ -23,8 +23,8 @@ MTX_DEFINE_FILE_INFO
  ** Save a Matrix Representation.
  ** This function saves all generators of a matrix representation.
  ** Each generator ist written to different file. The file name
- ** is constructed by appending ".1", ".2" etc. to @a basename or, if 
- ** @a basename contains a "%d" placeholder, by replacing the "%d" 
+ ** is constructed by appending ".1", ".2" etc. to @a basename or, if
+ ** @a basename contains a "%d" placeholder, by replacing the "%d"
  ** with "1", "2", etc.
  ** @param rep Pointer to the matrix representation.
  ** @param basename Base file name for generators.
@@ -34,7 +34,7 @@ MTX_DEFINE_FILE_INFO
 int MrSave(const MatRep_t *rep, const char *basename)
 {
     char *fn;
-    int ext_format;	    /* '%d' found in <basename> */
+    int ext_format;     /* '%d' found in <basename> */
     int i;
 
     /* Make a copy of the basename an reserve extra bytes for the extension
@@ -42,8 +42,8 @@ int MrSave(const MatRep_t *rep, const char *basename)
     fn = SysMalloc(strlen(basename) + 10);
     if (fn == NULL)
     {
-	MTX_ERROR("Cannot allocate buffer");
-	return -1;
+    MTX_ERROR("Cannot allocate buffer");
+    return -1;
     }
 
     /* Write the generators.
@@ -51,15 +51,25 @@ int MrSave(const MatRep_t *rep, const char *basename)
     ext_format = strstr(basename,"%d") != NULL;
     for (i = 0; i < rep->NGen; ++i)
     {
-	if (ext_format)
-	    sprintf(fn,basename,i+1);
-	else
-	    sprintf(fn,"%s.%d",basename,i+1);
-	if (MatSave(rep->Gen[i],fn) != 0)
-	{
-	    MTX_ERROR1("Error writing generator %d",i + 1);
-	    break;
-	}
+    if (ext_format)
+        { if (snprintf(fn,strlen(basename) + 10,basename,i+1)>=strlen(basename) + 10)
+            {
+                MTX_ERROR("Buffer overflow");
+                return -1;
+            }
+        }
+    else
+        { if (snprintf(fn,strlen(basename) + 10,"%s.%d",basename,i+1)>=strlen(basename) + 10)
+            {
+                MTX_ERROR("Buffer overflow");
+                return -1;
+            }
+        }
+    if (MatSave(rep->Gen[i],fn) != 0)
+    {
+        MTX_ERROR1("Error writing generator %d",i + 1);
+        return -1;
+    }
     }
 
     /* Clean up.

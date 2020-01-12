@@ -14,8 +14,8 @@
 
 
 
-#define MAXDEG 200		/* Max. degree */
-#define LINEWIDTH 2048		/* Line width for input file */
+#define MAXDEG 200      /* Max. degree */
+#define LINEWIDTH 2048      /* Line width for input file */
 
 
 /* ------------------------------------------------------------------
@@ -24,17 +24,17 @@
 
 MTX_DEFINE_FILE_INFO
 
-static FILE *src = NULL; 		/* Input file */
-static Matrix_t *Matrix;		/* Matrix A */
-static Matrix_t *W;			/* f(A) */
+static FILE *src = NULL;        /* Input file */
+static Matrix_t *Matrix;        /* Matrix A */
+static Matrix_t *W;         /* f(A) */
 static Poly_t *Poly;
 
 static const char *matname;
-static char grpname[LINEWIDTH] = "";	/* Input selector (empty = ALL) */
-static long deg;			/* Degree */
-static char name[LINEWIDTH];		/* Value (atlas notation) */
+static char grpname[LINEWIDTH] = "";    /* Input selector (empty = ALL) */
+static long deg;            /* Degree */
+static char name[LINEWIDTH];        /* Value (atlas notation) */
 static char thisgrp[LINEWIDTH];
-static int opt_G = 0;			/* -G option (GAP output) */
+static int opt_G = 0;           /* -G option (GAP output) */
 
 
 static MtxApplicationInfo_t AppInfo = {
@@ -73,34 +73,34 @@ static int Init(int argc, const char **argv)
     /* Parse command line
        ------------------ */
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
     opt_G = AppGetOption(App,"-G --gap");
     if (opt_G) MtxMessageLevel = -100;
     if (AppGetArguments(App,1,3) < 0)
-	return -1;
+    return -1;
     switch (App->ArgC)
     {
-	case 3:
-	    strcpy(grpname,App->ArgV[2]);
-	    /* NO BREAK! */
-	case 2:
-	    if (strcmp(App->ArgV[1],"-"))
-	    {
-		src = SysFopen(App->ArgV[1],FM_READ);
-		if (src == NULL)
-		    return -1;
-	    }
-	    else
-		src = stdin;
-	    break;
+    case 3:
+        strcpy(grpname,App->ArgV[2]);
+        /* NO BREAK! */
+    case 2:
+        if (strcmp(App->ArgV[1],"-"))
+        {
+        src = SysFopen(App->ArgV[1],FM_READ);
+        if (src == NULL)
+            return -1;
+        }
+        else
+        src = stdin;
+        break;
     }
     matname = App->ArgV[0];
     if ((Matrix = MatLoad(matname)) == NULL)
-	return -1;
+    return -1;
     if (Matrix->Nor != Matrix->Noc)
     {
-	MTX_ERROR2("%s: %E",matname,MTX_ERR_NOTSQUARE);
-	return -1;
+    MTX_ERROR2("%s: %E",matname,MTX_ERR_NOTSQUARE);
+    return -1;
     }
     FfSetField(Matrix->Field);
     FfSetNoc(Matrix->Noc);
@@ -120,38 +120,39 @@ void Gauss(void)
 {
     static int first = 1;
     int nullity = MatNullity__(W);
-    if (opt_G)	/* GAP output */
+    if (opt_G)  /* GAP output */
     {
-	int mult = nullity / deg;
+    int mult = nullity / deg;
 
-    	if (mult > 0)
-    	{
-	    if (!first)
-		printf(" + ");
-	    else
-	    {
-		printf("MeatAxe.BrauerChar := ");
-		first = 0;
-	    }
-	    printf("%d*(%s)",mult,name);
-	}
-	if (nullity % deg != 0)
-	    fprintf(stderr,"Non-integer multiplicity for %s\n",name);
+        if (mult > 0)
+        {
+        if (!first)
+        printf(" + ");
+        else
+        {
+        printf("MeatAxe.BrauerChar := ");
+        first = 0;
+        }
+        printf("%d*(%s)",mult,name);
     }
-    else	/* Table output */
+    if (nullity % deg != 0)
+        fprintf(stderr,"Non-integer multiplicity for %s\n",name);
+    }
+    else    /* Table output */
     {
-	printf("%10s %20s %4ld %4ld",thisgrp,name,deg,nullity/deg);
-	if (nullity % deg != 0)
-	    printf(" (non-integer)\n");
-	else
-	    printf("\n");
-	fflush(stdout);
+    printf("%10s %20s %4ld %4ld",thisgrp,name,deg,nullity/deg);
+    if (nullity % deg != 0)
+        printf(" (non-integer)\n");
+    else
+        printf("\n");
+    fflush(stdout);
     }
 }
 
 
 /* ------------------------------------------------------------------
    readln() - Read one input line, strip comments
+   Return -1 on error, 0 on success
    ------------------------------------------------------------------ */
 
 int readln(char *buf)
@@ -160,21 +161,22 @@ int readln(char *buf)
     char *c;
     int flag = 0;
     while (!flag)
-    {	if (feof(src) || ferror(src)) return 0;
-	*buf = 0;
-	fgets(buf,LINEWIDTH,src);
-	if (*buf == '#') continue;	/* comment */
-	for (c = buf; *c != 0 && *c != '\n'; ++c)
-		if (*c != ' ' && *c != '\t')
-			flag = 1;		/* */
-	*c = 0;					/* remove EOL */
+    {   if (feof(src) || ferror(src)) return -1;
+    *buf = 0;
+    if (fgets(buf,LINEWIDTH,src)) return -1;
+    if (*buf == '#') continue;  /* comment */
+    for (c = buf; *c != 0 && *c != '\n'; ++c)
+        if (*c != ' ' && *c != '\t')
+            flag = 1;       /* */
+    *c = 0;                 /* remove EOL */
     }
-    return 1;
+    return 0;
 }
 
 
 /* ------------------------------------------------------------------
    getnextpol() - Read the next polynomial
+   Return 0 on error, 1 on success (sic!)
    ------------------------------------------------------------------ */
 
 int getnextpol(void)
@@ -182,42 +184,42 @@ int getnextpol(void)
 {
     char line[LINEWIDTH];
     FEL coeff[MAXDEG+1];
-    FEL poly[MAXDEG+1];		/* Polynomial */
+    FEL poly[MAXDEG+1];     /* Polynomial */
     char *c;
     int i;
     FEL f;
 
     while (!feof(src))
     {
-	if (!readln(line))
-	    return 0;
-	if (*line != ' ')	/* new group */
-	{
-	    strcpy(thisgrp,line);
-	    continue;
-	}
-	if (grpname[0] == 0 || !strcmp(thisgrp,grpname))
-	    break;
+    if (readln(line))
+        return 0;
+    if (*line != ' ')   /* new group */
+    {
+        strcpy(thisgrp,line);
+        continue;
+    }
+    if (grpname[0] == 0 || !strcmp(thisgrp,grpname))
+        break;
     }
     c = strtok(line," \t");
     strcpy(name,c);
     for (deg = 0; (c = strtok(NULL," \t")) != NULL; ++deg)
     {
-	if (!strcmp(c,"-1"))
-	    f = FfNeg(FF_ONE);
-	else
-	    f = FfFromInt(atoi(c));
-	coeff[deg] = f;
+    if (!strcmp(c,"-1"))
+        f = FfNeg(FF_ONE);
+    else
+        f = FfFromInt(atoi(c));
+    coeff[deg] = f;
     }
     --deg;
     for (i = 0; i <= (int) deg; ++i)
-	poly[deg-i] = coeff[i];
+    poly[deg-i] = coeff[i];
 
     if (Poly != NULL)
-	PolFree(Poly);
+    PolFree(Poly);
     Poly = PolAlloc(FfOrder,deg);
     for (i = 0; i <= deg; ++i)
-	Poly->Data[i] = poly[i];
+    Poly->Data[i] = poly[i];
 
     return 1;
 }
@@ -234,13 +236,13 @@ int main(int argc, const char **argv)
 {
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
     while (getnextpol())
     {
-	W = MatInsert(Matrix,Poly);
-	Gauss();
+    W = MatInsert(Matrix,Poly);
+    Gauss();
     }
     if (opt_G) printf(";\n");
     AppFree(App);

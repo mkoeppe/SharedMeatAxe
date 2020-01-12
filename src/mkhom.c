@@ -351,7 +351,7 @@ Matrix_t *bigform(Matrix_t *mat, Matrix_t **gens, long *op_table)
 
 
 
-
+// Null on error
 Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep[],
     char side, int big, Matrix_t **stdbas, long *op_table, Matrix_t **Ngen)
 
@@ -361,7 +361,7 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
     Matrix_t **gens, *mat;
     PTR *regptr;
     FEL coeff;
-    char name[100];
+    char name[200];
 
     if (side != 'l' && side != 'r')
     {
@@ -423,8 +423,12 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
         else
             gens[max] = stdbas[dim];
         dim++;
-	sprintf(name, "%s.%d", HomName, dim);
-	MatSave(gens[max], name);
+        if (snprintf(name, 200, "%s.%d", HomName, dim)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return NULL;
+        }
+        if (MatSave(gens[max], name)) return NULL;
         MESSAGE(1,("ringgens(): new element, dim=%d\n",dim));
         if ((regrep[max] = MatAlloc(FfOrder, n, n)) == NULL)
             return NULL;
@@ -439,10 +443,12 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
             else         /* side == 'l' -- multiple from left */
             {
                 stdbas[dim] = MatDup(stdbas[genind[max]]);
+                if (!stdbas[dim]) return NULL;
                 if (big)
                     mat = bigform(stdbas[i], Ngen, op_table);
                 else
                     mat = MatDup(stdbas[i]);
+                if (!mat) return NULL;
                 MatMul(stdbas[dim], mat);
                 MatFree(mat);
             }
@@ -450,10 +456,19 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
 
             if (independent(stdbas, stdbas[dim], dim, piv_table, nummodgens, regptr[max]))
             {
-		sprintf(name, "%s.%d", HomName, dim + 1);
-		mat = (big == 0 ? MatDup(stdbas[dim]) : bigform(stdbas[dim], Ngen, op_table));
-		MatSave(mat, name);
-		MatFree(mat);
+                if (snprintf(name, 200, "%s.%d", HomName, dim + 1)>=200)
+                {
+                    MTX_ERROR("Buffer overflow");
+                    return NULL;
+                }
+                mat = (big == 0 ? MatDup(stdbas[dim]) : bigform(stdbas[dim], Ngen, op_table));
+                if (!mat) return NULL;
+                if (MatSave(mat, name))
+                {
+                    MatFree(mat);
+                    return NULL;
+                }
+                MatFree(mat);
                 dim++;
                 MESSAGE(1,("ringgens(): new element2, dim=%d\n",dim));
             }
@@ -479,6 +494,7 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
                 else /* side == 'l' -- multiple from left */
                 {
                     stdbas[dim] = MatDup(stdbas[genind[next]]);
+                    if (!stdbas[dim]) return NULL;
                     if (big)
                         MatMul(stdbas[dim], bigmat);
                     else
@@ -487,9 +503,15 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
 
                 if (independent(stdbas, stdbas[dim], dim, piv_table, nummodgens, regptr[next]))
                 {
-		    sprintf(name, "%s.%d", HomName, dim + 1);
-		    mat = (big == 0 ? MatDup(stdbas[dim]) : bigform(stdbas[dim], Ngen, op_table));
-		    MatSave(mat, name);
+                    if (snprintf(name, 200, "%s.%d", HomName, dim + 1)>=200)
+                    {
+                        MTX_ERROR("Buffer overflow");
+                        return NULL;
+                    }
+                    mat = (big == 0 ? MatDup(stdbas[dim]) : bigform(stdbas[dim], Ngen, op_table));
+                    if (!mat) return NULL;
+                    if (MatSave(mat, name))
+                    { MatFree(mat); return NULL; }
                     dim++;
                     MESSAGE(1,("ringgens(): new element3, dim=%d\n",dim));
                 }
@@ -516,6 +538,7 @@ Matrix_t **ringgens(Matrix_t *basis[], long n, long nummodgens, Matrix_t *regrep
         for (i = 0; i < max; i++)
         {
             mat = MatTransposed(regrep[i]);
+            if (!mat) return NULL;
             MatFree(regrep[i]);
             regrep[i] = mat;
         }
@@ -551,13 +574,13 @@ static int ParseArgs()
     hominstd = AppGetOption(App,"-s");
     tmp = AppGetOption(App,"-r");
     if (tmp)
-	reg = 'r';
+       reg = 'r';
     if (AppGetOption(App, "-l"))
-	reg = 'l';
+       reg = 'l';
     if (tmp && reg == 'l')
     {
-	MTX_ERROR("-r and -l cannot be used simultaneously");
-	return -1;
+        MTX_ERROR("-r and -l cannot be used simultaneously");
+        return -1;
     }
     if (reg == 'r' || reg == 'l')
     {
@@ -592,7 +615,7 @@ static int ParseArgs()
 }
 
 
-
+// -1 on error, 0 on success
 static int ReadFiles()
 
 {
@@ -621,7 +644,11 @@ static int ReadFiles()
     {
         Matrix_t *tmp;
         char fn[200];
-        sprintf(fn, "%s.rad",MName);
+        if (snprintf(fn, 200, "%s.rad",MName)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
         MESSAGE(1,("Reading the head (%s)\n",fn));
         if((tmp = MatLoad(fn)) == NULL)
             return -1;
@@ -784,7 +811,11 @@ static int MakeKernels(int cf, Matrix_t **ker1, Matrix_t **ker2)
 
     /* Load the peak word kernel for M.
        -------------------------------- */
-    sprintf(file_name, "%s%s.k", MName, Lat_CfName(&MInfo,cf));
+    if (snprintf(file_name, 200, "%s%s.k", MName, Lat_CfName(&MInfo,cf))>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
     if ((ker1 != NULL) && ((*ker1 = MatLoad(file_name)) == NULL))
     {
         MTX_ERROR2("Cannot load %s -- did you run 'pwkond %s'?",
@@ -841,7 +872,7 @@ int main(int argc, const char **argv)
         stdgenptr, sysptr, resptr, partptr, esysptr;
     int sb, seedcount = 0, row, oldNor = 0, m, s, k,
         newpartdim, ind, col;
-    char name[100];
+    char name[200];
     int i, l;
     FEL f;
     Lat_Info end_info;
@@ -989,7 +1020,7 @@ int main(int argc, const char **argv)
                         return 1;
                     stdtab[k][0] = 0;
                 }
-		numMgens++;
+        numMgens++;
                 continue;
             }
             esysptr = FfGetPtr(esys->Data, oldNor);
@@ -1090,9 +1121,13 @@ int main(int argc, const char **argv)
                 spinbas = MatAlloc(FfOrder,dimM,dimM);
                 SysFree(spinbas->Data);
                 spinbas->Data = basis;
-                sprintf(name,"%s.spb",MName);
+                if (snprintf(name,200,"%s.spb",MName)>=200)
+                {
+                    MTX_ERROR("Buffer overflow");
+                    return NULL;
+                }
                 MESSAGE(1, ("Writing spinning basis to %s\n", name));
-                MatSave(spinbas, name);
+                if (MatSave(spinbas, name)) return 1;
                 if (standard || hominstd)
                     spinbasi = MatInverse(spinbas);
                 if (standard)
@@ -1102,10 +1137,15 @@ int main(int argc, const char **argv)
                     for (k = 0; k < MInfo.NGen; k++)
                     {
                         mat = MatDup(spinbas);
+                        if (!mat) return 1;
                         MatMul(mat, MRep->Gen[k]);
                         MatMul(mat, spinbasi);
-                        sprintf(name, "%s.std.%d", MName, k + 1);
-                        MatSave(mat, name);
+                        if (snprintf(name, 200, "%s.std.%d", MName, k + 1)>=200)
+                        {
+                            MTX_ERROR("Buffer overflow");
+                            return NULL;
+                        }
+                        if (MatSave(mat, name)) return 1;
                         if (reg != '?')
                         {
                             MatFree(NRep->Gen[k]);
@@ -1123,6 +1163,7 @@ int main(int argc, const char **argv)
                 if ((result = MatNullSpace_(tresys,0)) == NULL)
                     return 1;
                 homs = NALLOC(Matrix_t *, result->Nor);
+                if (!homs) return 1;
                 resptr = result->Data;
                 FfSetNoc(NRep->Gen[0]->Noc);
                 for (row = 0; row < result->Nor; row++)
@@ -1151,11 +1192,15 @@ int main(int argc, const char **argv)
                     if (hominstd)
                         MatMul(homs[row], spinbasi);
                     if(reg == '?')
-		    {
-                        sprintf(name, "%s.%d", HomName, row + 1);
-                        MatSave(homs[row], name);
+                    {
+                        if (snprintf(name, 200, "%s.%d", HomName, row + 1)>=200)
+                        {
+                            MTX_ERROR("Buffer overflow");
+                            return NULL;
+                        }
+                        if (MatSave(homs[row], name)) return NULL;
                         MatFree(homs[row]);
-		    }
+                    }
                     if(big)
                         homs[row] = SmallForm(homs[row]);
                     FfSetNoc(result->Noc);
@@ -1175,17 +1220,29 @@ int main(int argc, const char **argv)
 
                 for (k = 0; gens[k] != NULL; k++)
                 {
-                            sprintf(name, "%s.gens.%d", HomName, k + 1);
-                    MatSave(gens[k], name);
-                    sprintf(name, "%s.%crr.%d", HomName, reg, k + 1);
-                    MatSave(regrep[k], name);
+                    if (snprintf(name, 200, "%s.gens.%d", HomName, k + 1)>=200)
+                    {
+                        MTX_ERROR("Buffer overflow");
+                        return 1;
+                    }
+                    if (MatSave(gens[k], name)) return 1;
+                    if (snprintf(name, 200, "%s.%crr.%d", HomName, reg, k + 1)>=200)
+                    {
+                        MTX_ERROR("Buffer overflow");
+                        return 1;
+                    }
+                    if (MatSave(regrep[k], name)) return 1;
                 }
 
                 /* Cretae the <endo>.lrr.cfinfo file */
                 memset(&end_info,0,sizeof(end_info));
                 end_info.NGen = k;
-                sprintf(end_info.BaseName,"%s.%crr",HomName,reg);
-                Lat_WriteInfo(&end_info);
+                if (snprintf(end_info.BaseName, LAT_MAXBASENAME, "%s.%crr",HomName,reg)>=LAT_MAXBASENAME)
+                {
+                    MTX_ERROR("Buffer overflow");
+                    return 1;
+                }
+                if (Lat_WriteInfo(&end_info)) return 1;
                 return rc;
             }                /* endif dimM == newpartdim */
             numMgens++;

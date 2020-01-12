@@ -37,63 +37,76 @@ MTX_DEFINE_FILE_INFO
 MatRep_t *Lat_ReadCfGens(Lat_Info *info, int cf, int flags)
 {
     MatRep_t *rep;
-    char fn[sizeof(info->BaseName) + 20];
+    int FileSize = sizeof(info->BaseName) + 20;
+    char fn[FileSize];
     int i;
 
     /* Check the arguments
        ------------------- */
     if (info == NULL)
     {
-	MTX_ERROR1("info: %E",MTX_ERR_BADARG);
-	return NULL;
+    MTX_ERROR1("info: %E",MTX_ERR_BADARG);
+    return NULL;
     }
     if (cf < 0 || cf >= info->NCf)
     {
-	MTX_ERROR1("cf: %E",MTX_ERR_BADARG);
-	return NULL;
+    MTX_ERROR1("cf: %E",MTX_ERR_BADARG);
+    return NULL;
     }
 
     /* Make file name
        -------------- */
     if (flags & LAT_RG_STD)
-	sprintf(fn,"%s%s.std.%%d",info->BaseName,Lat_CfName(info,cf));
+    {
+        if (snprintf(fn,FileSize,"%s%s.std.%%d",info->BaseName,Lat_CfName(info,cf))>=FileSize)
+        {
+            MTX_ERROR("Buffer overflow");
+            return NULL;
+        }
+    }
     else
-	sprintf(fn,"%s%s.%%d",info->BaseName,Lat_CfName(info,cf));
+    {
+        if (snprintf(fn,FileSize,"%s%s.%%d",info->BaseName,Lat_CfName(info,cf))>=FileSize)
+        {
+            MTX_ERROR("Buffer overflow");
+            return NULL;
+        }
+    }
 
     /* Load the representation
        ----------------------- */
     rep = MrLoad(fn,info->NGen);
     if (rep == NULL)
-	return NULL;
+    return NULL;
 
     /* Apply modifications
        ------------------- */
     for (i = 0; i < rep->NGen; ++i)
     {
-	if (flags & LAT_RG_INVERT)
-	{
-	    Matrix_t *mat2 = MatInverse(rep->Gen[i]);
-	    if (mat2 == NULL)
-	    {
-		MTX_ERROR1("Cannot transpose generator %d",i);
-		MrFree(rep);
-		return NULL;
-	    }
-	    MatFree(rep->Gen[i]);
-	    rep->Gen[i] = mat2;
-	}
-	if (flags & LAT_RG_TRANSPOSE)
-	{
-	    Matrix_t *mat2 = MatTransposed(rep->Gen[i]);
-	    if (mat2 == NULL)
-	    {
-		MTX_ERROR1("Cannot invert generator %d",i);
-		MrFree(rep);
-		return NULL;
-	    }
-	    MatFree(rep->Gen[i]);
-	    rep->Gen[i] = mat2;
-	}
+    if (flags & LAT_RG_INVERT)
+    {
+        Matrix_t *mat2 = MatInverse(rep->Gen[i]);
+        if (mat2 == NULL)
+        {
+        MTX_ERROR1("Cannot transpose generator %d",i);
+        MrFree(rep);
+        return NULL;
+        }
+        MatFree(rep->Gen[i]);
+        rep->Gen[i] = mat2;
+    }
+    if (flags & LAT_RG_TRANSPOSE)
+    {
+        Matrix_t *mat2 = MatTransposed(rep->Gen[i]);
+        if (mat2 == NULL)
+        {
+        MTX_ERROR1("Cannot invert generator %d",i);
+        MrFree(rep);
+        return NULL;
+        }
+        MatFree(rep->Gen[i]);
+        rep->Gen[i] = mat2;
+    }
     }
     return rep;
 }

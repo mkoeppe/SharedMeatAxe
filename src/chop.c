@@ -109,7 +109,7 @@ static MtxApplication_t *App = NULL;
 
 
 /* ------------------------------------------------------------------
-   CreateNode() - Create a new node
+   CreateNode() - Create a new node (NULL on error)
    ------------------------------------------------------------------ */
 
 static node_t *CreateNode(MatRep_t *rep, node_t *parent)
@@ -226,7 +226,11 @@ static int CreateRoot()
     {
     /* Try to get the number of generators from the cfinfo file.
        --------------------------------------------------------- */
-    sprintf(fn,"%s.cfinfo",LI.BaseName);
+    if (snprintf(fn,100,"%s.cfinfo",LI.BaseName)>=100)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
     f = SysFopen(fn,FM_NOERROR|FM_READ);
     if (f != NULL)
     {
@@ -309,9 +313,10 @@ static void PrintCompositionSeries(node_t *n)
 /* ------------------------------------------------------------------
    WriteResult() - Write some information to stdout and create the
     .cfinfo file.
+   Return -1 on error, 0 on success.
    ------------------------------------------------------------------ */
 
-static void WriteResult(node_t *root)
+static int WriteResult(node_t *root)
 
 {
     int i, k;
@@ -331,7 +336,7 @@ static void WriteResult(node_t *root)
     LI.Cf[i].idword = irred[i]->idword;
     LI.Cf[i].idpol = irred[i]->idpol;
     }
-    Lat_WriteInfo(&LI);
+    if (Lat_WriteInfo(&LI)) return -1;
 
 
     /* Write composition factors
@@ -387,6 +392,7 @@ static void WriteResult(node_t *root)
     printf("Exceptional split:   %4ld\n",stat_exsplit);
     printf("Irreducible:         %4ld\n",stat_irred);
     }
+    return 0;
 }
 
 
@@ -403,9 +409,11 @@ static void WriteResult(node_t *root)
      and creates two new <note_t> structures for the two parts.
      The original module, <n>, is cleaned up and <Chop()> is called with
      both submodule and quotient.
+
+   Return 0 on success, -1 on error.
    -------------------------------------------------------------------------- */
 
-static void splitnode(node_t *n, int tr)
+static int splitnode(node_t *n, int tr)
 
 {
     MatRep_t *sub = NULL, *quot = NULL;
@@ -414,7 +422,7 @@ static void splitnode(node_t *n, int tr)
        ---------------- */
     MESSAGE(0,("Split: Subspace=%d, Quotient=%d\n",
     n->subsp->Nor,n->dim - n->subsp->Nor));
-    Split(n->subsp,tr ? n->TrRep : n->Rep,&sub,&quot);
+    if (Split(n->subsp,tr ? n->TrRep : n->Rep,&sub,&quot)) return -1;
 
     /* If it was a dual split, subspace and quotient have been
        calculated in the dual module. To get back to the original
@@ -428,8 +436,10 @@ static void splitnode(node_t *n, int tr)
     {
         x = MatTransposed(sub->Gen[i]);
         MatFree(sub->Gen[i]);
+        if (!x) return -1;
         y = MatTransposed(quot->Gen[i]);
         MatFree(quot->Gen[i]);
+        if (!y) return -1;
         sub->Gen[i] = y;
         quot->Gen[i] = x;
     }
@@ -438,12 +448,15 @@ static void splitnode(node_t *n, int tr)
     /* Make new nodes for subspace and quotient
        ---------------------------------------- */
     n->sub = CreateNode(sub,n);
+    if (!n->sub) return -1;
     n->quot = CreateNode(quot,n);
+    if (!n->quot) return -1;
 
     /* Project saved vectors on the quotient
        ------------------------------------- */
     if (!tr && n->nsp != NULL)
     n->quot->nsp = QProjection(n->subsp,n->nsp);
+    if (!n->quot->nsp) return -1;
 
     /* Clean up
        -------- */
@@ -451,8 +464,9 @@ static void splitnode(node_t *n, int tr)
 
     /* Chop the subspace and quotient
        ------------------------------ */
-    Chop(n->sub);
-    Chop(n->quot);
+    if (Chop(n->sub)) return -1;
+    if (Chop(n->quot)) return -1;
+    return 0;
 }
 
 
@@ -681,8 +695,7 @@ static int FindIdWord(node_t *n)
     /* Failed...
        --------- */
     MTX_ERROR("FindIdWord() failed");
-    MrSave(n->Rep,"CHOPFAILED");
-    return -1;
+    return MrSave(n->Rep,"CHOPFAILED");
 }
 
 
@@ -690,12 +703,12 @@ static int FindIdWord(node_t *n)
 
 /* ------------------------------------------------------------------
    newirred() - Check if a given irreducible module is already
-    contained in the list of composition factors. If yes, return
-    the index. If not, insert the new irreducible and return its
-    index.
+    contained in the list of composition factors. If not, insert
+    the new irreducible.
+    Return 1 on error, 0 on success.
    ------------------------------------------------------------------ */
 
-static void newirred(node_t *n)
+static int newirred(node_t *n)
 
 {
     int i, k;
@@ -718,7 +731,7 @@ static void newirred(node_t *n)
         n->num = irred[i]->num;
         MESSAGE(0,("Irreducible (%s)\n",Lat_CfName(&LI,i)));
         CleanUpNode(n,0);
-        return;
+        return 0;
     }
     }
 
@@ -772,10 +785,15 @@ static void newirred(node_t *n)
     for (k = 0; k < LI.NGen; ++k)
     {
     char fn[200];
-    sprintf(fn,"%s%s.%d",LI.BaseName,Lat_CfName(&LI,i),k+1);
-    MatSave(irred[i]->Rep->Gen[k],fn);
+    if (snprintf(fn, 200, "%s%s.%d",LI.BaseName,Lat_CfName(&LI,i),k+1)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
+    if (MatSave(irred[i]->Rep->Gen[k],fn)) return 1;
     }
     CleanUpNode(n,0);
+    return 0;
 }
 
 
@@ -783,7 +801,7 @@ static void newirred(node_t *n)
 /* ------------------------------------------------------------------
    SplitWithSavedVectors() - Try to split a module using saved
    vectors.
-   Returns 1 on success, 0 otherwise.
+   Returns 1 on success, -1 on error, 0 otherwise
    ------------------------------------------------------------------ */
 
 static int SplitWithSavedVectors(node_t *n)
@@ -804,7 +822,7 @@ static int SplitWithSavedVectors(node_t *n)
     n->subsp = span;
     MESSAGE(1,("success\n"));
     ++stat_svsplit;
-    splitnode(n,0);
+    if (splitnode(n,0)) return -1;
     return 1;
     }
 
@@ -854,10 +872,10 @@ Matrix_t *polymap(Matrix_t *v, Matrix_t *m, Poly_t *p)
    make_kern() - Calculate a vector in the null-space of p(A). p(x)
    is assumed to be a factor of f1(x), i.e., p(x) must occur in the
    first cyclic subspace.
-   Return 1 on error an 0 on success.
+   Return -1 on error an 0 on success.
    -------------------------------------------------------------------------- */
 
-static void make_kern(node_t *n, Poly_t *p)
+static int make_kern(node_t *n, Poly_t *p)
 
 {
     Poly_t *cof, *f;
@@ -871,12 +889,12 @@ static void make_kern(node_t *n, Poly_t *p)
     if (n->nsp != NULL)
     MatFree(n->nsp);
     seed = MatAlloc(FfOrder,1,n->dim);
-    if (!seed) return 1;
+    if (!seed) return -1;
     FfInsert(seed->Data,CharPolSeed,FF_ONE);
     n->nsp = polymap(seed,n->word,cof);
     MatFree(seed);
     PolFree(cof);
-    return 0;
+    return (n->nsp!=NULL);
 }
 
 
@@ -885,7 +903,7 @@ static void make_kern(node_t *n, Poly_t *p)
    consider only the first cyclic subspace, so make_trkern() may not
    find a vector.
 
-   Returns 0 if a vector has been found, 1 on error, -1 else.
+   Returns 0 if a vector has been found, -1 on error, 1 else.
    ------------------------------------------------------------------ */
 
 int make_trkern(node_t *n, Poly_t *p)
@@ -893,7 +911,7 @@ int make_trkern(node_t *n, Poly_t *p)
 {
     Matrix_t *mt;
     Poly_t *pt, *cof;
-    int result = -1;
+    int result = 1;
 
     mt = MatTransposed(n->word);
     pt = CharPolFactor(mt);
@@ -907,7 +925,7 @@ int make_trkern(node_t *n, Poly_t *p)
         MatFree(n->nsptr);
         n->nsptr = polymap(seed,mt,cof);
     MatFree(seed);
-    result = 0;
+    result = -(n->nsptr == NULL);
     }
     PolFree(cof);
     PolFree(pt);
@@ -991,7 +1009,7 @@ static void make_f2(node_t *n)  /* Make f2 */
 /* --------------------------------------------------------------------------
    SplitWithNsp() - Try to split the module with the kernel in <n->nsp>.
 
-   Return: 1 = success, 0 = failed
+   Return: 1 = success, 0 = failed, -1 = error
    -------------------------------------------------------------------------- */
 
 
@@ -1011,7 +1029,7 @@ static int SplitWithNsp(node_t *n)
     n->subsp = sub;
     ++stat_nssplit;
     SetInsert(goodwords,n->wnum);
-    splitnode(n,0);
+    if (splitnode(n,0)) return -1;
     return 1;
     }
     MatFree(sub);
@@ -1053,7 +1071,7 @@ static int PolMultiplicity(const Poly_t *factor, const Poly_t *pol)
 /* ------------------------------------------------------------------
    try_poly() - Tries to split with one irreducible factor of c(x).
 
-    Return: 1 = success, 0 = failed
+    Return: 1 = success, 0 = failed, -1 = error
    ------------------------------------------------------------------ */
 
 static int try_poly(node_t *n, Poly_t *pol, long vfh)
@@ -1065,7 +1083,7 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
 
     /* Try to split.
        ------------- */
-    make_kern(n,pol);
+    if (make_kern(n,pol)) return -1;
     if (SplitWithNsp(n))
     return 1;
 
@@ -1103,7 +1121,7 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
         n->subsp = sub;
         ++stat_nssplit;
         SetInsert(goodwords,n->wnum);
-        splitnode(n,0);
+        if (splitnode(n,0)) return -1;
         return 1;
         }
     }
@@ -1111,22 +1129,28 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
 
     /* Not split, try dual split
        ------------------------- */
-    if (make_trkern(n,pol) != 0)
+    switch (make_trkern(n,pol))
     {
-    MESSAGE(3,("No seed vector found, dual split skipped\n"));
-    return 0;
+        case 1:
+            {
+            MESSAGE(3,("No seed vector found, dual split skipped\n"));
+            return 0;
+            }
+        case -1:
+            return -1;
     }
     MESSAGE(3,("Try dual split..."));
     if (n->TrRep == NULL)   /* Transpose generators */
     n->TrRep = MrTransposed(n->Rep);
     sub = SpinUp(n->nsptr,n->TrRep,SF_FIRST|SF_SUB,NULL,NULL);
+    if (!sub) return -1;
     if (sub->Nor > 0 && sub->Nor < sub->Noc)
     {
-    MESSAGE(3,("Success!\n"));
-    n->subsp = sub;
-    ++stat_dlsplit;
-    splitnode(n,1);
-    return 1;
+        MESSAGE(3,("Success!\n"));
+        n->subsp = sub;
+        ++stat_dlsplit;
+        if (splitnode(n,1)) return -1;
+        return 1;
     }
     MatFree(sub);
     MESSAGE(3,("Failed\n"));
@@ -1135,7 +1159,7 @@ static int try_poly(node_t *n, Poly_t *pol, long vfh)
 
     /* The module is irreducible!
        -------------------------- */
-    newirred(n);
+    if (newirred(n)) return 0;
     SetInsert(goodwords,n->wnum);
     ++stat_irred;
     return 1;
@@ -1275,7 +1299,7 @@ static int try_ex_factor(node_t *n, Poly_t *cp, FPoly_t *cpf, int factor)
     {
     MESSAGE(3,("SUCCESS!\n"));
     ++stat_exsplit;
-        splitnode(n,0);
+        if (splitnode(n,0)) return -1;
     return 1;
     }
     MESSAGE(3,("failed\n"));
@@ -1355,7 +1379,7 @@ static int ChopWithWord(node_t *n, long wn, int try_ex)
     if (cpol->Factor[0]->Degree == n->dim)
     {
     MESSAGE(2,("c(x) is irreducible\n"));
-    newirred(n);
+    if (newirred(n)) return -1;
     ++stat_cpirred;
     SetInsert(goodwords,wn);
     FpFree(cpol);
@@ -1398,7 +1422,7 @@ static int ChopWithWord(node_t *n, long wn, int try_ex)
    IsLinear() - Handle 1-dimensional modules. If the module is 1-dimensional,
    insert it into the list of irrecurcibles.
 
-   Return: 0 on success, 1 if dim > 1.
+   Return: 0 on success, 1 if dim > 1, -1 on error.
    -------------------------------------------------------------------------- */
 
 static int IsLinear(node_t *n)
@@ -1407,7 +1431,7 @@ static int IsLinear(node_t *n)
     if (n->dim > 1)
     return 0;
     MESSAGE(1,("Dimension is one -- irreducible!\n"));
-    newirred(n);
+    if (newirred(n)) return -1;
     ++stat_irred;
     return 1;
 }
@@ -1416,6 +1440,7 @@ static int IsLinear(node_t *n)
 
 /* ------------------------------------------------------------------
    Chop() - Chop a module
+   Return -1 on error, 0 on success
    ------------------------------------------------------------------ */
 
 static int Chop(node_t *n)
@@ -1433,10 +1458,16 @@ static int Chop(node_t *n)
 
     /* Some special cases first: 1-dimensional, saved vectors.
        ------------------------------------------------------- */
-    if (IsLinear(n))
-    return 0;
-    if (SplitWithSavedVectors(n))
-    return 0;
+    switch (IsLinear(n))
+    {
+        case 1: return 0;
+        case -1: return -1;
+    }
+    switch (SplitWithSavedVectors(n))
+    {
+        case -1: return -1;
+        case 1:  return 0;
+    }
 
     /* Try words. First, we try all known 'good' words (w=0,-1,-2,...),
        then all words (w=1,2,...). Known 'bad' words are always skipped.
@@ -1521,11 +1552,11 @@ int main(int argc, const char **argv)
     MTX_ERROR("Initialization failed");
     return 1;
     }
-    Chop(root);
+    if (Chop(root)) return 1;
 
     /* Write result, clean up, and exit
        -------------------------------- */
-    WriteResult(root);
+    if (WriteResult(root)) return 1;
 
     Cleanup();
     return 0;

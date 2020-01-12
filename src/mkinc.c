@@ -18,16 +18,16 @@
    ------------------------------------------------------------------------- */
 
 MTX_DEFINE_FILE_INFO
-MatRep_t *Rep;				/* Generators */
-Matrix_t *bild[LAT_MAXCF];		/* Image of peak word (gkond) */
-int nmount = 0;				/* Number of mountains */
-Matrix_t * mountlist[MAXCYCL];		/* List of mountains */
-int MountDim[MAXCYCL];			/* Dim. of mountains */
-Matrix_t **proj[MAXCYCL];		/* Projections of mountains */
-int moffset[LAT_MAXCF];			/* Number of first mountain */
-int *Class[MAXCYCL];			/* Classes of vectors */
-BitString_t *subof[MAXCYCL];		/* Incidence matrix */
-static Lat_Info LI;			/* Data from .cfinfo file */
+MatRep_t *Rep;              /* Generators */
+Matrix_t *bild[LAT_MAXCF];      /* Image of peak word (gkond) */
+int nmount = 0;             /* Number of mountains */
+Matrix_t * mountlist[MAXCYCL];      /* List of mountains */
+int MountDim[MAXCYCL];          /* Dim. of mountains */
+Matrix_t **proj[MAXCYCL];       /* Projections of mountains */
+int moffset[LAT_MAXCF];         /* Number of first mountain */
+int *Class[MAXCYCL];            /* Classes of vectors */
+BitString_t *subof[MAXCYCL];        /* Incidence matrix */
+static Lat_Info LI;         /* Data from .cfinfo file */
 
 static MtxApplicationInfo_t AppInfo = {
 "mkinc", "Mountains and incidence matrix",
@@ -57,14 +57,15 @@ MTX_COMMON_OPTIONS_DESCRIPTION
 
 static MtxApplication_t *App = NULL;
 
-int opt_G = 0;	    /* GAP output */
+int opt_G = 0;      /* GAP output */
 
 
 /* -----------------------------------------------------------------
    ReadFiles() - Read generators and images of peak words
+   Return 1 on error, 0 on success
    ----------------------------------------------------------------- */
 
-static void ReadFiles(const char *basename)
+static int ReadFiles(const char *basename)
 
 {
     char fn[200];
@@ -72,8 +73,8 @@ static void ReadFiles(const char *basename)
 
     if (Lat_ReadInfo(&LI,basename) != 0)
     {
-	MTX_ERROR1("Error reading %s.cfinfo",basename);
-	return;
+    MTX_ERROR1("Error reading %s.cfinfo",basename);
+    return 1;
     }
 
     /* Load the generators
@@ -81,18 +82,23 @@ static void ReadFiles(const char *basename)
     Rep = MrLoad(LI.BaseName,LI.NGen);
     if (Rep == NULL)
     {
-	MTX_ERROR("Cannot load generators");
-	return;
+    MTX_ERROR("Cannot load generators");
+    return 1;
     }
 
     /* Load the .im matrices
        --------------------- */
     for (i = 0; i < LI.NCf; ++i)
     {
-	sprintf(fn,"%s%s.im",LI.BaseName,Lat_CfName(&LI,i));
-	bild[i] = MatLoad(fn);
-	MatEchelonize(bild[i]);
+        if (snprintf(fn,200,"%s%s.im",LI.BaseName,Lat_CfName(&LI,i))>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
+        bild[i] = MatLoad(fn);
+        MatEchelonize(bild[i]);
     }
+    return 0;
 }
 
 
@@ -104,19 +110,18 @@ static int Init(int argc, const char **argv)
 
 {
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
 
     /* Parse command line
        ------------------ */
     opt_G = AppGetOption(App,"-G --gap");
     if (opt_G)
-	MtxMessageLevel = -100;
+    MtxMessageLevel = -100;
     if (AppGetArguments(App,1,1) != 1)
-	return -1;
+    return -1;
     MESSAGE(0,("\n*** INCIDENCE MATRIX ***\n\n"));
 
-    ReadFiles(App->ArgV[0]);
-    return 0;
+    return ReadFiles(App->ArgV[0]);
 }
 
 
@@ -125,9 +130,10 @@ static int Init(int argc, const char **argv)
    WriteMountains() - Write mountains, dimensions and classes.
 
    This function writes the output files `XXX.v' and `XXX.mnt'.
+   Return 1 on error, 0 on succes.
    ----------------------------------------------------------------- */
 
-static void WriteMountains()
+static int WriteMountains()
 
 {
     FILE *f;
@@ -139,17 +145,17 @@ static void WriteMountains()
     f= SysFopen(strcat(strcpy(fn,LI.BaseName),".mnt"),FM_CREATE|FM_TEXT);
     if (f == NULL)
     {
-	MTX_ERROR1("Cannot create %s: %S",fn);
-	return;
+    MTX_ERROR1("Cannot create %s: %S",fn);
+    return 1;
     }
     MESSAGE(1,("Writing dimensions and classes to %s\n",fn));
     for (i = 0; i < nmount; ++i)
     {
-	int *p;
-	fprintf(f,"%4d %4d  %d ",i,MountDim[i],Class[i][0]);
-	for (p = Class[i] + 1; *p >= 0; ++p)
-	    fprintf(f,"%d ",*p + 1);
-	fprintf(f,"-1\n");
+    int *p;
+    fprintf(f,"%4d %4d  %d ",i,MountDim[i],Class[i][0]);
+    for (p = Class[i] + 1; *p >= 0; ++p)
+        fprintf(f,"%d ",*p + 1);
+    fprintf(f,"-1\n");
     }
     fclose(f);
 
@@ -160,23 +166,24 @@ static void WriteMountains()
     FfSetNoc(Rep->Gen[0]->Noc);
     if ((f = FfWriteHeader(fn,FfOrder,nmount,Rep->Gen[0]->Noc)) == NULL)
     {
-	MTX_ERROR1("Cannot create file %s: %S",fn);
-	return;
+        MTX_ERROR1("Cannot create file %s: %S",fn);
+        return 1;
     }
     for (i = 0; i < nmount; ++i)
     {
-	FfWriteRows(f,mountlist[i]->Data,1);
-	MatFree(mountlist[i]);	/* We don't need them for step 2*/
+        FfWriteRows(f,mountlist[i]->Data,1);
+        MatFree(mountlist[i]);  /* We don't need them for step 2*/
     }
     fclose(f);
+    return 0;
 }
 
 
 /* -----------------------------------------------------------------
    newmountain() - Take a vector, spin it up and check if it is a
-	new mountain. If yes, add it to the mountain list and
-	calculate the projection on each condensed module.
-	Returns 1 if a new mountain has been found, 0 if not.
+    new mountain. If yes, add it to the mountain list and
+    calculate the projection on each condensed module.
+    Returns 1 if a new mountain has been found, 0 if not.
    ----------------------------------------------------------------- */
 
 static int newmountain(Matrix_t *vec, int cf)
@@ -197,17 +204,17 @@ static int newmountain(Matrix_t *vec, int cf)
        ----------------------------- */
     for (i = moffset[cf]; i < nmount; ++i)
     {
-	if (backproj->Nor == proj[i][cf]->Nor)
-	{
-	    int issub = IsSubspace(proj[i][cf],backproj,0);
-	    if (issub == -1)
-	    {
-		MTX_ERROR("IsSubspace() failed");
-		return -1;
-	    }
-	    if (issub != 0)
-		break;
-	}
+    if (backproj->Nor == proj[i][cf]->Nor)
+    {
+        int issub = IsSubspace(proj[i][cf],backproj,0);
+        if (issub == -1)
+        {
+        MTX_ERROR("IsSubspace() failed");
+        return -1;
+        }
+        if (issub != 0)
+        break;
+    }
     }
 
     /* If it is new, add it to the list and calculate
@@ -215,39 +222,39 @@ static int newmountain(Matrix_t *vec, int cf)
        ------------------------------------------------ */
     if (i >= nmount)
     {
-	int k;
+    int k;
 
-	if (nmount >= MAXCYCL)
-	{
-	    MTX_ERROR("TOO MANY MOUNTAINS, INCREASE MAXCYCL");
-	    return -1;
-	}
-	proj[nmount] = NALLOC(Matrix_t *,LI.NCf);
+    if (nmount >= MAXCYCL)
+    {
+        MTX_ERROR("TOO MANY MOUNTAINS, INCREASE MAXCYCL");
+        return -1;
+    }
+    proj[nmount] = NALLOC(Matrix_t *,LI.NCf);
 
-    	MESSAGE(2,("New Mountain %d\n",(int)i));
-	for (k = 0; k < LI.NCf; ++k)
-	{
-    	    MESSAGE(3,("Projecting on %d\n",k));
-	    if (k == cf)
-	    	proj[nmount][cf] = backproj;
-	    else
-	    {
-		proj[nmount][k] = QProjection(bild[k],span);
-		MatEchelonize(proj[nmount][k]);
-	    }
-	}
-	mountlist[nmount] = vec;
-	MountDim[nmount] = span->Nor;
-	++nmount;
-	MatFree(span);
-	return 1;
+        MESSAGE(2,("New Mountain %d\n",(int)i));
+    for (k = 0; k < LI.NCf; ++k)
+    {
+            MESSAGE(3,("Projecting on %d\n",k));
+        if (k == cf)
+            proj[nmount][cf] = backproj;
+        else
+        {
+        proj[nmount][k] = QProjection(bild[k],span);
+        MatEchelonize(proj[nmount][k]);
+        }
+    }
+    mountlist[nmount] = vec;
+    MountDim[nmount] = span->Nor;
+    ++nmount;
+    MatFree(span);
+    return 1;
     }
     else
     {
-	MatFree(backproj);
-	MatFree(span);
-	MatFree(vec);
-	return 0;
+    MatFree(backproj);
+    MatFree(span);
+    MatFree(vec);
+    return 0;
     }
 }
 
@@ -270,15 +277,15 @@ static void makeclass(int mnt, int cf, Matrix_t *vectors)
     MESSAGE(2,("Making equivalence class\n"));
     for (k = 0; k < vectors->Nor; ++k)
     {
-	vec = MatCutRows(vectors,k,1);
-	tmp[k] = 0;
+    vec = MatCutRows(vectors,k,1);
+    tmp[k] = 0;
         MESSAGE(3,(" %d",k));
-	if (IsSubspace(vec,proj[mnt][cf],1))
-	{
-	    tmp[k] = 1;
-	    ++nvec;
-	}
-	MatFree(vec);
+    if (IsSubspace(vec,proj[mnt][cf],1))
+    {
+        tmp[k] = 1;
+        ++nvec;
+    }
+    MatFree(vec);
     }
     MESSAGE(3,("\n"));
 
@@ -286,8 +293,8 @@ static void makeclass(int mnt, int cf, Matrix_t *vectors)
     *p++ = nvec;
     for (k = 0; k < vectors->Nor; ++k)
     {
-	if (tmp[k])
-	    *p++ = k;
+    if (tmp[k])
+        *p++ = k;
     }
     *p = -1;
     free(tmp);
@@ -296,10 +303,11 @@ static void makeclass(int mnt, int cf, Matrix_t *vectors)
 
 /* -----------------------------------------------------------------
    FindMountains() - Make all mountains and calculate the projections of
-	mountains on condensed modules.
+    mountains on condensed modules.
+    Return 1 on error, 0 on success
    ----------------------------------------------------------------- */
 
-static void FindMountains()
+static int FindMountains()
 
 {
     Matrix_t *vectors, *vec, *uk;
@@ -309,38 +317,54 @@ static void FindMountains()
 
     MESSAGE(0,("Step 1 (Mountains)\n"));
     nmount = 0;
-    for (cf = 0; cf < LI.NCf; ++cf)	/* For each irreducible */
+    for (cf = 0; cf < LI.NCf; ++cf) /* For each irreducible */
     {
-	MESSAGE(0,("  %s%s: ",LI.BaseName,Lat_CfName(&LI,cf)));
+    MESSAGE(0,("  %s%s: ",LI.BaseName,Lat_CfName(&LI,cf)));
 
-	/* Read the vectors and the uncondense matrix
-	   ------------------------------------------ */
-	sprintf(fn,"%s%s.v",LI.BaseName,Lat_CfName(&LI,cf));
-	vectors = MatLoad(fn);
-	sprintf(fn,"%s%s.k",LI.BaseName,Lat_CfName(&LI,cf));
-	uk = MatLoad(fn);
+    /* Read the vectors and the uncondense matrix
+       ------------------------------------------ */
+    if (snprintf(fn, 200, "%s%s.v",LI.BaseName,Lat_CfName(&LI,cf))>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
+    vectors = MatLoad(fn);
+    if (!vectors) return 1;
+    if (snprintf(fn,200,"%s%s.k",LI.BaseName,Lat_CfName(&LI,cf))>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        MatFree(vectors);
+        return 1;
+    }
+    uk = MatLoad(fn);
+    if (!uk)
+    {
+        MatFree(vectors);
+        return 1;
+    }
 
-	/* Try each vector
-	   --------------- */
-	moffset[cf] = nmount;
-	for (i = 0; i < vectors->Nor; ++i)
-	{
-	    if (i % 50 == 0)
-		MESSAGE(1,("[%d] ",i));
-	    vec = MatCutRows(vectors,i,1);
-	    MatMul(vec,uk);	/* Uncondense */
-	    if (newmountain(vec,cf))
-		makeclass(nmount-1,cf,vectors);
-	}
-	LI.Cf[cf].nmount = nmount - moffset[cf];
+    /* Try each vector
+       --------------- */
+    moffset[cf] = nmount;
+    for (i = 0; i < vectors->Nor; ++i)
+    {
+        if (i % 50 == 0)
+        MESSAGE(1,("[%d] ",i));
+        vec = MatCutRows(vectors,i,1);
+        MatMul(vec,uk); /* Uncondense */
+        if (newmountain(vec,cf))
+        makeclass(nmount-1,cf,vectors);
+    }
+    LI.Cf[cf].nmount = nmount - moffset[cf];
 
-	MatFree(vectors);
-	MatFree(uk);
-	MESSAGE(0,("%ld mountain%s\n",LI.Cf[cf].nmount,
-		LI.Cf[cf].nmount != 1 ? "s" : ""));
+    MatFree(vectors);
+    MatFree(uk);
+    MESSAGE(0,("%ld mountain%s\n",LI.Cf[cf].nmount,
+        LI.Cf[cf].nmount != 1 ? "s" : ""));
 
     }
     MESSAGE(0,("Total: %d mountain%s\n",nmount,nmount != 1 ? "s" : ""));
+    return 0;
 }
 
 
@@ -348,9 +372,10 @@ static void FindMountains()
 
 /* -----------------------------------------------------------------
    WriteIncidenceMatrix() - Write the incidence matrix
+   Return 1 on error, 0 on success.
    ----------------------------------------------------------------- */
 
-static void WriteIncidenceMatrix()
+static int WriteIncidenceMatrix()
 
 {
     FILE *f;
@@ -363,19 +388,19 @@ static void WriteIncidenceMatrix()
     f = SysFopen(strcat(strcpy(fn,LI.BaseName),".inc"),FM_CREATE);
     if (f == NULL)
     {
-	MTX_ERROR1("Cannot open %s: %S",fn);
-	return;
+        MTX_ERROR1("Cannot open %s: %S",fn);
+        return 1;
     }
     MESSAGE(1,("Writing incidence matrix (%s)\n",fn));
     l = (long) nmount;
     SysWriteLong(f,&l,1);
     for (i = 0; i < nmount; ++i)
-	BsWrite(subof[i],f);
+    if (BsWrite(subof[i],f)) return 1;
     fclose(f);
 
     /* Write the .cfinfo file
        ---------------------- */
-    Lat_WriteInfo(&LI);
+    return Lat_WriteInfo(&LI);
 }
 
 
@@ -388,40 +413,40 @@ static void CalculateIncidences()
 
 {
     int i, k;
-    int cfi, cfk;	/* Comp. factor corresponding to mountain i,j */
+    int cfi, cfk;   /* Comp. factor corresponding to mountain i,j */
 
     MESSAGE(0,("Step 2 (Incidences)\n"));
 
     /* Allocate memory for the incidence matrix
        ---------------------------------------- */
     for (i = 0; i < nmount; ++i)
-	subof[i] = BsAlloc(nmount);
+    subof[i] = BsAlloc(nmount);
 
     /* Calculate the incidences
        ------------------------ */
     for (cfi = i = 0; i < nmount; ++i)
     {
-	if (i == moffset[cfi])
-	    MESSAGE(0,("  %s%s\n",LI.BaseName,Lat_CfName(&LI,cfi)));
-	for (cfk=0, k = 0; k < nmount; ++k)
-	{
-	    int isubk, ksubi;
-	    ksubi = IsSubspace(proj[k][cfk],proj[i][cfk],0);
-	    isubk = IsSubspace(proj[i][cfi],proj[k][cfi],0);
-	    if (ksubi < 0 || isubk < 0)
-	    {
-		MTX_ERROR("Subspace comparison failed");
-		return;
-	    }
-	    if (ksubi)
-		BsSet(subof[k],i);
-	    if (isubk)
-		BsSet(subof[i],k);
-	    if (cfk < LI.NCf && k == moffset[cfk+1]-1)
-		++cfk;
-    	}
-    	if (cfi < LI.NCf && i == moffset[cfi+1]-1)
-	    ++cfi;
+    if (i == moffset[cfi])
+        MESSAGE(0,("  %s%s\n",LI.BaseName,Lat_CfName(&LI,cfi)));
+    for (cfk=0, k = 0; k < nmount; ++k)
+    {
+        int isubk, ksubi;
+        ksubi = IsSubspace(proj[k][cfk],proj[i][cfk],0);
+        isubk = IsSubspace(proj[i][cfi],proj[k][cfi],0);
+        if (ksubi < 0 || isubk < 0)
+        {
+        MTX_ERROR("Subspace comparison failed");
+        return;
+        }
+        if (ksubi)
+        BsSet(subof[k],i);
+        if (isubk)
+        BsSet(subof[i],k);
+        if (cfk < LI.NCf && k == moffset[cfk+1]-1)
+        ++cfk;
+        }
+        if (cfi < LI.NCf && i == moffset[cfi+1]-1)
+        ++cfi;
     }
 }
 
@@ -446,33 +471,33 @@ static void WriteResultGAP()
     printf("MeatAxe.Incidences := [\n");
     for (i = 0; i < nmount; ++i)
     {
-	printf("BlistList([" );
-	for (j = 0 ; j < nmount ; j++)
-	{
-      	    printf(j < (nmount - 1) ? "%s," : "%s], [1])",
-		BsTest(subof[i],j) ? "1" : "0" ) ;
-	}
+    printf("BlistList([" );
+    for (j = 0 ; j < nmount ; j++)
+    {
+            printf(j < (nmount - 1) ? "%s," : "%s], [1])",
+        BsTest(subof[i],j) ? "1" : "0" ) ;
+    }
 
-	printf( i < nmount-1 ? ",\n" : "] ;\n" ) ;
+    printf( i < nmount-1 ? ",\n" : "] ;\n" ) ;
     }
 
     /* Write dimensions and classes
        ---------------------------- */
     printf("MeatAxe.Dimensions := [");
     for (i = 0; i < nmount-1 ; ++i)
-	printf("%d,", MountDim[i]);
+    printf("%d,", MountDim[i]);
     printf("%d] ;\n", MountDim[nmount-1]);
 
     printf( "MeatAxe.Classes := [\n");
     for (i = 0; i < nmount; ++i)
     {
         printf("[%d",Class[i][0]);
-	for (p = Class[i] + 1; *p >= 0 ; ++p)
-	{
-	    printf(",%d", *p + 1);
-	}
-	printf("]");
-	printf(i < nmount-1 ? ",\n" : "] ;\n");
+    for (p = Class[i] + 1; *p >= 0 ; ++p)
+    {
+        printf(",%d", *p + 1);
+    }
+    printf("]");
+    printf(i < nmount-1 ? ",\n" : "] ;\n");
     }
 }
 
@@ -487,15 +512,14 @@ int main(int argc, const char **argv)
 {
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return -1;
+    MTX_ERROR("Initialization failed");
+    return -1;
     }
     FindMountains();
-    WriteMountains();
+    if (WriteMountains()) return 1;
     CalculateIncidences();
-    WriteIncidenceMatrix();
-    if (opt_G)
-	WriteResultGAP();
+    if (WriteIncidenceMatrix()) return 1;
+    if (opt_G) WriteResultGAP();
     if (App != NULL) AppFree(App);
     return 0;
 }

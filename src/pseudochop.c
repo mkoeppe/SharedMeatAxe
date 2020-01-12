@@ -2,8 +2,8 @@
    File:        $Id: pseudochop.c,v 1.2 2007-09-06 20:36:19 mringe Exp $
    Comment:     This program works like chop but assumes that all constituents
                 occur in a "reference" module that has already been chopped,
-		and that peak words have already be calculates on the
-		reference module.
+        and that peak words have already be calculates on the
+        reference module.
    --------------------------------------------------------------------------
    Originally written by Markus Wiegelmann.
    Modifications by Klaus Lux and Michael Ringe.
@@ -54,7 +54,7 @@ static int ParseCommandLine()
 {
     semisimp = AppGetOption(App,"-s --assume-semisimple");
     if (AppGetArguments(App,2,2) != 2)
-	return -1;
+    return -1;
     if (semisimp)
         printf("Assuming that the representation is semisimple.\n");
     return 0;
@@ -74,43 +74,49 @@ int main(int argc, const char *argv[])
     IntMatrix_t *OpTable;
     MtxInitLibrary();
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return 1;
+    return 1;
     if (ParseCommandLine() != 0)
-	return 1;
+    return 1;
 
     /* Read <ref>.cfinfo */
     if (Lat_ReadInfo(&mycfinfo,App->ArgV[1]) != 0)
-	return -1;
+    return -1;
 
     /* Read generators of <mod>, and set up the word generator */
     gens = MrLoad(App->ArgV[0],mycfinfo.NGen);
+    if (!gens) return 1;
     rep = WgAlloc(gens);
+    if (!rep) return 1;
 
     /* Run through all possible constituents and calculate their multiplicity in <mod> */
     for ( j = 0; j < mycfinfo.NCf; j++ )
     {
-	int oldnul, newnul;
+    int oldnul, newnul;
         if (mycfinfo.Cf[j].peakword == 0)
         {
-	    MTX_ERROR("0 is definitly not a peakword! - Did you run mkpeak?");
+            MTX_ERROR("0 is definitly not a peakword! - Did you run mkpeak?");
             return 1;
         }
         old = MatInsert(WgMakeWord(rep,mycfinfo.Cf[j].peakword),mycfinfo.Cf[j].peakpol);
-	nulsp = MatNullSpace(old);
-	newnul = nulsp->Nor;
+    nulsp = MatNullSpace(old);
+    if (!nulsp) return 1;
+    newnul = nulsp->Nor;
         oldnul = 0;
 
-	/* Find stable nullity */
+    /* Find stable nullity */
         while (!semisimp && newnul > oldnul)
         {
-	    Matrix_t *newmat;
+        Matrix_t *newmat;
             oldnul = newnul;
             newmat = MatAlloc(old->Field, old->Nor, old->Noc);
+            if (!newmat) return 1;
             MatMulStrassen(newmat, old, old);
             MatFree(old);
             MatFree(nulsp);
             old = MatDup(newmat);
+            if (!old) return 1;
             nulsp = MatNullSpace__(newmat);
+            if (!nulsp) return 1;
             newnul= nulsp->Nor;
         }
         MatFree(old);
@@ -118,44 +124,77 @@ int main(int argc, const char *argv[])
         dim += mycfinfo.Cf[j].dim * mycfinfo.Cf[j].mult;
 
         MESSAGE(0,("%s%s occurs %ld times (total dimension now %d out of %d)\n",
-	    App->ArgV[1],Lat_CfName(&mycfinfo,j),mycfinfo.Cf[j].mult,
-	    dim,gens->Gen[0]->Nor));
+        App->ArgV[1],Lat_CfName(&mycfinfo,j),mycfinfo.Cf[j].mult,
+        dim,gens->Gen[0]->Nor));
 
-	/* Copy generators, std basis, and .op file for this constituent.
+    /* Copy generators, std basis, and .op file for this constituent.
            Note: we do this even if this constituent does not occcur in <mod> */
-        sprintf(name, "%s%s.k", App->ArgV[0], Lat_CfName(&mycfinfo,j));
-        MatSave(nulsp,name);
-        sprintf(name, "%s%s.op", App->ArgV[0], Lat_CfName(&mycfinfo,j));
-        sprintf(name2, "%s%s.op", App->ArgV[1], Lat_CfName(&mycfinfo,j));
+        if (snprintf(name, MAX_NAME, "%s%s.k", App->ArgV[0], Lat_CfName(&mycfinfo,j))>=MAX_NAME)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
+        if (MatSave(nulsp,name)) return 1;
+        if (snprintf(name, MAX_NAME, "%s%s.op", App->ArgV[0], Lat_CfName(&mycfinfo,j))>=MAX_NAME)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
+        if (snprintf(name2, MAX_NAME, "%s%s.op", App->ArgV[1], Lat_CfName(&mycfinfo,j))>=MAX_NAME)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
         OpTable = ImatLoad(name2);
-        ImatSave(OpTable,name);
+        if (!OpTable) return 1;
+        if (ImatSave(OpTable,name)) return 1;
         for ( i = 0; i < mycfinfo.NGen; i++ )
         {
-            sprintf(name, "%s%s.%d", App->ArgV[0], Lat_CfName(&mycfinfo,j), i+1);
-            sprintf(name2, "%s%s.%d", App->ArgV[1], Lat_CfName(&mycfinfo,j), i+1);
+            if (snprintf(name, MAX_NAME, "%s%s.%d", App->ArgV[0], Lat_CfName(&mycfinfo,j), i+1)>=MAX_NAME)
+            {
+                MTX_ERROR("Buffer overflow");
+                return 1;
+            }
+            if (snprintf(name2, MAX_NAME, "%s%s.%d", App->ArgV[1], Lat_CfName(&mycfinfo,j), i+1)>=MAX_NAME)
+            {
+                MTX_ERROR("Buffer overflow");
+                return 1;
+            }
             mat = MatLoad(name2);
+            if (!mat) return 1;
             if (mat->Field != gens->Gen[0]->Field)
             {
-		MTX_ERROR2("%s: %E",name2,MTX_ERR_INCOMPAT);
-                return -1;
+                MTX_ERROR2("%s: %E",name2,MTX_ERR_INCOMPAT);
+                return 1;
             }
-            MatSave(mat, name);
+            if (MatSave(mat, name)) return 1;
             MatFree(mat);
-            sprintf(name, "%s%s.std.%d", App->ArgV[0], Lat_CfName(&mycfinfo,j), i+1);
-            sprintf(name2, "%s%s.std.%d", App->ArgV[1], Lat_CfName(&mycfinfo,j), i+1);
+            if (snprintf(name, MAX_NAME, "%s%s.std.%d", App->ArgV[0], Lat_CfName(&mycfinfo,j), i+1)>=MAX_NAME)
+            {
+                MTX_ERROR("Buffer overflow");
+                return 1;
+            }
+            if (snprintf(name2, MAX_NAME, "%s%s.std.%d", App->ArgV[1], Lat_CfName(&mycfinfo,j), i+1)>=MAX_NAME)
+            {
+                MTX_ERROR("Buffer overflow");
+                return 1;
+            }
             mat = MatLoad(name2);
-            MatSave(mat, name);
+            if (!mat) return 1;
+            if (MatSave(mat, name))
+            {
+                MatFree(mat);
+                return 1;
+            }
             MatFree(mat);
         }
     }
     if (dim < gens->Gen[0]->Nor)
         fprintf(stderr, "The given compositionfactors form only %d from whole dimension %d!\n\n",
-		dim, gens->Gen[0]->Nor);
+        dim, gens->Gen[0]->Nor);
 
     strcpy(mycfinfo.BaseName,App->ArgV[0]);
-    Lat_WriteInfo(&mycfinfo);
-
-    return 0;
+    return Lat_WriteInfo(&mycfinfo);
 }
 
 

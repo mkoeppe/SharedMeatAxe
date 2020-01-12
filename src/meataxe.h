@@ -254,11 +254,12 @@ void StrPrintF(String *s, const char *fmt, ...);
  ** @addtogroup app
  ** @{
  **/
-
-extern char MtxBinDir[1024];    /**< MeatAxe program directory */
-extern char MtxLibDir[1024];    /**< MeatAxe library directory (for multiplication tables etc.) */
+#define LIB_DIR_LEN 500
+extern char MtxBinDir[LIB_DIR_LEN];    /**< MeatAxe program directory */
+extern char MtxLibDir[LIB_DIR_LEN];    /**< MeatAxe library directory (for multiplication tables etc.) */
 
 #define APP_MAX_ARGS 50
+#define APP_TMP_DIR_LEN 500
 
 /** Application information structure.
 This data structure is used to store information about the application.
@@ -306,7 +307,7 @@ typedef struct
     unsigned long IsDone[APP_MAX_ARGS];     /**< Used internally. */
     const char *OptArg;             /**< Used internally. */
     int OptInd;                 /**< Used internally. */
-    char TempDirName[200];          /**< Directory fr temporary files. */
+    char TempDirName[APP_TMP_DIR_LEN];          /**< Directory fr temporary files. */
 } MtxApplication_t;
 
 

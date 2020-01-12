@@ -1,7 +1,7 @@
 /* ============================= C MeatAxe ==================================
    File:        $Id: genmod.c,v 1.2 2007-11-08 22:06:52 mringe Exp $
    Comment:     This program calculates a basis for any submodule listet in
-		the .out file.
+        the .out file.
    --------------------------------------------------------------------------
    (C) Copyright 1997 Michael Ringe, Lehrstuhl D fuer Mathematik,
    RWTH Aachen, Germany  <mringe@math.rwth-aachen.de>
@@ -20,13 +20,13 @@
 
 MTX_DEFINE_FILE_INFO
 
-MatRep_t *Rep;			/* Generators for the algebra */
-Matrix_t *mountains;		/* Genrators for all mountains */
-int nmount;			/* Number of mountains */
+MatRep_t *Rep;          /* Generators for the algebra */
+Matrix_t *mountains;        /* Genrators for all mountains */
+int nmount;         /* Number of mountains */
 int modnum;
-BitString_t *bs;		/* Bit string read from .sub file */
-int opt_m = 0;			/* Option -m used */
-static Lat_Info LI;		/* Data from .cfinfo file */
+BitString_t *bs;        /* Bit string read from .sub file */
+int opt_m = 0;          /* Option -m used */
+static Lat_Info LI;     /* Data from .cfinfo file */
 static const char *ModuleName = NULL;
 
 static MtxApplicationInfo_t AppInfo = {
@@ -70,19 +70,19 @@ static int Init(int argc, const char **argv)
     App = AppAlloc(&AppInfo,argc,argv);
     opt_m = AppGetOption(App,"-m --mountain");
     if (AppGetArguments(App,2,2) < 0)
-	return -1;
+    return -1;
     ModuleName = App->ArgV[0];
     modnum = atoi(App->ArgV[1]);
     if (Lat_ReadInfo(&LI,ModuleName) != 0)
     {
-	MTX_ERROR1("Error reading %s.cfinfo",ModuleName);
-	return -1;
+    MTX_ERROR1("Error reading %s.cfinfo",ModuleName);
+    return -1;
     }
 
     /* Read the generators and mountains.
        ---------------------------------- */
     if ((Rep = MrLoad(ModuleName,LI.NGen)) == NULL)
-	return -1;
+    return -1;
     mountains = MatLoad(strcat(strcpy(fn,LI.BaseName),".v"));
     nmount = mountains->Nor;
     MESSAGE(1,("%d mountains\n",nmount));
@@ -93,26 +93,26 @@ static int Init(int argc, const char **argv)
       ------------------------ --------------------------------- */
     if (opt_m)
     {
-	bs = BsAlloc(nmount);
-	BsSet(bs,modnum);
+    bs = BsAlloc(nmount);
+    BsSet(bs,modnum);
     }
     else
     {
-    	f = SysFopen(strcat(strcpy(fn,LI.BaseName),".sub"),FM_READ);
-    	if (f == NULL)
-	    MTX_ERROR("CANNOT OPEN .sub FILE");
-	bs = BsAlloc(nmount);
-    	SysFseek(f,modnum * (12 + (bs->Size + 7) / 8));	/* HACK: !!! */
-	BsFree(bs);
-    	bs = BsRead(f);
-    	if (MSG1)
-    	{
-	    printf("Mountains: ");
-	    for (i = 0; i < nmount; ++i)
-	    	if (BsTest(bs,i)) printf("%d ",i);
-	    printf("\n");
-    	}
-	fclose(f);
+        f = SysFopen(strcat(strcpy(fn,LI.BaseName),".sub"),FM_READ);
+        if (f == NULL)
+        MTX_ERROR("CANNOT OPEN .sub FILE");
+    bs = BsAlloc(nmount);
+        SysFseek(f,modnum * (12 + (bs->Size + 7) / 8)); /* HACK: !!! */
+    BsFree(bs);
+        bs = BsRead(f);
+        if (MSG1)
+        {
+        printf("Mountains: ");
+        for (i = 0; i < nmount; ++i)
+            if (BsTest(bs,i)) printf("%d ",i);
+        printf("\n");
+        }
+    fclose(f);
     }
 
     return 0;
@@ -122,9 +122,10 @@ static int Init(int argc, const char **argv)
 
 /* -----------------------------------------------------------------
    sp()
+   Return -1 on error, 0 on success
    ----------------------------------------------------------------- */
 
-static void sp()
+static int sp()
 
 {
     int i;
@@ -133,23 +134,29 @@ static void sp()
     char fn[200];
 
     m = MatAlloc(FfOrder,nmount,Rep->Gen[0]->Noc);
+    if (!m) return -1;
     p = m->Data;
     for (i = 0; i < nmount; ++i)
     {
-	if (BsTest(bs,i))
-	{
-	    PTR q = FfGetPtr(mountains->Data,i);
-	    FfCopyRow(p,q);
-	    FfStepPtr(&p);
-	}
+    if (BsTest(bs,i))
+    {
+        PTR q = FfGetPtr(mountains->Data,i);
+        FfCopyRow(p,q);
+        FfStepPtr(&p);
+    }
     }
     MatEchelonize(m);
     MESSAGE(0,("Seed space has dimension %d\n",m->Nor));
     subsp = SpinUp(m,Rep,SF_EACH|SF_COMBINE,NULL,NULL);
     MESSAGE(0,("Submodule has dimension %d\n",subsp->Nor));
-    sprintf(fn,"%s.%c%d",LI.BaseName,opt_m ? 'm' : 's',modnum);
-    MatSave(subsp,fn);
+    if (snprintf(fn,200,"%s.%c%d",LI.BaseName,opt_m ? 'm' : 's',modnum)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    if (MatSave(subsp,fn)) return -1;
     MESSAGE(0,("Module written to `%s'\n",fn));
+    return 0;
 }
 
 
@@ -162,12 +169,12 @@ int main(int argc, const char *argv[])
 {
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return -1;
+    MTX_ERROR("Initialization failed");
+    return -1;
     }
 
 
-    sp();
+    if (sp()) return -1;
     AppFree(App);
     return 0;
 }

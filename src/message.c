@@ -76,14 +76,14 @@ static struct msg_struct { int ErrNo; char *smsg; } msgs[] =
 
 static char *errmsg(int en)
 {
-    static char buf[30];
+    static char buf[50];
     struct msg_struct *x;
 
     for (x = msgs; x->ErrNo >= 0; ++x)
         if (x->ErrNo == en)
-	    return x->smsg;
+        return x->smsg;
 
-    sprintf(buf,"Unknown error %d",en);
+    snprintf(buf,50,"Unknown error %d",en);
     return buf;
 }
 
@@ -103,8 +103,8 @@ static void FormatString(char **buf, int *count, int bufsize, const char *c)
 {
     while (*c != 0 && *count < bufsize)
     {
-	*(*buf)++ = *c++;
-	++*count;
+    *(*buf)++ = *c++;
+    ++*count;
     }
 }
 
@@ -169,33 +169,33 @@ int MtxFormatMessage(char *buf, int bufsize, const char *msg, va_list al)
     d = buf;
     while (*msg != 0 && count < bufsize - 1)
     {
-	if (*msg == '%')
-	{
-	    switch (*++msg)
-	    {
-		case 'l':
-		    FormatLong(&d,&count,bufsize,va_arg(al,long));
-		    break;
-		case 'd':
-		    FormatInteger(&d,&count,bufsize,va_arg(al,int));
-		    break;
-		case 's':
-		    FormatString(&d,&count,bufsize,va_arg(al,char *));
-		    break;
-		case 'E':
-		    FormatString(&d,&count,bufsize,errmsg(va_arg(al,int)));
-		    break;
-		case 'S':
-		    FormatString(&d,&count,bufsize,strerror(errno));
-		    break;
-	    }
-	    ++msg;
-	}
-	else
-	{
-	    if (count < bufsize - 1)
-		*d++ = *msg++;
-	}
+    if (*msg == '%')
+    {
+        switch (*++msg)
+        {
+        case 'l':
+            FormatLong(&d,&count,bufsize,va_arg(al,long));
+            break;
+        case 'd':
+            FormatInteger(&d,&count,bufsize,va_arg(al,int));
+            break;
+        case 's':
+            FormatString(&d,&count,bufsize,va_arg(al,char *));
+            break;
+        case 'E':
+            FormatString(&d,&count,bufsize,errmsg(va_arg(al,int)));
+            break;
+        case 'S':
+            FormatString(&d,&count,bufsize,strerror(errno));
+            break;
+        }
+        ++msg;
+    }
+    else
+    {
+        if (count < bufsize - 1)
+        *d++ = *msg++;
+    }
     }
 
     /* Terminate message and return number of characters written

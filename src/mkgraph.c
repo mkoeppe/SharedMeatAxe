@@ -18,8 +18,8 @@
 
 
 
-#define LBUFSIZE 2000	/* Input line buffer */
-#define MAXIRRED 20	/* Max number of irreducibles */
+#define LBUFSIZE 2000   /* Input line buffer */
+#define MAXIRRED 20 /* Max number of irreducibles */
 
 
 /* ------------------------------------------------------------------
@@ -54,22 +54,22 @@ MTX_COMMON_OPTIONS_DESCRIPTION
 static MtxApplication_t *App = NULL;
 
 
-static char ifilename[100];
-static char ofilename[100];
+static char ifilename[200];
+static char ofilename[200];
 static char name[100];
 static long block = -1;
-static Lat_Info LI;		/* Data from .cfinfo file */
+static Lat_Info LI;     /* Data from .cfinfo file */
 static enum { O_PS, O_GAP } OutputMode = O_PS;
 
 struct { char name[20]; long r, b, g; } ColorMap[] =
    {
-   	{"std",0,0,0},
-   	{"sub",0,0,0},
-   	{"rad",0,0,0},
-   	{"soc",0,0,0},
-   	{"line",0,0,0},
-   	{"mnt",0,0,0},
-   	{"",0,0,0}	/* End of list marker */
+    {"std",0,0,0},
+    {"sub",0,0,0},
+    {"rad",0,0,0},
+    {"soc",0,0,0},
+    {"line",0,0,0},
+    {"mnt",0,0,0},
+    {"",0,0,0}  /* End of list marker */
    };
 
 
@@ -78,13 +78,13 @@ int upper, lower;
 
 /* Data read from the input file
    ----------------------------- */
-int nsub;		/* Number of submodules */
-long *dim;		/* Dimension of submodules */
-int **max;		/* Maximal submodules */
-int **maxtype;		/* Types of irreducible factors */
-char *issoc;		/* Socle series */
-char *israd;		/* Radical series */
-char *ismount;		/* Mountains */
+int nsub;       /* Number of submodules */
+long *dim;      /* Dimension of submodules */
+int **max;      /* Maximal submodules */
+int **maxtype;      /* Types of irreducible factors */
+char *issoc;        /* Socle series */
+char *israd;        /* Radical series */
+char *ismount;      /* Mountains */
 
 /* The factor
    ---------- */
@@ -120,8 +120,8 @@ void readfile(void)
        --------------- */
     f = SysFopen(ifilename,FM_READ|FM_TEXT);
     if (f == NULL)
-    {	perror(ifilename);
-		err("Error opening input file");
+    {   perror(ifilename);
+        err("Error opening input file");
     }
     buf = (char *)SysMalloc(LBUFSIZE);
     MESSAGE(1,("Reading %s\n",ifilename));
@@ -129,9 +129,9 @@ void readfile(void)
     /* Read number of submodules
        ------------------------- */
     if (fgets(buf,LBUFSIZE,f) == NULL)
-    {	perror(ifilename);
-		err("Input file doesn't contain enough data");
-	}
+    {   perror(ifilename);
+        err("Input file doesn't contain enough data");
+    }
     nsub = atoi(buf);
     MESSAGE(1,("%d submodules\n",nsub));
 
@@ -151,26 +151,26 @@ void readfile(void)
        ---------------- */
     for (i = 0; i < nsub; ++i)
     {
-	if (fgets(buf,LBUFSIZE,f) == NULL)
-	{	perror(ifilename);
-		err("Input file doesn't contain enough data");
-	}
-	for (c = strtok(buf," "); *c != 0; ++c)
-	{
-	    if (*c == 'm') ismount[i] = 1; else
-	    if (*c == 'r') israd[i] = 1; else
-	    if (*c == 's') issoc[i] = 1;
-	}
-	c = strtok(NULL," ");
-	nmax = atoi(c);
-	lp = max[i] = NALLOC(int,nmax+1);
-	kp = maxtype[i] = NALLOC(int,nmax+1);
-	while (nmax-- > 0)
-	{
-	    *lp++ = atoi(strtok(NULL," "));
-	    *kp++ = atoi(strtok(NULL," "));
-	}
-	*kp = *lp = -1;
+    if (fgets(buf,LBUFSIZE,f) == NULL)
+    {   perror(ifilename);
+        err("Input file doesn't contain enough data");
+    }
+    for (c = strtok(buf," "); *c != 0; ++c)
+    {
+        if (*c == 'm') ismount[i] = 1; else
+        if (*c == 'r') israd[i] = 1; else
+        if (*c == 's') issoc[i] = 1;
+    }
+    c = strtok(NULL," ");
+    nmax = atoi(c);
+    lp = max[i] = NALLOC(int,nmax+1);
+    kp = maxtype[i] = NALLOC(int,nmax+1);
+    while (nmax-- > 0)
+    {
+        *lp++ = atoi(strtok(NULL," "));
+        *kp++ = atoi(strtok(NULL," "));
+    }
+    *kp = *lp = -1;
     }
     fclose(f);
     free(buf);
@@ -233,18 +233,18 @@ void buildroot(void)
     memset(flag,0,nsub);
     flag[upper] = 1;
     for (finis = 0; !finis; )
-    {	finis = 1;
-	for (i = 0; i < nsub; ++i)
-	{   if (flag[i] == 1)
-	    {	for (ip = max[i]; *ip >= 0; ++ip)
-		{   if (flag[*ip] == 0)
-		    {	flag[*ip] = 1;
-			finis = 0;
-		    }
-		}
-		flag[i] = 2;
-	    }
-	}
+    {   finis = 1;
+    for (i = 0; i < nsub; ++i)
+    {   if (flag[i] == 1)
+        {   for (ip = max[i]; *ip >= 0; ++ip)
+        {   if (flag[*ip] == 0)
+            {   flag[*ip] = 1;
+            finis = 0;
+            }
+        }
+        flag[i] = 2;
+        }
+    }
     }
 
     /* Select all modules which are also above <lower>
@@ -254,22 +254,22 @@ void buildroot(void)
     map[lower] = 0;
     xnsub = 1;
     for (finis = 0; !finis; )
-    {	finis = 1;
-	for (i = 0; i < nsub; ++i)
-	{   if (flag[i] == 2)
-	    {	for (ip = max[i]; *ip >= 0; ++ip)
-		{   if (flag[*ip] == 3)
-		    {	finis = 0;
-			flag[i] = 3;
-			map[i] = xnsub++;
-			break;
-		    }
-		}
-	    }
-	}
+    {   finis = 1;
+    for (i = 0; i < nsub; ++i)
+    {   if (flag[i] == 2)
+        {   for (ip = max[i]; *ip >= 0; ++ip)
+        {   if (flag[*ip] == 3)
+            {   finis = 0;
+            flag[i] = 3;
+            map[i] = xnsub++;
+            break;
+            }
+        }
+        }
+    }
     }
     if (lower > 0 || upper < nsub - 1)
-	MESSAGE(1,("%d modules between %d and %d\n",xnsub,lower,upper));
+    MESSAGE(1,("%d modules between %d and %d\n",xnsub,lower,upper));
 
     /* Calculate the factor lattice
        ---------------------------- */
@@ -277,16 +277,16 @@ void buildroot(void)
     k = 0;
     for (i = 0; i < nsub; ++i)
     {
-	if (flag[i] == 3)
+    if (flag[i] == 3)
         {
-	    Lattice->Nodes[k].UserData = i;
-	    for (ip = max[i]; *ip >= 0; ++ip)
-	    {
-		if (flag[*ip] == 3)
-		    LdAddIncidence(Lattice,map[*ip],k);
-	    }
-	    ++k;
-	}
+        Lattice->Nodes[k].UserData = i;
+        for (ip = max[i]; *ip >= 0; ++ip)
+        {
+        if (flag[*ip] == 3)
+            LdAddIncidence(Lattice,map[*ip],k);
+        }
+        ++k;
+    }
     }
 }
 
@@ -307,27 +307,27 @@ static void SetColors(const char *opt_text_ptr)
 
     while (*opt_text_ptr != 0)
     {
-    	for (i = 0; *(c = ColorMap[i].name) != 0; ++i)
-	    if (!strncmp(c,opt_text_ptr,strlen(c))) break;
-	if (*c == 0)
-	    MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
-	opt_text_ptr += strlen(c);
-	if (*opt_text_ptr != '=' && *opt_text_ptr != ':')
-	    MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
-	++opt_text_ptr;
-	if (sscanf(opt_text_ptr,"%d/%d/%d",&r,&g,&b) !=3)
-	    MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
-	while (*opt_text_ptr != 0 && *opt_text_ptr != ',')
-	    ++opt_text_ptr;
-	if (*opt_text_ptr == ',')
-	    ++opt_text_ptr;
-	if (r < 0 || g < 0 || b < 0 || r > 99 || g > 99 || b > 99)
-	    MTX_ERROR1("color value (-c): %E",MTX_ERR_RANGE);
-	ColorMap[i].r = r;
-	ColorMap[i].g = g;
-	ColorMap[i].b = b;
-	MESSAGE(2,("SetColor(%s = %d/%d/%d)\n",ColorMap[i].name,
-		r,g,b));
+        for (i = 0; *(c = ColorMap[i].name) != 0; ++i)
+        if (!strncmp(c,opt_text_ptr,strlen(c))) break;
+    if (*c == 0)
+        MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
+    opt_text_ptr += strlen(c);
+    if (*opt_text_ptr != '=' && *opt_text_ptr != ':')
+        MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
+    ++opt_text_ptr;
+    if (sscanf(opt_text_ptr,"%d/%d/%d",&r,&g,&b) !=3)
+        MTX_ERROR1("-c: %E",MTX_ERR_OPTION);
+    while (*opt_text_ptr != 0 && *opt_text_ptr != ',')
+        ++opt_text_ptr;
+    if (*opt_text_ptr == ',')
+        ++opt_text_ptr;
+    if (r < 0 || g < 0 || b < 0 || r > 99 || g > 99 || b > 99)
+        MTX_ERROR1("color value (-c): %E",MTX_ERR_RANGE);
+    ColorMap[i].r = r;
+    ColorMap[i].g = g;
+    ColorMap[i].b = b;
+    MESSAGE(2,("SetColor(%s = %d/%d/%d)\n",ColorMap[i].name,
+        r,g,b));
     }
 }
 
@@ -346,37 +346,53 @@ static int Init(int argc, const char **argv)
        ------------------ */
 
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
     block = AppGetIntOption(App,"-b",-1,0,-1);
     if (AppGetOption(App,"-G"))
-	OutputMode = O_GAP;
+    OutputMode = O_GAP;
     if ((c = AppGetTextOption(App,"-c",NULL)) != NULL)
-	SetColors(c);
+    SetColors(c);
     if (OutputMode == O_GAP)
-	MtxMessageLevel = -1000;
+    MtxMessageLevel = -1000;
     upper = lower = -1;
     AppGetArguments(App,1,3);
     switch (App->ArgC)
-    {	case 3:
-		upper = atoi(App->ArgV[2]);
-	case 2:
-		lower = atoi(App->ArgV[1]);
-	case 1:
-		strcpy(name,App->ArgV[0]);
-		break;
+    {   case 3:
+        upper = atoi(App->ArgV[2]);
+    case 2:
+        lower = atoi(App->ArgV[1]);
+    case 1:
+        strcpy(name,App->ArgV[0]);
+        break;
     }
 
     if (Lat_ReadInfo(&LI,name) != 0)
-	MTX_ERROR1("Error reading %s.cfinfo",name);
+    MTX_ERROR1("Error reading %s.cfinfo",name);
     if (block > 0)
     {
-	sprintf(ifilename,"%s.gra.%ld",name,block);
-	sprintf(ofilename,"%s.ps.%ld",name,block);
+        if (snprintf(ifilename,200,"%s.gra.%ld",name,block)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
+        if (snprintf(ofilename,200,"%s.ps.%ld",name,block)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
     }
     else
     {
-	sprintf(ifilename,"%s.gra",name);
-	sprintf(ofilename,"%s.ps",name);
+        if (snprintf(ifilename,200,"%s.gra",name)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
+        if (snprintf(ofilename,200,"%s.ps",name)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
     }
     return 0;
 }
@@ -442,8 +458,8 @@ void writeheader(void)
     c[-3] = 0;
     for (i = 0; FontSize[i] > 0; ++i)
     {
-    	fprintf(psfile,"/%sFont { /%s findfont %d scalefont setfont } "
-	     "def\n",FontAlias[i],FontName,FontSize[i]);
+        fprintf(psfile,"/%sFont { /%s findfont %d scalefont setfont } "
+         "def\n",FontAlias[i],FontName,FontSize[i]);
     }
     fprintf(psfile,"BigFont\n");
     fprintf(psfile,"%.1f %.1f moveto (", XMAP(0.0),YMAP(1.0));
@@ -451,7 +467,7 @@ void writeheader(void)
     fprintf(psfile,"Module: %s",mname);
     if (block > 0) fprintf(psfile,", Block: %ld",block);
     if (lower != 0 || upper != nsub-1)
-	fprintf(psfile,", Range: %d-%d",lower,upper);
+    fprintf(psfile,", Range: %d-%d",lower,upper);
     fprintf(psfile,") show \n");
 
     fprintf(psfile,"NormFont\n");
@@ -468,32 +484,32 @@ void writeheader(void)
     /* Definition of Sq, Di, Ci, and Lbl
        --------------------------------- */
     fprintf(psfile,
-	"/Sq { subColor 2 copy newpath moveto -%.1f -%.1f rmoveto\n"
-	"      U R D L closepath stroke } def\n",
-	xbox/2,ybox/2);
+    "/Sq { subColor 2 copy newpath moveto -%.1f -%.1f rmoveto\n"
+    "      U R D L closepath stroke } def\n",
+    xbox/2,ybox/2);
 
     fprintf(psfile,
-	"/Di { radColor 2 copy newpath moveto 0 -%1.1f rmoveto\n"
-	"      UR UL DL DR closepath stroke } def\n",
-	ybox/2);
+    "/Di { radColor 2 copy newpath moveto 0 -%1.1f rmoveto\n"
+    "      UR UL DL DR closepath stroke } def\n",
+    ybox/2);
 
     fprintf(psfile,
-	"/Ci { socColor 2 copy newpath %1.1f 0 360 arc stroke } def\n",
-     	ybox/2);
+    "/Ci { socColor 2 copy newpath %1.1f 0 360 arc stroke } def\n",
+        ybox/2);
 
     fprintf(psfile,
-	"/Lbl { stdColor newpath NormFont Thin moveto dup stringwidth pop\n"
+    "/Lbl { stdColor newpath NormFont Thin moveto dup stringwidth pop\n"
         "       2 div neg -3 rmoveto show stroke } def\n");
 
     fprintf(psfile,
-	"/RadLbl { stdColor newpath SmallFont Thin moveto -%1.1f %1.1f "
-	"rmoveto dup stringwidth pop 2 add neg -3 rmoveto show stroke "
-	"} def\n",
-	xbox/2,ybox/2);
+    "/RadLbl { stdColor newpath SmallFont Thin moveto -%1.1f %1.1f "
+    "rmoveto dup stringwidth pop 2 add neg -3 rmoveto show stroke "
+    "} def\n",
+    xbox/2,ybox/2);
     fprintf(psfile,
-	"/SocLbl { stdColor newpath SmallFont Thin moveto %1.1f 2 add "
-	"-%1.1f rmoveto show stroke } def\n",
-	xbox/2,ybox/2);
+    "/SocLbl { stdColor newpath SmallFont Thin moveto %1.1f 2 add "
+    "-%1.1f rmoveto show stroke } def\n",
+    xbox/2,ybox/2);
 
     /* Definition of Thin and Thick
        --------------------------- */
@@ -503,10 +519,10 @@ void writeheader(void)
     /* Definition of Colors
        --------------------------- */
     for (i = 0; *(c = ColorMap[i].name) != 0; ++i)
-    	fprintf(psfile,"/%sColor {0.%2.2ld 0.%2.2ld 0.%2.2ld "
-	    "setrgbcolor} def\n",
-    	    ColorMap[i].name, ColorMap[i].r, ColorMap[i].g,
-	    ColorMap[i].b);
+        fprintf(psfile,"/%sColor {0.%2.2ld 0.%2.2ld 0.%2.2ld "
+        "setrgbcolor} def\n",
+            ColorMap[i].name, ColorMap[i].r, ColorMap[i].g,
+        ColorMap[i].b);
 }
 
 
@@ -518,15 +534,15 @@ void shownode(int i,double x,double y)
     fprintf(psfile,"(%d) %1.1f %1.1f ",i,XMAP(x),YMAP(y));
     if (israd[i])
     {
-    	fprintf(psfile,"Di ");
+        fprintf(psfile,"Di ");
         fprintf(psfile,"(%d) %1.1f %1.1f RadLbl ",RadLevel(i),
-		XMAP(x),YMAP(y));
+        XMAP(x),YMAP(y));
     }
     if (issoc[i])
     {
-    	fprintf(psfile,"Ci ");
+        fprintf(psfile,"Ci ");
         fprintf(psfile,"(%d) %1.1f %1.1f SocLbl ",SocLevel(i),
-		XMAP(x),YMAP(y));
+        XMAP(x),YMAP(y));
     }
     if (!issoc[i] && !israd[i]) fprintf(psfile,"Sq ");
     fprintf(psfile,"Lbl\n");
@@ -564,11 +580,11 @@ void showline(int i, int k,int type)
     if (t < 0) t = 0;
     if (type >= MAXIRRED) t = MAXIRRED-1;
     fprintf(psfile,"lineColor newpath %s setdash %% type=%d\n",
-    	linestyle[t],type);
+        linestyle[t],type);
     fprintf(psfile,"%1.1f %1.1f moveto ",
-	  XMAP(Lattice->Nodes[i].PosX),YMAP(Lattice->Nodes[i].PosY)+ybox/2);
+      XMAP(Lattice->Nodes[i].PosX),YMAP(Lattice->Nodes[i].PosY)+ybox/2);
     fprintf(psfile,"%1.1f %1.1f lineto\n",
-	  XMAP(Lattice->Nodes[k].PosX),YMAP(Lattice->Nodes[k].PosY)-ybox/2);
+      XMAP(Lattice->Nodes[k].PosX),YMAP(Lattice->Nodes[k].PosY)-ybox/2);
     fprintf(psfile,"stroke [] 0 setdash\n");
 }
 
@@ -582,13 +598,13 @@ void writelegend()
     fprintf(psfile,"%% Legend\n%% -------\nnewpath\n");
     for (i = 0; i < LI.NCf; ++i)
     {
-	fprintf(psfile,
-	    "lineColor %s setdash %1.1f %1.1f moveto 60 0 rlineto stroke\n",
-	    linestyle[i],XMAP(0.8),YMAP(1.0)-10.0*i);
-	fprintf(psfile,
-	    "stdColor [] 0 setdash %1.1f %1.1f moveto ",
-	    XMAP(0.8)+65.0,YMAP(1.0)-10.0*i-3.0);
-	fprintf(psfile,"(%s) show stroke\n",Lat_CfName(&LI,i));
+    fprintf(psfile,
+        "lineColor %s setdash %1.1f %1.1f moveto 60 0 rlineto stroke\n",
+        linestyle[i],XMAP(0.8),YMAP(1.0)-10.0*i);
+    fprintf(psfile,
+        "stdColor [] 0 setdash %1.1f %1.1f moveto ",
+        XMAP(0.8)+65.0,YMAP(1.0)-10.0*i-3.0);
+    fprintf(psfile,"(%s) show stroke\n",Lat_CfName(&LI,i));
     }
     fprintf(psfile,"\n");
 }
@@ -603,36 +619,36 @@ void display()
     fflush(stdout);
     psfile = SysFopen(ofilename,FM_CREATE|FM_TEXT);
     if (psfile == NULL)
-    {	perror(ofilename);
-		err("Error opening output file");
+    {   perror(ofilename);
+        err("Error opening output file");
     }
     writeheader();
     writelegend();
 
     for (i = 0; i < Lattice->NNodes; ++i)
     {
-	fprintf(psfile,"1 { ");
-	shownode(Lattice->Nodes[i].UserData,Lattice->Nodes[i].PosX,
-	    Lattice->Nodes[i].PosY);
-	fprintf(psfile,"newpath\n");
-	for (l = 0; l < Lattice->NNodes; ++l)
-	{
-	    if (LD_ISSUB(Lattice,l,i))
-	    {
-		int ni = Lattice->Nodes[i].UserData;
-		int nl = Lattice->Nodes[l].UserData;
-		int m;
-		for (m = 0; max[i][m] >= 0 && max[i][m] != nl; ++m);
-		showline(l,i,maxtype[ni][m]);
+    fprintf(psfile,"1 { ");
+    shownode(Lattice->Nodes[i].UserData,Lattice->Nodes[i].PosX,
+        Lattice->Nodes[i].PosY);
+    fprintf(psfile,"newpath\n");
+    for (l = 0; l < Lattice->NNodes; ++l)
+    {
+        if (LD_ISSUB(Lattice,l,i))
+        {
+        int ni = Lattice->Nodes[i].UserData;
+        int nl = Lattice->Nodes[l].UserData;
+        int m;
+        for (m = 0; max[i][m] >= 0 && max[i][m] != nl; ++m);
+        showline(l,i,maxtype[ni][m]);
 if ((l == 3 && i < 3) || (l < 3 && i == 3))
 {
 printf("Show line %d-%d: orig=%d-%d, m=%d, type=%d\n",
     l,i,nl,ni,m,maxtype[ni][m]);
 }
-	    }
-	}
+        }
+    }
 
-	fprintf(psfile,"} repeat\n");
+    fprintf(psfile,"} repeat\n");
     }
     fprintf(psfile,"showpage\n");
     fprintf(psfile,"%%%%EOF\n");
@@ -661,36 +677,36 @@ static void DisplayGap()
     /* Generate Poset und Levels
        ------------------------- */
     printf("%s := GraphicMeatAxeLattice(\"%s\",%d,%d);\n",GapLatName,name,
-	GapXSize,GapYSize);
+    GapXSize,GapYSize);
     for (l = 0; l < Lattice->NLayers; ++l)
-	printf("CreateLevel(%s,%d);\n",GapLatName,l);
+    printf("CreateLevel(%s,%d);\n",GapLatName,l);
 
     /* Insert vertices into the Poset
        ------------------------------ */
     printf("%s := [];\n",GapVlName);
     for (i = 0; i < Lattice->NNodes; ++i)
     {
-	LdNode_t *n = Lattice->Nodes + i;
-	char tmp[10];
-	sprintf(tmp,"%d",i);
-	printf("Add(%s,Vertex(%s,rec(SubmoduleNumber:=%d),"
-	    "rec(x:=%d,levelparam:=%d,label:=\"%s\",shape:=\"%s\")));\n",
-	    GapVlName,GapLatName,i,(int)(n->PosX * GapXSize),n->Layer,
-	    tmp,ismount[Lattice->Nodes[i].UserData] ? "diamond" : "circle");
+    LdNode_t *n = Lattice->Nodes + i;
+    char tmp[10];
+    sprintf(tmp,"%d",i);
+    printf("Add(%s,Vertex(%s,rec(SubmoduleNumber:=%d),"
+        "rec(x:=%d,levelparam:=%d,label:=\"%s\",shape:=\"%s\")));\n",
+        GapVlName,GapLatName,i,(int)(n->PosX * GapXSize),n->Layer,
+        tmp,ismount[Lattice->Nodes[i].UserData] ? "diamond" : "circle");
     }
 
     /* Insert edges into the Poset
        --------------------------- */
     for (i = 0; i < Lattice->NNodes; ++i)
     {
-	int k;
-    	for (k = 0; k < Lattice->NNodes; ++k)
-	{
-	    if (!LD_ISSUB(Lattice,i,k))
-		continue;
-	    printf("Edge(%s,%s[%d],%s[%d]);\n",
-		GapLatName,GapVlName,i+1,GapVlName,k+1);
-	}
+    int k;
+        for (k = 0; k < Lattice->NNodes; ++k)
+    {
+        if (!LD_ISSUB(Lattice,i,k))
+        continue;
+        printf("Edge(%s,%s[%d],%s[%d]);\n",
+        GapLatName,GapVlName,i+1,GapVlName,k+1);
+    }
     }
 /*    printf("delete(%s);\n",GapVlName);*/
 
@@ -700,7 +716,7 @@ CreateLevel(p, level-nr, "level-label");
 Fuer alle Vertices:
 vertexliste := [];
 inf := rec(x := X-Position [pixel], levelparam:=level-nr,
-	color:=COLORS.red, shape:="circle/diamond/rectangle");
+    color:=COLORS.red, shape:="circle/diamond/rectangle");
 Add(vertexliste,Vertex(p,rec(flags...), inf));
 
 Fuer alle Kanten:
@@ -719,14 +735,14 @@ int main(int argc, char *argv[])
 
 {
     if (Init(argc,(const char **)argv) != 0)
-	return 1;
+    return 1;
     readfile();
     buildroot();
     LdSetPositions(Lattice);
     switch (OutputMode)
     {
-	case O_GAP: DisplayGap(); break;
-	default: display(); break;
+    case O_GAP: DisplayGap(); break;
+    default: display(); break;
     }
     return 0;
 }

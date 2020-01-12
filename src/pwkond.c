@@ -22,41 +22,41 @@
 MTX_DEFINE_FILE_INFO
 
 #define MAX_MODULES 50
-#define MAXCF (3 * LAT_MAXCF)	    /* Max. number of different constituents */
+#define MAXCF (3 * LAT_MAXCF)       /* Max. number of different constituents */
 
-int NumMods = 0;		    /* Number of modules */
+int NumMods = 0;            /* Number of modules */
 static struct
 {
-    Lat_Info Info;		    /* Data from .cfinfo file */
-    MatRep_t *Rep;		    /* Generators */
-    WgData_t *Wg;		    /* Word generators */
-    Matrix_t *SsBasis;		    /* Semisimplicity basis */
-} ModList[MAX_MODULES];		    /* List of all modules */
+    Lat_Info Info;          /* Data from .cfinfo file */
+    MatRep_t *Rep;          /* Generators */
+    WgData_t *Wg;           /* Word generators */
+    Matrix_t *SsBasis;          /* Semisimplicity basis */
+} ModList[MAX_MODULES];         /* List of all modules */
 
 
-int NumCf = 0;			    /* Number of inequivalent constituents */
+int NumCf = 0;              /* Number of inequivalent constituents */
 
 /** Table of constituents
  **/
 struct cf_struct
 {
-    MatRep_t *Gen;		    /* Generators */
-    CfInfo *Info;		    /* Constituent info */
-    WgData_t *Wg;		    /* Word generators */
-    Lat_Info *Mod;		    /* Which module does this come from */
-    int CfNo;			    /* Constituent index within that module */
-    Matrix_t *PWNullSpace;	    /* Peak word null space */
-    int Mult;			    /* In how many modules does it appear? */
-    int CfMap[MAX_MODULES][2];	    /* (module,cf) */
-} CfList[MAXCF];		    /* List of all constituents */
+    MatRep_t *Gen;          /* Generators */
+    CfInfo *Info;           /* Constituent info */
+    WgData_t *Wg;           /* Word generators */
+    Lat_Info *Mod;          /* Which module does this come from */
+    int CfNo;               /* Constituent index within that module */
+    Matrix_t *PWNullSpace;      /* Peak word null space */
+    int Mult;               /* In how many modules does it appear? */
+    int CfMap[MAX_MODULES][2];      /* (module,cf) */
+} CfList[MAXCF];            /* List of all constituents */
 
 
 
 static int opt_G = 0;
-static int opt_n = 0;			/* No condensation, PW only */
-static int opt_p = 0;			/* Use full polynomials in PW search */
-static int opt_t = 0;			/* Transform generators to std basis  */
-static int opt_b = 0;			/* Calculate a semisimplicity basis */
+static int opt_n = 0;           /* No condensation, PW only */
+static int opt_p = 0;           /* Use full polynomials in PW search */
+static int opt_t = 0;           /* Transform generators to std basis  */
+static int opt_b = 0;           /* Calculate a semisimplicity basis */
 static int opt_k = 0;                 /* Make kernel of PW */
 
 
@@ -65,7 +65,7 @@ static long include[MAXLOCK][2];
 static int ninclude=0;
 static long exclude[MAXLOCK][2];
 static int nexclude=0;
-static int PeakWordsMissing;		/* Number of missing peak words */
+static int PeakWordsMissing;        /* Number of missing peak words */
 
 
 static MtxApplicationInfo_t AppInfo = {
@@ -123,35 +123,35 @@ static int AddConstituent(MatRep_t *cf, CfInfo *info, int modno, int cfno)
     int i, m;
     for (i = 0; i < NumCf; ++i)
     {
-	int rc;
-	rc = IsIsomorphic(CfList[i].Gen,CfList[i].Info,cf,NULL,0);
-	if (rc < 0)
-	    return -1;
-	if (rc)
-	    break;
+    int rc;
+    rc = IsIsomorphic(CfList[i].Gen,CfList[i].Info,cf,NULL,0);
+    if (rc < 0)
+        return -1;
+    if (rc)
+        break;
     }
 
     if (i < NumCf)  /* Constituent was already in the list */
     {
-	int m = CfList[i].Mult;
-	MrFree(cf);
-	CfList[i].CfMap[m][0] = modno;
+    int m = CfList[i].Mult;
+    MrFree(cf);
+    CfList[i].CfMap[m][0] = modno;
     }
-    else	    /* It's a new constituent */
+    else        /* It's a new constituent */
     {
-	CfList[i].Gen = cf;
-	CfList[i].Info = info;
-	CfList[i].Wg = WgAlloc(cf);
-	CfList[i].Mod = &ModList[modno].Info;
-	CfList[i].Mult = 0;
-	++NumCf;
+    CfList[i].Gen = cf;
+    CfList[i].Info = info;
+    CfList[i].Wg = WgAlloc(cf);
+    CfList[i].Mod = &ModList[modno].Info;
+    CfList[i].Mult = 0;
+    ++NumCf;
     }
     m = CfList[i].Mult;
     CfList[i].CfMap[m][0] = modno;
     CfList[i].CfMap[m][1] = cfno;
     CfList[i].Mult++;
     MESSAGE(1,("%s%s is constituent %d\n",ModList[modno].Info.BaseName,
-	Lat_CfName(&ModList[modno].Info,cfno),i));
+    Lat_CfName(&ModList[modno].Info,cfno),i));
     return i;
 }
 
@@ -162,6 +162,7 @@ static int AddConstituent(MatRep_t *cf, CfInfo *info, int modno, int cfno)
    This function calls <AddConstituent()> for each constituent of the
    <mod>-th module in <ModList>. I.e., it adds all constituents of that
    module to the global constituent list and sets up the constituent map.
+   Return -1 on error, 0 on success
    -------------------------------------------------------------------------- */
 
 static int AddConstituents(int mod)
@@ -171,16 +172,20 @@ static int AddConstituents(int mod)
     int i;
     for (i = 0; i < li->NCf; ++i)
     {
-	int index;
-	char fn[200];
-	MatRep_t *cf;
-	sprintf(fn,"%s%s",li->BaseName,Lat_CfName(li,i));
-	cf = MrLoad(fn,li->NGen);
-	if (cf == NULL)
-	    return -1;
-	index = AddConstituent(cf,li->Cf + i,mod,i);
-	if (index < 0)
-	    return -1;		    /* Error */
+    int index;
+    char fn[200];
+    MatRep_t *cf;
+    if (snprintf(fn,200,"%s%s",li->BaseName,Lat_CfName(li,i))>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    cf = MrLoad(fn,li->NGen);
+    if (cf == NULL)
+        return -1;
+    index = AddConstituent(cf,li->Cf + i,mod,i);
+    if (index < 0)
+        return -1;          /* Error */
     }
     return 0;
 }
@@ -197,28 +202,28 @@ static int LoadConstituents()
 
     for (i = 0; i < NumMods; ++i)
     {
-	if (AddConstituents(i) < 0)
-	{
-	    MTX_ERROR1("Error while loading constituents for %s",
-		ModList[i].Info.BaseName);
-	    return -1;
-	}
+    if (AddConstituents(i) < 0)
+    {
+        MTX_ERROR1("Error while loading constituents for %s",
+        ModList[i].Info.BaseName);
+        return -1;
+    }
     }
 
     /* Sort the constituents by dimension to speed up the peak word search.
        -------------------------------------------------------------------- */
     for (i = 0; i < NumCf; ++i)
     {
-	int k;
-	for (k = i + 1; k < NumCf; ++k)
-	{
-	    if (CfList[i].Info->dim > CfList[k].Info->dim)
-	    {
-		struct cf_struct tmp = CfList[i];
-		CfList[i] = CfList[k];
-		CfList[k] = tmp;
-	    }
-	}
+    int k;
+    for (k = i + 1; k < NumCf; ++k)
+    {
+        if (CfList[i].Info->dim > CfList[k].Info->dim)
+        {
+        struct cf_struct tmp = CfList[i];
+        CfList[i] = CfList[k];
+        CfList[k] = tmp;
+        }
+    }
     }
     return 0;
 }
@@ -232,11 +237,11 @@ static int IsCompatible(int i)
 
 {
     if (   ModList[i].Info.NGen != ModList[0].Info.NGen
-	|| ModList[i].Info.Field != ModList[0].Info.Field)
+    || ModList[i].Info.Field != ModList[0].Info.Field)
     {
-	MTX_ERROR3("%s and %s: %d",App->ArgV[0],App->ArgV[i],
-	    MTX_ERR_INCOMPAT);
-	return 0;
+    MTX_ERROR3("%s and %s: %d",App->ArgV[0],App->ArgV[i],
+        MTX_ERR_INCOMPAT);
+    return 0;
     }
     return 1;
 }
@@ -257,37 +262,37 @@ static int LoadModules()
     NumMods = App->ArgC;
     if (NumMods > MAX_MODULES)
     {
-	MTX_ERROR1("Too many modules (max. %d allowed)",MAX_MODULES);
-	return -1;
+    MTX_ERROR1("Too many modules (max. %d allowed)",MAX_MODULES);
+    return -1;
     }
 
     /* Read the .cfinfo files and load the generators (if needed).
        ----------------------------------------------------------- */
     for (i = 0; i < NumMods; ++i)
     {
-	int k;
+    int k;
         if (Lat_ReadInfo(&ModList[i].Info,App->ArgV[i]) != 0)
-	    return -1;
-	if (!IsCompatible(i))
-	    return -1;
+        return -1;
+    if (!IsCompatible(i))
+        return -1;
 
-	/* Clear any existing peak words.
-	   ------------------------------ */
-	for (k = 0; k < ModList[i].Info.NCf; ++k)
-	    ModList[i].Info.Cf[k].peakword = -1;
+    /* Clear any existing peak words.
+       ------------------------------ */
+    for (k = 0; k < ModList[i].Info.NCf; ++k)
+        ModList[i].Info.Cf[k].peakword = -1;
 
-	/* Read the generators, set up ss bases and word generators.
-	   --------------------------------------------------------- */
-	if (!opt_n || opt_k || opt_b)
-	{
-	    ModList[i].Rep = MrLoad(App->ArgV[i],ModList[i].Info.NGen);
-	    ModList[i].Wg = WgAlloc(ModList[i].Rep);
-	    if (opt_b)
-	    {
-		int dim = ModList[i].Rep->Gen[0]->Nor;
-		ModList[i].SsBasis = MatAlloc(FfOrder,dim,dim);
-	    }
-	}
+    /* Read the generators, set up ss bases and word generators.
+       --------------------------------------------------------- */
+    if (!opt_n || opt_k || opt_b)
+    {
+        ModList[i].Rep = MrLoad(App->ArgV[i],ModList[i].Info.NGen);
+        if ((ModList[i].Wg = WgAlloc(ModList[i].Rep)) == NULL) return -1;
+        if (opt_b)
+        {
+        int dim = ModList[i].Rep->Gen[0]->Nor;
+        ModList[i].SsBasis = MatAlloc(FfOrder,dim,dim);
+        }
+    }
     }
 
     return 0;
@@ -300,9 +305,10 @@ static int LoadModules()
 
 /* ------------------------------------------------------------------
    gkond() - Generalized condensation of one matrix
+   Return -1 on error, 0 on success
    ------------------------------------------------------------------ */
 
-static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
+static int gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
     Matrix_t *w, const char *name)
 
 {
@@ -310,10 +316,16 @@ static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
     Matrix_t *x1, *x2;
 
     x1 = MatAlloc(k->Field, k->Nor, w->Noc);
+    if (!x1) return -1;
     MatMulStrassen(x1, k, w);
     x2 = QProjection(b,x1);
-    sprintf(fn,"%s%s.%s",li->BaseName,Lat_CfName(li,i),name);
-    MatSave(x2,fn);
+    if (!x2) return -1;
+    if (snprintf(fn,LAT_MAXBASENAME+10,"%s%s.%s",li->BaseName,Lat_CfName(li,i),name)>=LAT_MAXBASENAME+10)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    if (MatSave(x2,fn)) return -1;
     MatFree(x1);
     MatFree(x2);
 }
@@ -324,9 +336,10 @@ static void gkond(const Lat_Info *li, int i, Matrix_t *b, Matrix_t *k,
    Standardize() - Bringe Kompositionsfaktor auf Standardform.
    Schreibt die neuen Erzeuger in XXX.std.n und die Operationen in
    XXX.op.
+   Return -1 on error, 0 on success
    ------------------------------------------------------------------ */
 
-static void Standardize(int cf)
+static int Standardize(int cf)
 
 {
     int k, m;
@@ -339,33 +352,45 @@ static void Standardize(int cf)
        -------------------------------------------------- */
     MESSAGE(0,("  Transforming to standard basis\n"));
     sb = SpinUp(CfList[cf].PWNullSpace,CfList[cf].Gen,
-	SF_FIRST|SF_CYCLIC|SF_STD,&script,NULL);
+    SF_FIRST|SF_CYCLIC|SF_STD,&script,NULL);
     ChangeBasis(sb,CfList[cf].Gen->NGen,
-	(const Matrix_t **)CfList[cf].Gen->Gen,std);
+    (const Matrix_t **)CfList[cf].Gen->Gen,std);
     MatFree(sb);
 
     /* Write the transformed generators and the spin-up script.
        -------------------------------------------------------- */
     for (m = 0; m < CfList[cf].Mult; ++m)
     {
-	char fn[200];
-	Lat_Info *li = &ModList[CfList[cf].CfMap[m][0]].Info;
-	int i = CfList[cf].CfMap[m][1];
-	sprintf(fn,"%s%s.op",li->BaseName,Lat_CfName(li,i));
-	MESSAGE(2,("Write operations to %s\n",fn));
-	if (ImatSave(script,fn) != 0)
-	    MTX_ERROR("Cannot write .op file");
-	for (k = 0; k < li->NGen; ++k)
-	{
-    	    sprintf(fn,"%s%s.std.%d",li->BaseName,Lat_CfName(li,i),k+1);
-    	    MESSAGE(2,(" %s",fn));
-	    MatSave(std[k],fn);
-	}
+    char fn[200];
+    Lat_Info *li = &ModList[CfList[cf].CfMap[m][0]].Info;
+    int i = CfList[cf].CfMap[m][1];
+    if (snprintf(fn,200,"%s%s.op",li->BaseName,Lat_CfName(li,i))>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    MESSAGE(2,("Write operations to %s\n",fn));
+    if (ImatSave(script,fn) != 0)
+    {
+        MTX_ERROR("Cannot write .op file");
+        return -1;
+    }
+    for (k = 0; k < li->NGen; ++k)
+    {
+        if (snprintf(fn,200,"%s%s.std.%d",li->BaseName,Lat_CfName(li,i),k+1)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
+        MESSAGE(2,(" %s",fn));
+        if (MatSave(std[k],fn)) return -1;
+    }
     }
 
     for (k = 0; k < ModList[0].Info.NGen; ++k)
-	MatFree(std[k]);
+    MatFree(std[k]);
     ImatFree(script);
+    return 0;
 }
 
 
@@ -381,16 +406,17 @@ static int CfPosition(const Lat_Info *li, int cf)
     int i;
     MTX_VERIFY(cf >= 0 && cf < li->NCf);
     for (i = 0; i < cf; ++i)
-	pos += li->Cf[i].dim * li->Cf[i].mult;
+    pos += li->Cf[i].dim * li->Cf[i].mult;
     return pos;
 }
 
 
 /* ------------------------------------------------------------------
    kond() - Generalized condensation for one irreducible
+   Return -1 on error, 0 on success
    ------------------------------------------------------------------ */
 
-static void kond(int mod, int cf)
+static int kond(int mod, int cf)
 
 {
     const Lat_Info *li = &ModList[mod].Info;
@@ -404,59 +430,84 @@ static void kond(int mod, int cf)
     peakword = WgMakeWord(ModList[mod].Wg,li->Cf[cf].peakword);
     MatInsert_(peakword,li->Cf[cf].peakpol);
     pw = MatDup(peakword);
+    if (!pw) return -1;
     StablePower_(peakword,&pwr,&kern);
     MESSAGE(0,("pwr=%d, nul=%d, ",pwr,kern->Nor));
     if (kern->Nor != li->Cf[cf].mult * li->Cf[cf].spl)
-	MTX_ERROR("Something is wrong here!");
+    {
+        MTX_ERROR("Something is wrong here!");
+        return -1;
+    }
     MatEchelonize(peakword);
 
     /* Write out the image
        ------------------- */
      if (!opt_n)
      {
-	sprintf(fn,"%s%s.im",li->BaseName,Lat_CfName(li,cf));
-	MatSave(peakword,fn);
+        if (snprintf(fn,LAT_MAXBASENAME+10,"%s%s.im",li->BaseName,Lat_CfName(li,cf))>=LAT_MAXBASENAME+10)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
+        if (MatSave(peakword,fn)) return -1;
      }
 
     /* Write out the `uncondense matrix'
        --------------------------------- */
     m = QProjection(peakword,kern);
+    if (!m) return -1;
     k = MatInverse(m);
+    if (!k)
+    {
+        MatFree(m);
+        return -1;
+    }
     MatFree(m);
     MatMul(k,kern);
-    sprintf(fn,"%s%s.k",li->BaseName,Lat_CfName(li,cf));
-    MatSave(k,fn);
+    if (snprintf(fn,LAT_MAXBASENAME+10,"%s%s.k",li->BaseName,Lat_CfName(li,cf))>=LAT_MAXBASENAME+10)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    if (MatSave(k,fn)) return -1;
 
     /* Condense all generators
        ----------------------- */
     MESSAGE(1,("("));
     for (j = 0; j < li->NGen; ++j)
     {
-	sprintf(fn,"%dk",j+1);
-	gkond(li,cf,peakword,k,ModList[mod].Rep->Gen[j],fn);
-	MESSAGE(1,("%d",j+1));
+        if (snprintf(fn,LAT_MAXBASENAME+10,"%dk",j+1)>=LAT_MAXBASENAME+10)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
+        if (gkond(li,cf,peakword,k,ModList[mod].Rep->Gen[j],fn)) return -1;
+        MESSAGE(1,("%d",j+1));
     }
     MESSAGE(1,(")"));
 
     /* Condense the peak word
        ---------------------- */
-    gkond(li,cf,peakword,k,pw,"np");
+    if (gkond(li,cf,peakword,k,pw,"np")) return -1;
 
     /* Calculate the semisimplicity basis.
        -----------------------------------  */
     if (opt_b)
     {
-	Matrix_t *seed, *partbas;
-	int pos = CfPosition(li,cf);
-	seed = MatNullSpace_(pw,0);
-	partbas = SpinUp(seed,ModList[mod].Rep,SF_EACH|SF_COMBINE|SF_STD,NULL,NULL);
+    Matrix_t *seed, *partbas;
+    int pos = CfPosition(li,cf);
+    seed = MatNullSpace_(pw,0);
+    if (!seed) return -1;
+    partbas = SpinUp(seed,ModList[mod].Rep,SF_EACH|SF_COMBINE|SF_STD,NULL,NULL);
         MatFree(seed);
-	MESSAGE(0,(", %d basis vectors",partbas->Nor));
-	if (MatCopyRegion(ModList[mod].SsBasis,pos,0,partbas,0,0,-1,-1) != 0)
-	{
-	    MTX_ERROR1("Error making basis - '%s' is possibly not semisimple",
-		li->BaseName);
-	}
+    if (!partbas) return -1;
+    MESSAGE(0,(", %d basis vectors",partbas->Nor));
+    if (MatCopyRegion(ModList[mod].SsBasis,pos,0,partbas,0,0,-1,-1) != 0)
+    {
+        MTX_ERROR1("Error making basis - '%s' is possibly not semisimple",
+        li->BaseName);
+        return -1;
+    }
         MatFree(partbas);
     }
     MatFree(pw);
@@ -466,24 +517,25 @@ static void kond(int mod, int cf)
     MatFree(k);
     MatFree(kern);
     MatFree(peakword);
-
+    return 0;
 }
 
 
 
 
-static void Condense(int cf)
+static int Condense(int cf)
 {
     int k;
     for (k = 0; k < CfList[cf].Mult; ++k)
     {
-	int mod = CfList[cf].CfMap[k][0];
-	int i = CfList[cf].CfMap[k][1];
+    int mod = CfList[cf].CfMap[k][0];
+    int i = CfList[cf].CfMap[k][1];
 
-	MESSAGE(0,("  Condensing %s%s: ",ModList[mod].Info.BaseName,
-	    Lat_CfName(&ModList[mod].Info,i)));
-	kond(mod,i);
+    MESSAGE(0,("  Condensing %s%s: ",ModList[mod].Info.BaseName,
+        Lat_CfName(&ModList[mod].Info,i)));
+    if (kond(mod,i)) return -1;
     }
+    return 0;
 }
 
 
@@ -493,7 +545,7 @@ static String GapPrintPoly(const Poly_t *pol)
     int i;
     StrAppend(&s, "[");
     for (i = 0; i < pol->Degree; ++i)
-	StrAppendF(&s,"%s,",FfToGap(pol->Data[i]));
+    StrAppendF(&s,"%s,",FfToGap(pol->Data[i]));
     StrAppendF(&s,"%s]",FfToGap(pol->Data[i]));
     return s;
 }
@@ -507,17 +559,17 @@ static String GapPrintWord(const WgData_t *b, long n)
     int *x;
     StrAppend(&buffer, "[");
     for (x = b->Description; *x != -1; ) {
-	int first = 1;
-	if (x != b->Description) StrAppend(&buffer, ",");
-	StrAppend(&buffer, "[");
-	do {
-	    long gen = *x++;
-	    if (!first) StrAppend(&buffer, ",");
-	    first = 0;
-	    StrAppendF(&buffer,"%c", gen + '1');
-	} while (*x != -1);
-	StrAppend(&buffer, "]");
-	++x;
+    int first = 1;
+    if (x != b->Description) StrAppend(&buffer, ",");
+    StrAppend(&buffer, "[");
+    do {
+        long gen = *x++;
+        if (!first) StrAppend(&buffer, ",");
+        first = 0;
+        StrAppendF(&buffer,"%c", gen + '1');
+    } while (*x != -1);
+    StrAppend(&buffer, "]");
+    ++x;
     }
     StrAppend(&buffer, "]");
     return buffer;
@@ -532,52 +584,57 @@ static String GapPrintWord(const WgData_t *b, long n)
    Description:
      This function writes the .cfinfo file and the semisimplicity basis. It
      is called after a new peak word has been found.
+   Return -1 on error, 0 on success
    -------------------------------------------------------------------------- */
 
-static void WriteOutput(int final)
+static int WriteOutput(int final)
 
 {
     int i;
     for (i = 0; i < NumMods; ++i)
     {
-	Lat_WriteInfo(&ModList[i].Info);
-	if (opt_b)
-	{
-	    char fn[200];
-	    sprintf(fn,"%s.ssb",ModList[i].Info.BaseName);
-	    MESSAGE(1,("Writing semisimplicity basis to %s\n",fn));
-	    MatSave(ModList[i].SsBasis,fn);
-	}
+    if (Lat_WriteInfo(&ModList[i].Info)) return -1;
+    if (opt_b)
+    {
+        char fn[200];
+        if (snprintf(fn,200,"%s.ssb",ModList[i].Info.BaseName)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
+        MESSAGE(1,("Writing semisimplicity basis to %s\n",fn));
+        if (MatSave(ModList[i].SsBasis,fn)) return -1;
+    }
     }
     if (!final)
-	return;
+    return 0;
 
     /* Write GAP output.
        ----------------- */
     if (opt_G)
     {
-	int m, i;
-	printf("MeatAxe.PeakWords := [\n");
-	for (m = 0; m < NumMods; ++m)
-	{
+    int m, i;
+    printf("MeatAxe.PeakWords := [\n");
+    for (m = 0; m < NumMods; ++m)
+    {
             const Lat_Info * const ModInfo = &ModList[m].Info;
-	    printf("# module: %s\n[\n", ModInfo->BaseName);
-	    for (i = 0; i < ModInfo->NCf; ++i)
-	    {
-    	        const CfInfo * const Cf = ModInfo->Cf + i;
-		printf("    # irreducible factor: %s\n", Lat_CfName(ModInfo,i) );
-		String ws = GapPrintWord(CfList[i].Wg,Cf->peakword);
-		String ps = GapPrintPoly(Cf->peakpol);
-		printf("    [ %ld, %s, %s ]%s\n", Cf->peakword, ws.S, ps.S,
-		     i == ModInfo->NCf - 1 ? "" : "," );
-		StrFree(&ws);
-		StrFree(&ps);
-	    }
-	    printf(m < NumMods - 1 ? "],\n" : "]\n");
-	}
-	printf("];\n");
+        printf("# module: %s\n[\n", ModInfo->BaseName);
+        for (i = 0; i < ModInfo->NCf; ++i)
+        {
+                const CfInfo * const Cf = ModInfo->Cf + i;
+        printf("    # irreducible factor: %s\n", Lat_CfName(ModInfo,i) );
+        String ws = GapPrintWord(CfList[i].Wg,Cf->peakword);
+        String ps = GapPrintPoly(Cf->peakpol);
+        printf("    [ %ld, %s, %s ]%s\n", Cf->peakword, ws.S, ps.S,
+             i == ModInfo->NCf - 1 ? "" : "," );
+        StrFree(&ws);
+        StrFree(&ps);
+        }
+        printf(m < NumMods - 1 ? "],\n" : "]\n");
     }
-
+    printf("];\n");
+    }
+    return 0;
 }
 
 
@@ -600,20 +657,20 @@ static void CopyPeakWordToAllModules(int i)
     MESSAGE(0,("Peak word for"));
     for (k = 0; k < CfList[i].Mult; ++k)
     {
-	int mod = CfList[i].CfMap[k][0];
-	int l = CfList[i].CfMap[k][1];
-	MESSAGE(0,("%c%s%s",k == 0 ? ' ': ',',
-	    ModList[mod].Info.BaseName,Lat_CfName(&ModList[mod].Info,l)));
-	/* Copy peak word and peak polynomial to the other modules */
-	if (k > 0)
-	{
-	    ModList[mod].Info.Cf[l].peakword = pw;
-	    ModList[mod].Info.Cf[l].peakpol = PolDup(pp);
-	}
+    int mod = CfList[i].CfMap[k][0];
+    int l = CfList[i].CfMap[k][1];
+    MESSAGE(0,("%c%s%s",k == 0 ? ' ': ',',
+        ModList[mod].Info.BaseName,Lat_CfName(&ModList[mod].Info,l)));
+    /* Copy peak word and peak polynomial to the other modules */
+    if (k > 0)
+    {
+        ModList[mod].Info.Cf[l].peakword = pw;
+        ModList[mod].Info.Cf[l].peakpol = PolDup(pp);
+    }
     }
     MESSAGE(0,(" is %d (%s)",pw,WgSymbolicName(CfList[i].Wg,pw)));
     if (MSG0)
-	PolPrint(", pol",pp);
+    PolPrint(", pol",pp);
 }
 
 
@@ -630,18 +687,20 @@ static void CopyPeakWordToAllModules(int i)
      generators to standard basis.
      We also write the .cfinfo file each time. This allows the user to kill
      the running program and continue with the peak words found so far.
+   Return -1 on error, 0 on success
    -------------------------------------------------------------------------- */
 
-static void PeakWordFound(int i)
+static int PeakWordFound(int i)
 
 {
     CopyPeakWordToAllModules(i);
     if (!opt_n || opt_k)
-	Condense(i);		/* Condense */
+    if (Condense(i)) return -1;        /* Condense */
     if (opt_t)
-	Standardize(i);		/* Transform to std basis */
-    WriteOutput(0);
+    if (Standardize(i)) return -1;      /* Transform to std basis */
+    if (WriteOutput(0)) return -1;
     --PeakWordsMissing;
+    return 0;
 }
 
 
@@ -653,8 +712,8 @@ static int isexcluded(long w)
     int i;
 
     for (i = 0; i < nexclude; ++i)
-	if (w >= exclude[i][0] && w <= exclude[i][1])
-	    return 1;
+    if (w >= exclude[i][0] && w <= exclude[i][1])
+        return 1;
     return 0;
 }
 
@@ -666,24 +725,24 @@ static void parselist(const char *c, long list[][2], int *count)
 
     while (*c != 0)
     {
-	a = b = 0;
-	while (*c >= '0' && *c <= '9')
-	    a = a * 10 + (*c++ - '0');
-	if (*c == '-')
-	{
-	    ++c;
-	    while (*c >= '0' && *c <= '9')
-		b = b * 10 + (*c++ - '0');
-	}
-	else
-	    b = a;
-	if (a == 0 || b == 0 || a > b)
-	    MTX_ERROR("BAD ARGUMENTS");
-	list[*count][0] = a;
-	list[*count][1] = b;
-	++*count;
-	if (*c == ',')
-	    ++c;
+    a = b = 0;
+    while (*c >= '0' && *c <= '9')
+        a = a * 10 + (*c++ - '0');
+    if (*c == '-')
+    {
+        ++c;
+        while (*c >= '0' && *c <= '9')
+        b = b * 10 + (*c++ - '0');
+    }
+    else
+        b = a;
+    if (a == 0 || b == 0 || a > b)
+        MTX_ERROR("BAD ARGUMENTS");
+    list[*count][0] = a;
+    list[*count][1] = b;
+    ++*count;
+    if (*c == ',')
+        ++c;
     }
 }
 
@@ -701,13 +760,13 @@ static int ParseCommandLine()
     opt_b = AppGetOption(App,"-b --make-ss-basis");
     opt_k = AppGetOption(App,"-k --make-pw-kernel");
     while ((c = AppGetTextOption(App,"-e --exclude",NULL)) != NULL)
-	parselist(c,exclude,&nexclude);
+    parselist(c,exclude,&nexclude);
     while ((c = AppGetTextOption(App,"-i --include",NULL)) != NULL)
-	parselist(c,include,&ninclude);
+    parselist(c,include,&ninclude);
     if (AppGetArguments(App,1,MAX_MODULES) < 0)
-	return -1;
+    return -1;
     if (opt_G)
-	MtxMessageLevel = -100;
+    MtxMessageLevel = -100;
     return 0;
 }
 
@@ -720,15 +779,15 @@ static int Init(int argc, const char **argv)
 
 {
     if ((App = AppAlloc(&AppInfo,argc,argv)) == NULL)
-	return -1;
+    return -1;
     if (ParseCommandLine() != 0)
-	return -1;
+    return -1;
     MESSAGE(0,("*** PEAK WORD CONDENSATION ***\n\n"));
 
     if (LoadModules() != 0)
-	return -1;
+    return -1;
     if (LoadConstituents() != 0)
-	return -1;
+    return -1;
     PeakWordsMissing = NumCf;
 
     return 0;
@@ -746,10 +805,10 @@ static void addid(Matrix_t *m, FEL f)
     PTR x;
     long i;
     if (f == FF_ZERO)
-	return;
+    return;
     FfSetNoc(m->Noc);
     for (i = 0, x = m->Data; i < m->Nor; ++i, FfStepPtr(&x))
-	FfInsert(x,i,FfAdd(FfExtract(x,i),f));
+    FfInsert(x,i,FfAdd(FfExtract(x,i),f));
 }
 
 
@@ -762,57 +821,57 @@ static int try2(long w, FEL f)
     MESSAGE(3,("Word %ld+%dI:",w,FfToInt(f)));
     for (i = 0; i < NumCf; ++i)  /* For each composition factor... */
     {
-	Matrix_t *word;
+    Matrix_t *word;
 
-	word = WgMakeWord(CfList[i].Wg,w);
-	addid(word,f);
-	nul = MatNullity__(MatDup(word));
+    word = WgMakeWord(CfList[i].Wg,w);
+    addid(word,f);
+    nul = MatNullity__(MatDup(word));
         MESSAGE(3,(" %ld",nul));
-	if (nul != 0 && nul != CfList[i].Info->spl)
-	{
-	    MatFree(word);
-	    MESSAGE(3,("failed\n"));
-	    return -1;
-	}
-	if (nul == CfList[i].Info->spl)
-	{
-	    if (ppos >= 0 || CfList[i].Info->peakword > 0)
-	    {
-		MatFree(word);
-	    	MESSAGE(3,("failed\n"));
-		return -1;  /* Nullity should be 0 */
-	    }
-	    nul = MatNullity__(MatMulStrassen(MatAlloc(word->Field, word->Nor, word->Noc), word, word));
-	    if (nul != CfList[i].Info->spl)
-	    {
-		MatFree(word);
-	    	MESSAGE(3,("failed (nullity not stable)\n"));
-		return -1;  /* Nullity is not stable */
-	    }
-	    ppos = i;
-	}
+    if (nul != 0 && nul != CfList[i].Info->spl)
+    {
+        MatFree(word);
+        MESSAGE(3,("failed\n"));
+        return -1;
+    }
+    if (nul == CfList[i].Info->spl)
+    {
+        if (ppos >= 0 || CfList[i].Info->peakword > 0)
+        {
+        MatFree(word);
+            MESSAGE(3,("failed\n"));
+        return -1;  /* Nullity should be 0 */
+        }
+        nul = MatNullity__(MatMulStrassen(MatAlloc(word->Field, word->Nor, word->Noc), word, word));
+        if (nul != CfList[i].Info->spl)
+        {
+        MatFree(word);
+            MESSAGE(3,("failed (nullity not stable)\n"));
+        return -1;  /* Nullity is not stable */
+        }
+        ppos = i;
+    }
         MatFree(word);
     }
     MESSAGE(3,("\n"));
 
     if (ppos > -1) /* we have found a new peak word */
     {
-	Poly_t *pp;
-	Matrix_t *word;
-	CfList[ppos].Info->peakword = w;
+    Poly_t *pp;
+    Matrix_t *word;
+    CfList[ppos].Info->peakword = w;
 
-	/* Rechne nochmals den Nullraum aus (wir brauchen
-	   ihn spaeter fuer die Standardform.
-	   ----------------------------------------------- */
-	word = WgMakeWord(CfList[ppos].Wg,w);
-	addid(word,f);
-	CfList[ppos].PWNullSpace = MatNullSpace__(word);
+    /* Rechne nochmals den Nullraum aus (wir brauchen
+       ihn spaeter fuer die Standardform.
+       ----------------------------------------------- */
+    word = WgMakeWord(CfList[ppos].Wg,w);
+    addid(word,f);
+    CfList[ppos].PWNullSpace = MatNullSpace__(word);
 
-	/* Erzeuge das Peakpolynom (hier immer vom Grad 1)
-	   ----------------------------------------------- */
-	pp = PolAlloc(FfOrder,1);
-	pp->Data[0] = f;
-	CfList[ppos].Info->peakpol = pp;
+    /* Erzeuge das Peakpolynom (hier immer vom Grad 1)
+       ----------------------------------------------- */
+    pp = PolAlloc(FfOrder,1);
+    pp->Data[0] = f;
+    CfList[ppos].Info->peakpol = pp;
         PeakWordFound(ppos);
     }
     return ppos;
@@ -838,7 +897,7 @@ static void Try_Linear(long w)
 {
     long f;
     for (f = 0; f < FfOrder && PeakWordsMissing > 0; ++f)
-	try2(w,FfFromInt(f));
+    try2(w,FfFromInt(f));
 }
 
 
@@ -854,17 +913,17 @@ static int tryp2(long w, int cf, Poly_t *pol)
 
     for (i = 0; i < NumCf; ++i)
     {
-	Matrix_t *word, *wordp;
-	long nul;
+    Matrix_t *word, *wordp;
+    long nul;
 
-	if (i == cf)
-	    continue;
-	word = WgMakeWord(CfList[i].Wg,w);
-	wordp = MatInsert(word,pol);
-	MatFree(word);
-	nul = MatNullity__(wordp);
-	if (nul != 0)
-	    return -1;
+    if (i == cf)
+        continue;
+    word = WgMakeWord(CfList[i].Wg,w);
+    wordp = MatInsert(word,pol);
+    MatFree(word);
+    nul = MatNullity__(wordp);
+    if (nul != 0)
+        return -1;
     }
     return 0;
 }
@@ -884,59 +943,59 @@ static int try_p(long w)
 
     for (i = 0; i < NumCf; ++i)
     {
-	Matrix_t *word;
-	FPoly_t *mp;
-	int k;
+    Matrix_t *word;
+    FPoly_t *mp;
+    int k;
 
-	if (CfList[i].Info->peakword > 0)
-	    continue;			/* We already have a peak word */
-	word = WgMakeWord(CfList[i].Wg,w);
-	mp = MinPol(word);
+    if (CfList[i].Info->peakword > 0)
+        continue;           /* We already have a peak word */
+    word = WgMakeWord(CfList[i].Wg,w);
+    mp = MinPol(word);
         if (MSG3)
-	{
-	    printf("Constituent %d, minpol =\n",i);
-	    FpPrint(NULL,mp);
+    {
+        printf("Constituent %d, minpol =\n",i);
+        FpPrint(NULL,mp);
         }
-	for (k = 0; k < (int) mp->NFactors; ++k)
-	{
-	    if (mp->Factor[k]->Degree * mp->Mult[k] == CfList[i].Info->spl)
-	    {
-	       Matrix_t *wp, *wp2;
-	       long nul;
+    for (k = 0; k < (int) mp->NFactors; ++k)
+    {
+        if (mp->Factor[k]->Degree * mp->Mult[k] == CfList[i].Info->spl)
+        {
+           Matrix_t *wp, *wp2;
+           long nul;
 
-	       if (MSG3)
-	       {
-		   printf("%d, ",i);
-		   PolPrint("factor",mp->Factor[k]);
-	       }
-	       if (tryp2(w,i,mp->Factor[k]) == -1)
-		   continue;
+           if (MSG3)
+           {
+           printf("%d, ",i);
+           PolPrint("factor",mp->Factor[k]);
+           }
+           if (tryp2(w,i,mp->Factor[k]) == -1)
+           continue;
 
-	       /* Check if the nullity is stable
-	          ------------------------------ */
-	       wp = MatInsert(word,mp->Factor[k]);
-	       wp2 = MatMulStrassen(MatAlloc(wp->Field, wp->Nor, wp->Noc), wp, wp);
-	       MatFree(wp);
-	       nul = MatNullity__(wp2);
-	       if (nul != CfList[i].Info->spl)
-		   continue;
-	       break;
-	    }
-	}
+           /* Check if the nullity is stable
+              ------------------------------ */
+           wp = MatInsert(word,mp->Factor[k]);
+           wp2 = MatMulStrassen(MatAlloc(wp->Field, wp->Nor, wp->Noc), wp, wp);
+           MatFree(wp);
+           nul = MatNullity__(wp2);
+           if (nul != CfList[i].Info->spl)
+           continue;
+           break;
+        }
+    }
 
-	if (k < (int) mp->NFactors)
-	{
-	    CfList[i].Info->peakword = w;
-	    CfList[i].Info->peakpol = PolDup(mp->Factor[k]);
-	    CfList[i].PWNullSpace = MatNullSpace__(MatInsert(word,mp->Factor[k]));
+    if (k < (int) mp->NFactors)
+    {
+        CfList[i].Info->peakword = w;
+        CfList[i].Info->peakpol = PolDup(mp->Factor[k]);
+        CfList[i].PWNullSpace = MatNullSpace__(MatInsert(word,mp->Factor[k]));
             PeakWordFound(i);
-	}
-	else
-	    k = -1;	/* Not found */
-	FpFree(mp);
-	MatFree(word);
-	if (k >= 0)
-	    return i;
+    }
+    else
+        k = -1; /* Not found */
+    FpFree(mp);
+    MatFree(word);
+    if (k >= 0)
+        return i;
     }
     return -1;
 }
@@ -949,11 +1008,11 @@ static void TryNext(long w)
     static int count = 0;
 
     if (isexcluded(w))
-	return;
+    return;
     if ((MSG1 && (count % 50 == 0)) || MSG2)
     {
-	printf("Word %ld\n",w);
-	fflush(stdout);
+    printf("Word %ld\n",w);
+    fflush(stdout);
     }
     if (opt_p) try_p(w); else Try_Linear(w);
 }
@@ -975,8 +1034,8 @@ int main(int argc, const char **argv)
 
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
 
 
@@ -984,16 +1043,16 @@ int main(int argc, const char **argv)
        --------------- */
     for (i = 0; PeakWordsMissing > 0 && i < ninclude; ++i)
     {
-	if (i == 0)
-	    MESSAGE(1,("Trying words from inclusion list\n"));
-	for (w = include[i][0]; w <= include[i][1]; ++w)
-	    TryNext(w);
+    if (i == 0)
+        MESSAGE(1,("Trying words from inclusion list\n"));
+    for (w = include[i][0]; w <= include[i][1]; ++w)
+        TryNext(w);
     }
     for (w = 1; PeakWordsMissing > 0; ++w)
-	TryNext(w);
+    TryNext(w);
 
 
-    WriteOutput(1);
+    if (WriteOutput(1)) return 1;
     if (App != NULL) AppFree(App);
     return 0;
 }

@@ -18,8 +18,8 @@
 
 MTX_DEFINE_FILE_INFO
 
-#define MAXPERM 50		/* Max. number of permutations */
-static Perm_t *Perm[MAXPERM];			/* Permutations */
+#define MAXPERM 50      /* Max. number of permutations */
+static Perm_t *Perm[MAXPERM];           /* Permutations */
 static long Degree;
 static int nperm;
 static int Seed;
@@ -49,33 +49,38 @@ static MtxApplication_t *App = NULL;
 
 
 /* ###################################################################### */
+// -1 on error, 0 on success
 static int ReadPermutations()
 {
     int i;
     char fn[200];
     for (i = 0; i < nperm; ++i)
     {
-	sprintf(fn,"%s.%d",permname,i+1);
-	Perm[i] = PermLoad(fn);
-	if (Perm[i] == NULL)
-	    return -1;
-	if (i > 1 && Perm[i]->Degree != Perm[0]->Degree)
-	{
-	    MTX_ERROR2("%s and %s.1 have different degrees",
-		fn,permname);
-	    return -1;
-	}
+    if (snprintf(fn,200,"%s.%d",permname,i+1)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
+    Perm[i] = PermLoad(fn);
+    if (Perm[i] == NULL)
+        return -1;
+    if (i > 1 && Perm[i]->Degree != Perm[0]->Degree)
+    {
+        MTX_ERROR2("%s and %s.1 have different degrees",
+        fn,permname);
+        return -1;
+    }
     }
     Degree = Perm[0]->Degree;
     if (Seed < 0 || Seed >= Degree)
     {
-	MTX_ERROR1("Illegal seed point, valid range is 1..%d.",Degree+1);
-	return -1;
+    MTX_ERROR1("Illegal seed point, valid range is 1..%d.",Degree+1);
+    return -1;
     }
     if (Stop < 0 || Stop >= Degree)
     {
-	MTX_ERROR1("Illegal stop point, valid range is 1..%d.",Degree+1);
-	return -1;
+    MTX_ERROR1("Illegal stop point, valid range is 1..%d.",Degree+1);
+    return -1;
     }
 
     return 0;
@@ -86,13 +91,13 @@ static int Init(int argc, const char **argv)
 {
     App = AppAlloc(&AppInfo,argc,argv);
     if (App == NULL)
-	return -1;
+    return -1;
 
     /* Command line.
        ------------- */
     nperm = AppGetIntOption(App,"-g",2,1,MAXPERM);
     if (AppGetArguments(App,4,4) < 0)
-	return -1;
+    return -1;
     permname = App->ArgV[0];
     scriptname = App->ArgV[1];
     Seed = atoi(App->ArgV[2]) - 1;
@@ -123,9 +128,9 @@ static int AllocWorkspace()
       return -1;
     for (i = 0; i < Degree; ++i)
       {
-	ptnr[i] = -1;
-	pre[i] = -1;
-	gen[i] = -1;
+    ptnr[i] = -1;
+    pre[i] = -1;
+    gen[i] = -1;
       }
     return 0;
 }
@@ -140,29 +145,29 @@ static int MakeOrbit()
     MESSAGE(1,("Finding orbit of seed point %d\n",Seed+1));
     if (Seed == Stop)
     {
-	MTX_ERROR("Stop point equals seed point");
-	return -1;
+    MTX_ERROR("Stop point equals seed point");
+    return -1;
     }
     ptnr[orblen] = Seed;
     pre[Seed] = Seed;
     while (done < orblen && orblen <= Degree-1)
     {
         pt = ptnr[++done];
-	for (i = 0; i < nperm; ++i)
-	{
-	    image = Perm[i]->Data[pt];
- 	    if (pre[image] < 0)
-	    {
-		ptnr[++orblen] = image;
-		pre[image] = pt;
-		gen[image] = i;
-	    }
-	    if (image == Stop)
-	    {
-		MESSAGE(1,("Stop point %d found\n",Stop+1));
-		return 0;
-	    }
-	}
+    for (i = 0; i < nperm; ++i)
+    {
+        image = Perm[i]->Data[pt];
+        if (pre[image] < 0)
+        {
+        ptnr[++orblen] = image;
+        pre[image] = pt;
+        gen[image] = i;
+        }
+        if (image == Stop)
+        {
+        MESSAGE(1,("Stop point %d found\n",Stop+1));
+        return 0;
+        }
+    }
     }
     MTX_ERROR1("Stop point %d not in orbit\n",Stop+1);
     return -1;
@@ -181,7 +186,7 @@ static int WriteOutput()
     pt = Stop;
     while (pre[pt] != pt)
       {
-	pt = pre[pt];
+    pt = pre[pt];
         len++;
       }
     found = NALLOC(long,len);
@@ -189,16 +194,16 @@ static int WriteOutput()
     while (pre[pt] != pt)
       {
         found[i++] = pt;
-	pt = pre[pt];
+    pt = pre[pt];
       }
     if ((f = SysFopen(scriptname,FM_CREATE)) == NULL)
-	return -1;
+    return -1;
     fprintf(f,"word:=[\n");
     for (i = len-1; i >= 0; --i)
     {
       fprintf(f,"%d",gen[found[i]]+1);
       if (i>0)
-	fprintf(f,",");
+    fprintf(f,",");
     }
     fprintf(f,"];\n");
     fclose(f);
@@ -211,26 +216,26 @@ int main(int argc, const char **argv)
 {
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return 1;
+    MTX_ERROR("Initialization failed");
+    return 1;
     }
     if (ReadPermutations() != 0)
     {
-	MTX_ERROR("Error reading input files");
-	return 1;
+    MTX_ERROR("Error reading input files");
+    return 1;
     }
     if (AllocWorkspace() != 0)
     {
-	MTX_ERROR("Error allocating workspace");
-	return 1;
+    MTX_ERROR("Error allocating workspace");
+    return 1;
     }
     if (MakeOrbit() != 0)
     {
-	MTX_ERROR("Error making orbit");
-	return 1;
+    MTX_ERROR("Error making orbit");
+    return 1;
     }
     if (WriteOutput() != 0)
-	return 1;
+    return 1;
     Cleanup();
     return (EXIT_OK);
 }

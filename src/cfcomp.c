@@ -51,18 +51,21 @@ static int Init(int argc, const char **argv)
 
     App = AppAlloc(&AppInfo,argc,argv);
     if (AppGetArguments(App,2,2000) < 0)
-	return -1;
+    return -1;
     if (Lat_ReadInfo(&InfoA,App->ArgV[0]) != 0)
-	return -1;
+    return -1;
 
     /* Read the generators for each composition factor
        ----------------------------------------------- */
     for (i = 0; i < InfoA.NCf; ++i)
     {
-	sprintf(fn,"%s%s",InfoA.BaseName,Lat_CfName(&InfoA,i));
-	MESSAGE(1,("Reading %s\n",fn));
-    	if ((CfGenA[i] = MrLoad(fn,InfoA.NGen)) == NULL)
-	    return -1;
+        if (snprintf(fn,100,"%s%s",InfoA.BaseName,Lat_CfName(&InfoA,i))>=100)
+        {
+            MTX_ERROR("Buffer overflow");
+            return -1;
+        }
+        MESSAGE(1,("Reading %s\n",fn));
+        if ((CfGenA[i] = MrLoad(fn,InfoA.NGen)) == NULL) return -1;
     }
     return 0;
 }
@@ -73,7 +76,7 @@ static void Cleanup()
 {
     int i;
     for (i = 0; i < InfoA.NCf; ++i)
-	MrFree(CfGenA[i]);
+    MrFree(CfGenA[i]);
     AppFree(App);
 }
 
@@ -108,16 +111,16 @@ static void FindEquiv(const char *name)
 
     for (i = 0; i < InfoA.NCf; ++i)
     {
-	/* The dimension must be equal. */
-	if (GenB->Gen[0]->Nor != CfGenA[i]->Gen[0]->Nor)
-	    continue;
+    /* The dimension must be equal. */
+    if (GenB->Gen[0]->Nor != CfGenA[i]->Gen[0]->Nor)
+        continue;
 
-	/* Check for equivalence. */
-	if (IsIsomorphic(CfGenA[i],InfoA.Cf + i,GenB,NULL,0))
-	{
-	    MESSAGE(0,("%s = %s%s\n",name,InfoA.BaseName,Lat_CfName(&InfoA,i)));
-	    return;
-	}
+    /* Check for equivalence. */
+    if (IsIsomorphic(CfGenA[i],InfoA.Cf + i,GenB,NULL,0))
+    {
+        MESSAGE(0,("%s = %s%s\n",name,InfoA.BaseName,Lat_CfName(&InfoA,i)));
+        return;
+    }
     }
     MESSAGE(0,("%s not found in %s\n",name,InfoA.BaseName));
 }
@@ -146,11 +149,11 @@ int main(int argc, const char *argv[])
 
     if (Init(argc,argv) != 0)
     {
-	MTX_ERROR("Initialization failed");
-	return -1;
+    MTX_ERROR("Initialization failed");
+    return -1;
     }
     for (i = 1; i < App->ArgC; ++i)
-	Compare(App->ArgV[i]);
+    Compare(App->ArgV[i]);
     Cleanup();
     return 0;
 }

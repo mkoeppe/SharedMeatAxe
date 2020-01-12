@@ -315,6 +315,7 @@ static BYTE pack(BYTE a[8])
 /* -----------------------------------------------------------------
    writeheader() - Set info[], open table file, select polynomial,
     and initialize tables.
+    Return 1 on error, 0 on success
    ----------------------------------------------------------------- */
 
 static int writeheader()
@@ -325,9 +326,9 @@ static int writeheader()
     fd = SysFopen(filename,FM_CREATE|FM_LIB);
     if (fd == NULL)
     {
-    perror(filename);
-    MTX_ERROR("Cannot open table file");
-    return 1;
+        perror(filename);
+        MTX_ERROR("Cannot open table file");
+        return 1;
     }
     for (CPM=1,maxmem=Q; (long)maxmem * Q <= 256L; ++CPM, maxmem *= Q);
     for (i = 0; irrednrs[i] != (int) Q && irrednrs[i] != 0; ++i);

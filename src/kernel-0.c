@@ -287,7 +287,7 @@ int FfCurrentRowSizeIo = -1;
 
 
 /* -----------------------------------------------------------------
-   OpenTableFile()
+   OpenTableFile(), Return NULL on error
    ------------------------------------------------------------------ */
 
 static FILE *OpenTableFile(int fl)

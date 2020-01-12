@@ -69,7 +69,7 @@ static int ParseArgs()
     return 0;
 }
 
-
+// -1 on error, 0 on success
 static int ReadFiles()
 
 {
@@ -81,7 +81,11 @@ static int ReadFiles()
        ----------------------------------------------------- */
     if (Lat_ReadInfo(&ModInfo,ModName) != 0)
         return -1;
-    sprintf(fn,"%s.lrr",EndoName);
+    if (snprintf(fn,200,"%s.lrr",EndoName)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
     if (Lat_ReadInfo(&LrrInfo,fn) != 0)
         return -1;
     moddim = 0;
@@ -104,10 +108,13 @@ static int ReadFiles()
 
     /* Read the basis of the head.
        --------------------------- */
-    sprintf(fn,"%s.lrr.soc",EndoName);
+    if (snprintf(fn,200,"%s.lrr.soc",EndoName)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return -1;
+    }
     MESSAGE(1,("Loading socle basis\n"));
-    if ((tmp = MatLoad(fn)) == NULL)
-    return -1;
+    if ((tmp = MatLoad(fn)) == NULL) return -1;
     tmp2 = MatInverse(tmp);
     MatFree(tmp);
     tmp = MatTransposed(tmp2);
@@ -142,7 +149,7 @@ static void Cleanup()
 
 
 
-
+// 1 on error, 0 on success
 static int WriteOutput(Matrix_t *bas)
 
 {
@@ -152,7 +159,11 @@ static int WriteOutput(Matrix_t *bas)
 
     /* Write the decomposition basis.
        ------------------------------ */
-    sprintf(name,"%s.dec", ModName);
+    if (snprintf(name,200,"%s.dec", ModName)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
     MESSAGE(1,("Writing the decomposition basis (%s)\n",name));
     MatSave(bas,name);
 
@@ -161,7 +172,11 @@ static int WriteOutput(Matrix_t *bas)
     if (TransformGenerators || WriteAction)
     {
     MESSAGE(1,("Transforming the generators\n"));
-    sprintf(name,"%s.std",ModName);
+    if (snprintf(name,200,"%s.std",ModName)>=200)
+    {
+        MTX_ERROR("Buffer overflow");
+        return 1;
+    }
     rep = MrLoad(name,ModInfo.NGen);
     if (rep == NULL)
     {
@@ -175,7 +190,11 @@ static int WriteOutput(Matrix_t *bas)
     }
     if (TransformGenerators)
     {
-        sprintf(name,"%s.dec",ModName);
+        if (snprintf(name,200,"%s.dec",ModName)>=200)
+        {
+            MTX_ERROR("Buffer overflow");
+            return 1;
+        }
         MESSAGE(1,("Writing transformed generators (%s.1, ...)\n",name));
         MrSave(rep,name);
     }
@@ -197,10 +216,19 @@ static int WriteOutput(Matrix_t *bas)
         {
             Matrix_t *tmp = MatCut(rep->Gen[i],block_start,block_start,
             compdim[k],compdim[k]);
+            if (!tmp) return 1;
             block_start += compdim[k];
-            sprintf(name, "%s.comp%d%c%d.%d", ModName,compdim[k],
-            compnm[k],l+1,i+1);
-            MatSave(tmp, name);
+            if (snprintf(name, 200, "%s.comp%d%c%d.%d", ModName,compdim[k], compnm[k],l+1,i+1)>=200)
+            {
+                MatFree(tmp);
+                MTX_ERROR("Buffer overflow");
+                return 1;
+            }
+            if (MatSave(tmp, name))
+            {
+                MatFree(tmp);
+                return 1;
+            }
             MatFree(tmp);
         }
         }
@@ -261,7 +289,7 @@ int main(int argc, const char **argv)
         {
             if ((f = FfExtract(headptr, l)) == FF_ZERO)
                 continue;
-            sprintf(name, "%s.%d", EndoName, l+1);
+            if (snprintf(name, 200, "%s.%d", EndoName, l+1)>=200) return 1;
             if ((mat = MatLoad(name)) == NULL)
             return 1;
             MatAddMul(partbas,mat,f);
